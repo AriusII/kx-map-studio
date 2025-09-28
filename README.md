@@ -28,7 +28,7 @@ Tired of manually editing complex XML files for your Guild Wars 2 routes? KX Map
 
 *   **Route Creators:** Build custom paths, achievement guides, or event routes from scratch with ease.
 *   **Route Customizers:** Easily tweak existing marker files from your favorite content creators.
-*   **KX Trainer Users:** Create and fine-tune your own marker files for seamless integration with **[KX Trainer's](https://kxtools.xyz/)** teleport features.
+*   **KX Trainer Pro Users:** Create and fine-tune your own marker files for seamless integration with **[KX Trainer Pro's](https://kxtools.xyz/)** advanced navigation system.
 
 > ✅ **100% ToS Compliance:** KX Map Studio uses only the official Guild Wars 2 Mumble Link API to access in-game data. It does **not** perform memory reading or DLL injection.
 
