@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Platforms>x64</Platforms>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2"/>
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2"/>
+		<PackageReference Include="Gw2Sharp" Version="1.7.4"/>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Compile Update="Types\Structs\GuildWarsConstant.cs">
+			<DependentUpon>Constants.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Types\Structs\SettingsConstant.cs">
+			<DependentUpon>Constants.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Folder Include="Models\Json\Kx\v2\"/>
+	</ItemGroup>
+
+</Project>
