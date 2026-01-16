@@ -1,10 +1,11 @@
 ﻿namespace KXMapStudio.Core.Types.Enums;
 
-public enum GridSourceKind : byte
+public enum DataType : byte
 {
 	Unknown,
 	Xml,
 	TacoArchive,
-	KxJson,
+	KxV1Json,
+	KxV2Json,
 	GuildWarsJson
 }

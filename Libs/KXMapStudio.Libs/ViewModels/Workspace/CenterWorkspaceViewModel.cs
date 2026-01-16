@@ -1,4 +1,6 @@
-﻿namespace KXMapStudio.Libs.ViewModels.Workspace;
+﻿using KXMapStudio.Core.Services;
+
+namespace KXMapStudio.Libs.ViewModels.Workspace;
 
 public sealed partial class CenterWorkspaceViewModel : ObservableObject
 {
@@ -25,7 +27,7 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject
 
 	private async Task LoadFromPathAsync(string path, CancellationToken cancellationToken = default)
 	{
-		await _loadCts?.CancelAsync();
+		_loadCts?.Cancel();
 		_loadCts = new CancellationTokenSource();
 
 		try
@@ -56,10 +58,10 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject
 
 	private static IGridDataService CreateDefaultGridDataService()
 	{
-		var fileTypeDetector = new FileTypeDetectorService();
 		var xmlRepo = new XmlDataRepository();
 		var jsonRepo = new JsonDataRepository();
-		var archiveRepo = new ArchiveRepository();
+		var archiveRepo = new ArchiveDataRepository();
+		var fileTypeDetector = new FileTypeDetectorService(jsonRepo, xmlRepo, archiveRepo);
 		var kxService = new JsonService(jsonRepo);
 
 		return new GridDataService(fileTypeDetector, xmlRepo, jsonRepo, archiveRepo, kxService);

@@ -1,9 +1,9 @@
-﻿namespace KXMapStudio.Core.Models.Xml.Taco;
+﻿namespace KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 /// <summary>
 ///     DTO for the POI element.
 /// </summary>
-public class TacoPoiDto
+public sealed class TacoPoiDto
 {
 	[XmlAttribute("GUID")] public string? Guid { get; set; }
 

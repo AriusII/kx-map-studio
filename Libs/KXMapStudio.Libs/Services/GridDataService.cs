@@ -6,6 +6,7 @@ using KXMapStudio.Core.Mappers;
 using KXMapStudio.Core.Models.Json.Continents;
 using KXMapStudio.Core.Models.Json.Maps;
 using KXMapStudio.Core.Models.Xml.Taco;
+using KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 namespace KXMapStudio.Libs.Services;
 
@@ -13,7 +14,7 @@ public sealed class GridDataService(
 	IFileTypeDetectorService fileTypeDetectorService,
 	IXmlDataRepository xmlDataRepository,
 	IJsonDataRepository jsonDataRepository,
-	IArchiveRepository archiveRepository,
+	IArchiveDataRepository archiveDataRepository,
 	IJsonService jsonService)
 	: IGridDataService
 {
@@ -24,10 +25,10 @@ public sealed class GridDataService(
 
 		return kind switch
 		{
-			GridSourceKind.Xml => await LoadFromXmlFileAsync(path, cancellationToken),
-			GridSourceKind.TacoArchive => await LoadFromTacoArchiveAsync(path, cancellationToken),
-			GridSourceKind.KxJson => await LoadFromKxJsonAsync(path, cancellationToken),
-			GridSourceKind.GuildWarsJson => await LoadFromGuildWarsJsonAsync(path, cancellationToken),
+			DataType.Xml => await LoadFromXmlFileAsync(path, cancellationToken),
+			DataType.TacoArchive => await LoadFromTacoArchiveAsync(path, cancellationToken),
+			DataType.KxV1Json => await LoadFromKxJsonAsync(path, cancellationToken),
+			DataType.GuildWarsJson => await LoadFromGuildWarsJsonAsync(path, cancellationToken),
 			_ => []
 		};
 	}
@@ -43,15 +44,15 @@ public sealed class GridDataService(
 		CancellationToken cancellationToken)
 	{
 		var bytes = await File.ReadAllBytesAsync(path, cancellationToken);
-		var entries = await archiveRepository.ListContentsAsync(bytes, cancellationToken);
+		var entries = await archiveDataRepository.ListContentsAsync(bytes, cancellationToken);
 
 		var allRows = new List<GridRowDto>();
 		foreach (var entry in entries.Where(e => e.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)))
 		{
-			await using var stream = await archiveRepository.GetEntryStreamAsync(bytes, entry, cancellationToken);
+			await using var stream = await archiveDataRepository.GetEntryStreamAsync(bytes, entry, cancellationToken);
 			if (stream is null) continue;
 
-			var doc = await xmlDataRepository.LoadAsync(stream, cancellationToken);
+			var doc = await xmlDataRepository.LoadFromArchiveAsync(stream, cancellationToken);
 			var pack = DeserializeTacoPack(doc);
 			allRows.AddRange(MapTacoPois(pack.Pois));
 		}
@@ -94,7 +95,7 @@ public sealed class GridDataService(
 		return floor is null ? [] : MapGw2ContinentFloor(floor);
 	}
 
-	private static TacoMarkerPack DeserializeTacoPack(XDocument doc)
+	private static TacoMarkerPackModel DeserializeTacoPack(XDocument doc)
 	{
 		var serializer = new XmlSerializer(typeof(TacoOverlayDataDto));
 		using var reader = doc.CreateReader();
@@ -102,7 +103,7 @@ public sealed class GridDataService(
 		return TacoMapper.MapToDomain(dto);
 	}
 
-	private static IReadOnlyList<GridRowDto> MapTacoPois(IEnumerable<TacoPoi> pois)
+	private static IReadOnlyList<GridRowDto> MapTacoPois(IEnumerable<TacoPoiModel> pois)
 	{
 		var rows = new List<GridRowDto>();
 		var id = 1;

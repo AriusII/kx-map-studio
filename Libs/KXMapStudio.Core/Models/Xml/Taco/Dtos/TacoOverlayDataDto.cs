@@ -1,10 +1,10 @@
-﻿namespace KXMapStudio.Core.Models.Xml.Taco;
+﻿namespace KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 /// <summary>
 ///     DTO for the root OverlayData element.
 /// </summary>
 [XmlRoot("OverlayData")]
-public class TacoOverlayDataDto
+public sealed class TacoOverlayDataDto
 {
 	[XmlElement("MarkerCategory")] public List<TacoMarkerCategoryDto> Categories { get; set; } = new();
 

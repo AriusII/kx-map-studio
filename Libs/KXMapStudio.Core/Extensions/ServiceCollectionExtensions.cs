@@ -25,8 +25,10 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddServices()
 		{
 			return services
+				.AddSingleton<IFileTypeDetectorService, FileTypeDetectorService>()
 				.AddScoped<IJsonService, JsonService>()
-				.AddScoped<ITacoService, TacoService>();
+				.AddScoped<IXmlService, XmlService>()
+				.AddScoped<IArchiveService, ArchiveService>();
 		}
 
 		private IServiceCollection AddRepositories()
@@ -34,7 +36,7 @@ public static class ServiceCollectionExtensions
 			return services
 				.AddScoped<IJsonDataRepository, JsonDataRepository>()
 				.AddScoped<IXmlDataRepository, XmlDataRepository>()
-				.AddScoped<IArchiveRepository, ArchiveRepository>();
+				.AddScoped<IArchiveDataRepository, ArchiveDataRepository>();
 		}
 	}
 }

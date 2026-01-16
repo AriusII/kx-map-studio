@@ -6,6 +6,9 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
+		<Platforms>x64</Platforms>
+		<Version>0.4.0</Version>
+		<ApplicationIcon>KXMapStudio.ico</ApplicationIcon>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -19,17 +22,18 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Content Update="appsettings.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-	
-	<ItemGroup>
 		<Page Update="Views\Windows\WorkspaceWindow.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<XamlRuntime>Wpf</XamlRuntime>
 			<SubType>Designer</SubType>
 		</Page>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Remove="appsettings.json" />
+	  <Content Include="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>

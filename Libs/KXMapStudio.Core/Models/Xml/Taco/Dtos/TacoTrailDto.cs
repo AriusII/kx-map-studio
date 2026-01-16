@@ -1,9 +1,9 @@
-﻿namespace KXMapStudio.Core.Models.Xml.Taco;
+﻿namespace KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 /// <summary>
 ///     DTO for the Trail element.
 /// </summary>
-public class TacoTrailDto
+public sealed class TacoTrailDto
 {
 	[XmlAttribute("GUID")] public string? Guid { get; set; }
 

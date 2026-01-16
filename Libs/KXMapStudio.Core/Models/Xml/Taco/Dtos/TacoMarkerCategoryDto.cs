@@ -1,9 +1,9 @@
-﻿namespace KXMapStudio.Core.Models.Xml.Taco;
+﻿namespace KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 /// <summary>
 ///     DTO for the MarkerCategory element.
 /// </summary>
-public class TacoMarkerCategoryDto
+public sealed class TacoMarkerCategoryDto
 {
 	[XmlAttribute("name")] public string Name { get; set; } = string.Empty;
 
@@ -39,5 +39,5 @@ public class TacoMarkerCategoryDto
 
 	[XmlAttribute("mapVisibility")] public string? MapVisibility { get; set; }
 
-	[XmlElement("MarkerCategory")] public List<TacoMarkerCategoryDto> SubCategories { get; set; } = new();
+	[XmlElement("MarkerCategory")] public List<TacoMarkerCategoryDto> SubCategories { get; set; } = [];
 }

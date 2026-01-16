@@ -3,11 +3,11 @@
 /// <summary>
 ///     Represents a category of markers in a TacO marker pack.
 /// </summary>
-public sealed record TacoMarkerCategory(
+public sealed record TacoMarkerCategoryModel(
 	string Name,
 	string? DisplayName,
 	bool IsSeparator,
-	List<TacoMarkerCategory> SubCategories)
+	List<TacoMarkerCategoryModel> SubCategories)
 {
 	public string? TipName { get; init; }
 	public string? TipDescription { get; init; }

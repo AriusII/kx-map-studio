@@ -3,7 +3,7 @@
 /// <summary>
 ///     Represents a Trail in a TacO marker pack.
 /// </summary>
-public sealed record TacoTrail(
+public sealed record TacoTrailModel(
 	string Guid,
 	string Type,
 	string TrailData,

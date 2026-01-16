@@ -1,6 +1,6 @@
 ﻿namespace KXMapStudio.Core.Abstractions.Repositories;
 
-public interface IArchiveRepository
+public interface IArchiveDataRepository
 {
 	Task<IEnumerable<string>> ListContentsAsync(byte[] archiveData, CancellationToken cancellationToken = default);
 

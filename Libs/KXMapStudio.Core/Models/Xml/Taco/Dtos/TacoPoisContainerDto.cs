@@ -1,9 +1,9 @@
-﻿namespace KXMapStudio.Core.Models.Xml.Taco;
+﻿namespace KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 /// <summary>
 ///     DTO for the POIs container element.
 /// </summary>
-public class TacoPoisContainerDto
+public sealed class TacoPoisContainerDto
 {
 	[XmlElement("POI")] public List<TacoPoiDto> Pois { get; set; } = new();
 

@@ -1,4 +1,7 @@
-﻿namespace KXMapStudio.Libs.Extensions;
+﻿using KXMapStudio.Core.Abstractions.Services;
+using KXMapStudio.Core.Services;
+
+namespace KXMapStudio.Libs.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -13,7 +16,6 @@ public static class ServiceCollectionExtensions
 		{
 			return services
 				.AddSingleton<IWorkspaceExplorerService, WorkspaceExplorerService>()
-				.AddSingleton<IFileTypeDetectorService, FileTypeDetectorService>()
 				.AddSingleton<IGridDataService, GridDataService>();
 		}
 	}

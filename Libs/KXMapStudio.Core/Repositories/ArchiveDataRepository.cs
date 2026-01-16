@@ -1,6 +1,6 @@
 ﻿namespace KXMapStudio.Core.Repositories;
 
-public sealed record ArchiveRepository : IArchiveRepository
+public sealed record ArchiveDataRepository : IArchiveDataRepository
 {
 	public async Task<IEnumerable<string>> ListContentsAsync(byte[] archiveData,
 		CancellationToken cancellationToken = default)

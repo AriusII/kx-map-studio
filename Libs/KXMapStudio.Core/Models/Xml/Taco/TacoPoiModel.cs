@@ -3,7 +3,7 @@
 /// <summary>
 ///     Represents a Point of Interest (POI) or Marker in a TacO marker pack.
 /// </summary>
-public sealed record TacoPoi(
+public sealed record TacoPoiModel(
 	string Guid,
 	int MapId,
 	float X,

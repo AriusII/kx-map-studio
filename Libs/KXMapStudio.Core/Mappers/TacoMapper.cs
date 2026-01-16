@@ -1,36 +1,114 @@
-﻿namespace KXMapStudio.Core.Mappers;
+﻿using KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
-/// <summary>
-///     Maps TacO XML DTOs to domain models.
-/// </summary>
+namespace KXMapStudio.Core.Mappers;
+
 public static class TacoMapper
 {
-	public static TacoMarkerPack MapToDomain(TacoOverlayDataDto dto)
+	public static TacoMarkerPackModel MapToDomain(TacoOverlayDataDto dto)
 	{
 		var categories = dto.Categories.Select(MapCategory).ToList();
 
 		var pois = dto.PoisContainer?.Pois
 			.Select(MapPoi)
 			.Where(p => p != null)
-			.Cast<TacoPoi>()
+			.Cast<TacoPoiModel>()
 			.ToList() ?? [];
 
 		var trails = dto.PoisContainer?.Trails
 			.Select(MapTrail)
 			.Where(t => t != null)
-			.Cast<TacoTrail>()
+			.Cast<TacoTrailModel>()
 			.ToList() ?? [];
 
-		return new TacoMarkerPack(categories, pois, trails);
+		return new TacoMarkerPackModel(categories, pois, trails);
 	}
 
-	private static TacoMarkerCategory MapCategory(TacoMarkerCategoryDto dto)
+	public static TacoOverlayDataDto MapToDto(TacoMarkerPackModel model)
+	{
+		var dto = new TacoOverlayDataDto
+		{
+			Categories = model.Categories.Select(MapCategoryDto).ToList(),
+			PoisContainer = new TacoPoisContainerDto
+			{
+				Pois = model.Pois.Select(MapPoiDto).ToList(),
+				Trails = model.Trails.Select(MapTrailDto).ToList()
+			}
+		};
+
+		return dto;
+	}
+
+	private static TacoMarkerCategoryDto MapCategoryDto(TacoMarkerCategoryModel model)
+	{
+		return new TacoMarkerCategoryDto
+		{
+			Name = model.Name,
+			DisplayName = model.DisplayName,
+			IsSeparator = model.IsSeparator ? "1" : "0",
+			TipName = model.TipName,
+			TipDescription = model.TipDescription,
+			IconFile = model.IconFile,
+			IconSize = FormatFloat(model.IconSize),
+			FadeNear = FormatFloat(model.FadeNear),
+			FadeFar = FormatFloat(model.FadeFar),
+			HeightOffset = FormatFloat(model.HeightOffset),
+			Behavior = FormatInt(model.Behavior),
+			MinSize = FormatFloat(model.MinSize),
+			AchievementId = FormatInt(model.AchievementId),
+			AchievementBit = FormatInt(model.AchievementBit),
+			MapDisplaySize = FormatInt(model.MapDisplaySize),
+			MiniMapVisibility = FormatInt(model.MiniMapVisibility),
+			MapVisibility = FormatInt(model.MapVisibility),
+			SubCategories = model.SubCategories.Select(MapCategoryDto).ToList()
+		};
+	}
+
+	private static TacoPoiDto MapPoiDto(TacoPoiModel model)
+	{
+		return new TacoPoiDto
+		{
+			Guid = model.Guid,
+			MapId = model.MapId.ToString(CultureInfo.InvariantCulture),
+			XPos = model.X.ToString(CultureInfo.InvariantCulture),
+			YPos = model.Y.ToString(CultureInfo.InvariantCulture),
+			ZPos = model.Z.ToString(CultureInfo.InvariantCulture),
+			Type = model.Type,
+			IconFile = model.IconFile,
+			IconSize = FormatFloat(model.IconSize)
+		};
+	}
+
+	private static TacoTrailDto MapTrailDto(TacoTrailModel model)
+	{
+		return new TacoTrailDto
+		{
+			Guid = model.Guid,
+			Type = model.Type,
+			TrailData = model.TrailData,
+			Texture = model.Texture,
+			AnimSpeed = FormatFloat(model.AnimSpeed),
+			FadeNear = FormatFloat(model.FadeNear),
+			FadeFar = FormatFloat(model.FadeFar)
+		};
+	}
+
+	private static string? FormatFloat(float? value)
+	{
+		return value?.ToString(CultureInfo.InvariantCulture);
+	}
+
+	private static string? FormatInt(int? value)
+	{
+		return value?.ToString(CultureInfo.InvariantCulture);
+	}
+
+	private static TacoMarkerCategoryModel MapCategory(TacoMarkerCategoryDto dto)
 	{
 		var subCategories = dto.SubCategories
 			.Select(MapCategory)
 			.ToList();
 
-		return new TacoMarkerCategory(
+		return new TacoMarkerCategoryModel(
 			dto.Name,
 			dto.DisplayName,
 			dto.IsSeparator == "1",
@@ -53,7 +131,7 @@ public static class TacoMapper
 		};
 	}
 
-	private static TacoPoi? MapPoi(TacoPoiDto dto)
+	private static TacoPoiModel? MapPoi(TacoPoiDto dto)
 	{
 		if (string.IsNullOrEmpty(dto.Type) ||
 		    !int.TryParse(dto.MapId, out var mapId) ||
@@ -62,7 +140,7 @@ public static class TacoMapper
 		    !ParseFloat(dto.ZPos, out var z))
 			return null;
 
-		return new TacoPoi(
+		return new TacoPoiModel(
 			dto.Guid ?? string.Empty,
 			mapId,
 			x,
@@ -75,12 +153,12 @@ public static class TacoMapper
 		};
 	}
 
-	private static TacoTrail? MapTrail(TacoTrailDto dto)
+	private static TacoTrailModel? MapTrail(TacoTrailDto dto)
 	{
 		if (string.IsNullOrEmpty(dto.Type) || string.IsNullOrEmpty(dto.TrailData) ||
 		    string.IsNullOrEmpty(dto.Texture)) return null;
 
-		return new TacoTrail(
+		return new TacoTrailModel(
 			dto.Guid ?? string.Empty,
 			dto.Type,
 			dto.TrailData,

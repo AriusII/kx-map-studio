@@ -9,239 +9,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="479454fd-9b13-4cb5-af8d-fa9a593d817f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.KXMapStudio/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/KXMapStudio.slnx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Http/IGithubHttpClient.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Http/IGuildWarsHttpClient.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IArchiveRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IJsonDataRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IXmlDataRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IJsonService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/ITacoService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IXmlService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Extensions/ServiceCollectionExtensions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/GlobalUsings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Host/Initialization.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/KXMapStudio.Core.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Mappers/TacoMapper.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/GitHubRelease.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Grid/GridRowDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/AdventureModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/ContinentFloorModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/MapInfoModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/MasteryPointModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/PointOfInterestModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/RegionModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/SectorModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/SkillChallengeModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Continents/TaskInfoModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Kx/v1/CoordinatesModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Kx/v1/KxModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Json/Maps/MapModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Point2D.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategory.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategoryDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerPack.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoOverlayDataDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoi.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoiDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoisContainerDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrail.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrailDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/ArchiveRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/JsonDataRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/XmlDataRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Http/GithubHttpClient.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Http/GuildWarsHttpClient.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/JsonService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/TacoService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/XmlService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Enums/GridSourceKind.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Structs/Constants.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Structs/FileExtension.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Structs/GuildWarsConstant.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Structs/SettingsConstant.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IFileTypeDetectorService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IGridDataService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IWorkspaceExplorerService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Extensions/ServiceCollectionExtensions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/GlobalUsings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/KXMapStudio.Libs.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/FileSelectedMessageModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/WorkspaceExplorerNodeModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/FileTypeDetectorService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/GridDataService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/WorkspaceExplorerService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Themes/GlobalTheme.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/CenterWorkspaceViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/LeftWorkspaceViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/MainMenuViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/RightWorkspaceViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/WorkspaceWindowViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/FilePreviewUserControl.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/FilePreviewUserControl.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/GridEditorUserControl.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/GridEditorUserControl.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/GridViewUserControl.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/GridViewUserControl.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/MainMenuUserControl.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/MainMenuUserControl.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/RightPanelUserControl.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/RightPanelUserControl.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/WorkspaceExplorerUserControl.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/WorkspaceExplorerUserControl.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Actions/ActionType.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Actions/AddMarkerAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Actions/DeleteMarkersAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Actions/ReorderMarkersAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/AllMapRects.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/AllWaypoints.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/App.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/App.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/AssemblyInfo.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Behaviors/DataGridSelectedItemsBehavior.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Converters/BooleanToVisibilityInverterConverter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Converters/MapIdToNameConverter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/KXMapStudio.App.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/KXMapStudio.ico" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Models/GitHubRelease.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/CoordinateConverterService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/DirtyStateTracker.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/GlobalHotkeyService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/HistoryService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/HotkeyConfig.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/IAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/IDialogService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/IDirtyStateTracker.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/IFeedbackService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/IMarkerCrudService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/ISavePromptService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/MapDataService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/MarkerCrudService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/MumbleService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/ArchivePackLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/CategoryBuilder.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/DirectoryPackLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/IPackLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/MarkerXmlParser.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/PackLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/PackLoaderFactory.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/Pack/SingleFilePackLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/PackService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/PackWriterService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/SavePromptService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/SnackbarFeedbackService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/UpdateService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/WaypointFinderService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Services/WpfDialogService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/State/IPackStateService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/State/PackStateService.Workspace.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/State/PackStateService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/State/WorkspaceManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Utilities/Constants.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/ViewModels/MainViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/ViewModels/PropertyEditor/PropertyEditorViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/LiveDataView.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/LiveDataView.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/MainMenuView.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/MainMenuView.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/MainView.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/MainView.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/PropertyEditorView.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/PropertyEditorView.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/SidePanelView.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/SidePanelView.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/StatusBarView.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/Views/StatusBarView.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.App/hotkeys.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/App.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/App.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/AssemblyInfo.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/GlobalUsings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/KXMapStudio.Application.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/KXMapStudio.ico" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/Views/Windows/WorkspaceWindow.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/Views/Windows/WorkspaceWindow.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/appsettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.editorconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Actions/ActionType.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Actions/AddMarkerAction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Actions/DeleteMarkersAction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Actions/ReorderMarkersAction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/AllMapRects.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/AllWaypoints.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/App.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/App.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/AssemblyInfo.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Behaviors/DataGridSelectedItemsBehavior.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Converters/BooleanToVisibilityInverterConverter.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Converters/MapIdToNameConverter.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/KXMapStudio.App.csproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/KXMapStudio.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Models/GitHubRelease.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/CoordinateConverterService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/DirtyStateTracker.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/GlobalHotkeyService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/HistoryService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/HotkeyConfig.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/IAction.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/IDialogService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/IDirtyStateTracker.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/IFeedbackService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/IMarkerCrudService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/ISavePromptService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/MapDataService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/MarkerCrudService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/MumbleService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/ArchivePackLoader.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/CategoryBuilder.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/DirectoryPackLoader.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/IPackLoader.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/MarkerXmlParser.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/PackLoader.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/PackLoaderFactory.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/Pack/SingleFilePackLoader.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/PackService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/PackWriterService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/SavePromptService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/SnackbarFeedbackService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/UpdateService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/WaypointFinderService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Services/WpfDialogService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/State/IPackStateService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/State/PackStateService.Workspace.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/State/PackStateService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/State/WorkspaceManager.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Utilities/Constants.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/ViewModels/MainViewModel.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/ViewModels/PropertyEditor/PropertyEditorViewModel.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/LiveDataView.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/LiveDataView.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/MainMenuView.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/MainMenuView.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/MainView.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/MainView.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/PropertyEditorView.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/PropertyEditorView.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/SidePanelView.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/SidePanelView.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/StatusBarView.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/StatusBarView.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/WelcomeScreenView.xaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/Views/WelcomeScreenView.xaml.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.App/hotkeys.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/Category.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/KXMapStudio.Core.csproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/LoadedMarkerPack.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/Marker.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/PackLoadError.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/PackLoadResult.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/Point2D.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/TacoXmlConstants.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/Utilities/XmlUtils.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.Core/Waypoint.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KXMapStudio.sln" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_gw2_data.ps1" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/IOptions/HotkeysOption.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/IOptions/SettingsOption.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.KXMapStudio/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.KXMapStudio/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Http/IGithubHttpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Http/IGithubHttpClient.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IArchiveRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IArchiveDataRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IXmlDataRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IXmlDataRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IJsonService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IJsonService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/ITacoService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IArchiveService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IXmlService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IXmlService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Extensions/ServiceCollectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Extensions/ServiceCollectionExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Mappers/TacoMapper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Mappers/TacoMapper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategoryModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategoryDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoMarkerCategoryDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerPack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerPackModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoOverlayDataDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoOverlayDataDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoi.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoiModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoiDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoPoiDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoisContainerDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoPoisContainerDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrail.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrailModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrailDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoTrailDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/ArchiveRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/ArchiveDataRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/XmlDataRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/XmlDataRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Http/GithubHttpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Http/GithubHttpClient.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/JsonService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/JsonService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/TacoService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/ArchiveService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/XmlService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/XmlService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Enums/GridSourceKind.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Enums/DataType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IFileTypeDetectorService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IFileTypeDetectorService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Extensions/ServiceCollectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Extensions/ServiceCollectionExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/FileTypeDetectorService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/FileTypeDetectorService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/GridDataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/GridDataService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/CenterWorkspaceViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/CenterWorkspaceViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/MainMenuUserControl.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/MainMenuUserControl.xaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/App.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/App.xaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/KXMapStudio.Application.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/KXMapStudio.Application.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/Views/Windows/WorkspaceWindow.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/Views/Windows/WorkspaceWindow.xaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -252,10 +56,15 @@
     <option name="firstShow" value="false" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="32" />
+    <option name="cachedIndexableFilesCount" value="37" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -272,9 +81,9 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2d6f8f3aaff4f533b7d96fefd3dc22bd9e1479f9b88d504d2da457f08cb4c2/XamlReader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bd1d5c50194fea68ff3559c160230b0ab50f5acf4ce3061bffd6d62958e2182/ExceptionDispatchInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Grid/GridRowDto.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/XmlService.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Enums/GridSourceKind.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Structs/FileExtension.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IGridDataService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IWorkspaceExplorerService.cs" root0="FORCE_HIGHLIGHTING" />
@@ -301,25 +110,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Project.KXMapStudio.Application.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;junie.application.models&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Project.KXMapStudio.Application.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "refacto/2026",
+    "junie.onboarding.icon.badge.shown": "true",
+    "settings.editor.selected.configurable": "junie.application.models",
+    "to.speed.mode.migration.done": "true"
   }
-}</component>
+}]]></component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1769871610040" />
-    <option name="spentUsd" value="0.0374375" />
+    <option name="spentUsd" value="0.07928799" />
   </component>
   <component name="RecapUselessUpdatesCounter">
-    <option name="suspendCountdown" value="7" />
+    <option name="suspendCountdown" value="5" />
   </component>
   <component name="RunManager" selected=".NET Project.KXMapStudio.Application">
     <configuration name="KXMapStudio.App" type="DotNetProject" factoryName=".NET Project">
@@ -373,6 +183,15 @@
       <option name="presentableId" value="Default" />
       <updated>1763579018424</updated>
     </task>
+    <task id="LOCAL-00001" summary="This pull request represents substantial refactoring work.&#10;The primary goal is to clean up the codebase, restructure it meaningfully, and lay down a solid foundation for the future.&#10;Major changes include:&#10;- Reorganizing the project structure: introducing new folders such as `Libs` and `Srcs` to better separate concerns like core logic and application-specific implementations.&#10;- Transitioning from legacy resources and removing outdated code: numerous classes, services, and configurations have been replaced or cleaned up.&#10;- Introducing a clearer modular architecture: defining interfaces, abstractions, and repositories in the `Core` layer.&#10;- Replacing or refactoring existing WPF views and their corresponding view models to align with the updated architecture.&#10;- Improving maintainability by eliminating hardcoded values and replacing them with constants or configuration files.&#10;- Adding new services and models to support improved functionality and scalability (e.g., JSON handling and HTTP client abstractions).&#10;This work aims to ensure the project is built on a cleaner, more sustainable base that facilitates further development and better future maintainability.">
+      <option name="closed" value="true" />
+      <created>1768568821155</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1768568821156</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
@@ -390,6 +209,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="This pull request represents substantial refactoring work.&#10;The primary goal is to clean up the codebase, restructure it meaningfully, and lay down a solid foundation for the future.&#10;Major changes include:&#10;- Reorganizing the project structure: introducing new folders such as `Libs` and `Srcs` to better separate concerns like core logic and application-specific implementations.&#10;- Transitioning from legacy resources and removing outdated code: numerous classes, services, and configurations have been replaced or cleaned up.&#10;- Introducing a clearer modular architecture: defining interfaces, abstractions, and repositories in the `Core` layer.&#10;- Replacing or refactoring existing WPF views and their corresponding view models to align with the updated architecture.&#10;- Improving maintainability by eliminating hardcoded values and replacing them with constants or configuration files.&#10;- Adding new services and models to support improved functionality and scalability (e.g., JSON handling and HTTP client abstractions).&#10;This work aims to ensure the project is built on a cleaner, more sustainable base that facilitates further development and better future maintainability." />
+    <option name="LAST_COMMIT_MESSAGE" value="This pull request represents substantial refactoring work.&#10;The primary goal is to clean up the codebase, restructure it meaningfully, and lay down a solid foundation for the future.&#10;Major changes include:&#10;- Reorganizing the project structure: introducing new folders such as `Libs` and `Srcs` to better separate concerns like core logic and application-specific implementations.&#10;- Transitioning from legacy resources and removing outdated code: numerous classes, services, and configurations have been replaced or cleaned up.&#10;- Introducing a clearer modular architecture: defining interfaces, abstractions, and repositories in the `Core` layer.&#10;- Replacing or refactoring existing WPF views and their corresponding view models to align with the updated architecture.&#10;- Improving maintainability by eliminating hardcoded values and replacing them with constants or configuration files.&#10;- Adding new services and models to support improved functionality and scalability (e.g., JSON handling and HTTP client abstractions).&#10;This work aims to ensure the project is built on a cleaner, more sustainable base that facilitates further development and better future maintainability." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

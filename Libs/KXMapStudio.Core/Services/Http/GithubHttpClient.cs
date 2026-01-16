@@ -2,7 +2,7 @@ namespace KXMapStudio.Core.Services.Http;
 
 public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 {
-	public async Task<bool> CurrentVersionCheck(CancellationToken cancellationToken = default)
+	public async Task<bool> CheckCurrentVersion(CancellationToken cancellationToken = default)
 	{
 		try
 		{
