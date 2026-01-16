@@ -16,7 +16,8 @@ public static class ServiceCollectionExtensions
 		{
 			return services
 				.AddSingleton<IWorkspaceExplorerService, WorkspaceExplorerService>()
-				.AddSingleton<IGridDataService, GridDataService>();
+				.AddSingleton<IGridDataService, GridDataService>()
+				.AddSingleton<IFilePreviewService, FilePreviewService>();
 		}
 	}
 }

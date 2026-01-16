@@ -9,43 +9,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="479454fd-9b13-4cb5-af8d-fa9a593d817f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/IOptions/HotkeysOption.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/IOptions/SettingsOption.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IFilePreviewService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/FilePreviewCategoryModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/FilePreviewResultModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/GridCategorySelectedMessageModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/PreviewCategoryNames.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/FilePreviewService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.KXMapStudio/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.KXMapStudio/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Http/IGithubHttpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Http/IGithubHttpClient.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IArchiveRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IArchiveDataRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IXmlDataRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Repositories/IXmlDataRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IJsonService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IJsonService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/ITacoService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IArchiveService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IXmlService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IXmlService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Extensions/ServiceCollectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Extensions/ServiceCollectionExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Mappers/TacoMapper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Mappers/TacoMapper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategoryModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerCategoryDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoMarkerCategoryDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerPack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoMarkerPackModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoOverlayDataDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoOverlayDataDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoi.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoiModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoiDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoPoiDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoPoisContainerDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoPoisContainerDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrail.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrailModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/TacoTrailDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Xml/Taco/Dtos/TacoTrailDto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/ArchiveRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/ArchiveDataRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/XmlDataRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Repositories/XmlDataRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Http/GithubHttpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Http/GithubHttpClient.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/JsonService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/JsonService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/TacoService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/ArchiveService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/XmlService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/XmlService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Enums/GridSourceKind.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Enums/DataType.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IFileTypeDetectorService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Abstractions/Services/IFileTypeDetectorService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IGridDataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IGridDataService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Extensions/ServiceCollectionExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Extensions/ServiceCollectionExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/FileTypeDetectorService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/FileTypeDetectorService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/GridDataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/GridDataService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/CenterWorkspaceViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/CenterWorkspaceViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/MainMenuUserControl.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/MainMenuUserControl.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/App.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/App.xaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/KXMapStudio.Application.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/KXMapStudio.Application.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/Views/Windows/WorkspaceWindow.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/Views/Windows/WorkspaceWindow.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Srcs/KXMapStudio.Application/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/LeftWorkspaceViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/ViewModels/Workspace/LeftWorkspaceViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/FilePreviewUserControl.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/FilePreviewUserControl.xaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,14 +57,20 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/AppData/Local/Temp/SourceGeneratedDocuments/CD3391B780F5474B9897F192/CommunityToolkit.Mvvm.SourceGenerators/CommunityToolkit.Mvvm.SourceGenerators.ObservablePropertyGenerator/KXMapStudio.Libs.ViewModels.Workspace.LeftWorkspaceViewModel.g.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2d6f8f3aaff4f533b7d96fefd3dc22bd9e1479f9b88d504d2da457f08cb4c2/XamlReader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bd1d5c50194fea68ff3559c160230b0ab50f5acf4ce3061bffd6d62958e2182/ExceptionDispatchInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Core/Models/Grid/GridRowDto.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Core/Services/Serializations/XmlService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Core/Types/Structs/FileExtension.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IFilePreviewService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IGridDataService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Abstractions/IWorkspaceExplorerService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/FilePreviewCategoryModel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/FileSelectedMessageModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/GridCategorySelectedMessageModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Models/Workspace/PreviewCategoryNames.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/FilePreviewService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/GridDataService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Services/WorkspaceExplorerService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Libs/KXMapStudio.Libs/Views/UsersControls/MainMenuUserControl.xaml" root0="FORCE_HIGHLIGHTING" />
@@ -106,6 +89,9 @@
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="38KRf56zOqW0WdUTzoKGFUr0dPU" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -126,10 +112,10 @@
 }]]></component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1769871610040" />
-    <option name="spentUsd" value="0.07928799" />
+    <option name="spentUsd" value="0.16695404" />
   </component>
   <component name="RecapUselessUpdatesCounter">
-    <option name="suspendCountdown" value="5" />
+    <option name="suspendCountdown" value="1" />
   </component>
   <component name="RunManager" selected=".NET Project.KXMapStudio.Application">
     <configuration name="KXMapStudio.App" type="DotNetProject" factoryName=".NET Project">
@@ -191,7 +177,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768568821156</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Refactor and enhance project architecture: introduced modular structure, updated interfaces and services, improved maintainability, and replaced legacy resources.">
+      <option name="closed" value="true" />
+      <created>1768576915012</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1768576915012</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
@@ -210,7 +204,8 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="This pull request represents substantial refactoring work.&#10;The primary goal is to clean up the codebase, restructure it meaningfully, and lay down a solid foundation for the future.&#10;Major changes include:&#10;- Reorganizing the project structure: introducing new folders such as `Libs` and `Srcs` to better separate concerns like core logic and application-specific implementations.&#10;- Transitioning from legacy resources and removing outdated code: numerous classes, services, and configurations have been replaced or cleaned up.&#10;- Introducing a clearer modular architecture: defining interfaces, abstractions, and repositories in the `Core` layer.&#10;- Replacing or refactoring existing WPF views and their corresponding view models to align with the updated architecture.&#10;- Improving maintainability by eliminating hardcoded values and replacing them with constants or configuration files.&#10;- Adding new services and models to support improved functionality and scalability (e.g., JSON handling and HTTP client abstractions).&#10;This work aims to ensure the project is built on a cleaner, more sustainable base that facilitates further development and better future maintainability." />
-    <option name="LAST_COMMIT_MESSAGE" value="This pull request represents substantial refactoring work.&#10;The primary goal is to clean up the codebase, restructure it meaningfully, and lay down a solid foundation for the future.&#10;Major changes include:&#10;- Reorganizing the project structure: introducing new folders such as `Libs` and `Srcs` to better separate concerns like core logic and application-specific implementations.&#10;- Transitioning from legacy resources and removing outdated code: numerous classes, services, and configurations have been replaced or cleaned up.&#10;- Introducing a clearer modular architecture: defining interfaces, abstractions, and repositories in the `Core` layer.&#10;- Replacing or refactoring existing WPF views and their corresponding view models to align with the updated architecture.&#10;- Improving maintainability by eliminating hardcoded values and replacing them with constants or configuration files.&#10;- Adding new services and models to support improved functionality and scalability (e.g., JSON handling and HTTP client abstractions).&#10;This work aims to ensure the project is built on a cleaner, more sustainable base that facilitates further development and better future maintainability." />
+    <MESSAGE value="Refactor and enhance project architecture: introduced modular structure, updated interfaces and services, improved maintainability, and replaced legacy resources." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor and enhance project architecture: introduced modular structure, updated interfaces and services, improved maintainability, and replaced legacy resources." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

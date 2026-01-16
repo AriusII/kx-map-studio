@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewmodel="clr-namespace:KXMapStudio.Libs.ViewModels.Workspace"
              mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodel:LeftWorkspaceViewModel}"
              d:DesignHeight="300" d:DesignWidth="300">
 	<Grid>
 		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
@@ -17,9 +21,39 @@
 		           FontSize="14"
 		           FontWeight="SemiBold" />
 
-		<TextBlock Grid.Row="1"
-		           Text="{Binding PreviewText}"
-		           Margin="8,0,8,8"
-		           TextWrapping="Wrap" />
+		<StackPanel Grid.Row="1" Margin="8,0,8,4">
+			<TextBlock Text="{Binding OpenedFileName, TargetNullValue='Aucun fichier sélectionné.'}"
+			           FontWeight="SemiBold" />
+			<TextBlock Text="{Binding PreviewStatus}"
+			           Opacity="0.75" />
+		</StackPanel>
+
+		<StackPanel Grid.Row="2" Margin="8,0,8,4" Orientation="Horizontal">
+			<TextBlock Text="Temps de chargement : " />
+			<TextBlock Text="{Binding PreviewLoadTimeText}" FontWeight="SemiBold" />
+		</StackPanel>
+
+		<ItemsControl Grid.Row="3" ItemsSource="{Binding PreviewItems}" Margin="8,0,8,8">
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<Button Command="{Binding DataContext.SelectPreviewCategoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+					        CommandParameter="{Binding}"
+					        Padding="6"
+					        Margin="0,2">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<TextBlock Text="{Binding Name}" />
+							<TextBlock Grid.Column="1"
+							           Text="{Binding Count}"
+							           Margin="8,0,0,0"
+							           FontWeight="SemiBold" />
+						</Grid>
+					</Button>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
 	</Grid>
 </UserControl>

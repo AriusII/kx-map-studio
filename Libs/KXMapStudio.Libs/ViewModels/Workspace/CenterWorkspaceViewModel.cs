@@ -19,13 +19,13 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject
 	{
 		_gridDataService = gridDataService;
 
-		messenger.Register<FileSelectedMessageModel>(this,
-			async void (_, message) => { await LoadFromPathAsync(message.Value); });
+		messenger.Register<GridCategorySelectedMessageModel>(this,
+			async void (_, message) => { await LoadFromPathAsync(message.Path, message.Category); });
 	}
 
 	public ObservableCollection<GridRowDto> Rows { get; } = [];
 
-	private async Task LoadFromPathAsync(string path, CancellationToken cancellationToken = default)
+	private async Task LoadFromPathAsync(string path, string category, CancellationToken cancellationToken = default)
 	{
 		_loadCts?.Cancel();
 		_loadCts = new CancellationTokenSource();
@@ -33,9 +33,9 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject
 		try
 		{
 			IsBusy = true;
-			Status = "Chargement...";
+			Status = $"Chargement {category}...";
 
-			var rows = await _gridDataService.LoadRowsAsync(path, _loadCts.Token);
+			var rows = await _gridDataService.LoadRowsAsync(path, category, _loadCts.Token);
 
 			Rows.Clear();
 			foreach (var row in rows) Rows.Add(row);

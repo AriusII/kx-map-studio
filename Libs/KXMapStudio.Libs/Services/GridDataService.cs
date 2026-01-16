@@ -21,32 +21,41 @@ public sealed class GridDataService(
 	public async Task<IReadOnlyList<GridRowDto>> LoadRowsAsync(string path,
 		CancellationToken cancellationToken = default)
 	{
+		return await LoadRowsAsync(path, string.Empty, cancellationToken);
+	}
+
+	public async Task<IReadOnlyList<GridRowDto>> LoadRowsAsync(string path, string category,
+		CancellationToken cancellationToken = default)
+	{
 		var kind = await fileTypeDetectorService.DetectAsync(path, cancellationToken);
 
 		return kind switch
 		{
-			DataType.Xml => await LoadFromXmlFileAsync(path, cancellationToken),
-			DataType.TacoArchive => await LoadFromTacoArchiveAsync(path, cancellationToken),
-			DataType.KxV1Json => await LoadFromKxJsonAsync(path, cancellationToken),
-			DataType.GuildWarsJson => await LoadFromGuildWarsJsonAsync(path, cancellationToken),
+			DataType.Xml => await LoadFromXmlFileAsync(path, category, cancellationToken),
+			DataType.TacoArchive => await LoadFromTacoArchiveAsync(path, category, cancellationToken),
+			DataType.KxV1Json => await LoadFromKxJsonAsync(path, category, cancellationToken),
+			DataType.GuildWarsJson => await LoadFromGuildWarsJsonAsync(path, category, cancellationToken),
 			_ => []
 		};
 	}
-
-	private async Task<IReadOnlyList<GridRowDto>> LoadFromXmlFileAsync(string path, CancellationToken cancellationToken)
+	
+	private async Task<IReadOnlyList<GridRowDto>> LoadFromXmlFileAsync(string path, string category,
+		CancellationToken cancellationToken)
 	{
 		var doc = await xmlDataRepository.LoadFromFileAsync(path, cancellationToken);
 		var pack = DeserializeTacoPack(doc);
-		return MapTacoPois(pack.Pois);
+		return MapTacoData(pack, category);
 	}
 
-	private async Task<IReadOnlyList<GridRowDto>> LoadFromTacoArchiveAsync(string path,
+	private async Task<IReadOnlyList<GridRowDto>> LoadFromTacoArchiveAsync(string path, string category,
 		CancellationToken cancellationToken)
 	{
 		var bytes = await File.ReadAllBytesAsync(path, cancellationToken);
 		var entries = await archiveDataRepository.ListContentsAsync(bytes, cancellationToken);
 
-		var allRows = new List<GridRowDto>();
+		var allPois = new List<TacoPoiModel>();
+		var allTrails = new List<TacoTrailModel>();
+
 		foreach (var entry in entries.Where(e => e.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)))
 		{
 			await using var stream = await archiveDataRepository.GetEntryStreamAsync(bytes, entry, cancellationToken);
@@ -54,14 +63,20 @@ public sealed class GridDataService(
 
 			var doc = await xmlDataRepository.LoadFromArchiveAsync(stream, cancellationToken);
 			var pack = DeserializeTacoPack(doc);
-			allRows.AddRange(MapTacoPois(pack.Pois));
+			allPois.AddRange(pack.Pois);
+			allTrails.AddRange(pack.Trails);
 		}
 
-		return allRows;
+		return MapTacoData(new TacoMarkerPackModel([], allPois, allTrails), category);
 	}
 
-	private async Task<IReadOnlyList<GridRowDto>> LoadFromKxJsonAsync(string path, CancellationToken cancellationToken)
+	private async Task<IReadOnlyList<GridRowDto>> LoadFromKxJsonAsync(string path, string category,
+		CancellationToken cancellationToken)
 	{
+		if (!string.IsNullOrWhiteSpace(category) &&
+		    !string.Equals(category, PreviewCategoryNames.Coordinates, StringComparison.OrdinalIgnoreCase))
+			return [];
+
 		var model = await jsonService.LoadKxJsonV1Async(path, cancellationToken);
 		if (model is null) return [];
 
@@ -79,7 +94,7 @@ public sealed class GridDataService(
 		return rows;
 	}
 
-	private async Task<IReadOnlyList<GridRowDto>> LoadFromGuildWarsJsonAsync(string path,
+	private async Task<IReadOnlyList<GridRowDto>> LoadFromGuildWarsJsonAsync(string path, string category,
 		CancellationToken cancellationToken)
 	{
 		await using var stream = File.OpenRead(path);
@@ -87,12 +102,124 @@ public sealed class GridDataService(
 
 		if (doc.RootElement.ValueKind == JsonValueKind.Array)
 		{
+			if (!string.IsNullOrWhiteSpace(category) &&
+			    !string.Equals(category, PreviewCategoryNames.Maps, StringComparison.OrdinalIgnoreCase))
+				return [];
+
 			var maps = await jsonDataRepository.LoadDataAsync<List<MapModel>>(path, cancellationToken);
 			return MapGw2Maps(maps ?? []);
 		}
 
 		var floor = await jsonDataRepository.LoadDataAsync<ContinentFloorModel>(path, cancellationToken);
-		return floor is null ? [] : MapGw2ContinentFloor(floor);
+		if (floor is null) return [];
+
+		return category switch
+		{
+			var c when string.Equals(c, PreviewCategoryNames.PointsOfInterest, StringComparison.OrdinalIgnoreCase)
+				=> MapGw2PointsOfInterest(floor),
+			var c when string.Equals(c, PreviewCategoryNames.Tasks, StringComparison.OrdinalIgnoreCase)
+				=> MapGw2Tasks(floor),
+			var c when string.Equals(c, PreviewCategoryNames.Sectors, StringComparison.OrdinalIgnoreCase)
+				=> MapGw2Sectors(floor),
+			var c when string.Equals(c, PreviewCategoryNames.SkillChallenges, StringComparison.OrdinalIgnoreCase)
+				=> MapGw2SkillChallenges(floor),
+			var c when string.Equals(c, PreviewCategoryNames.MasteryPoints, StringComparison.OrdinalIgnoreCase)
+				=> MapGw2MasteryPoints(floor),
+			_ => []
+		};
+	}
+	
+	private static IReadOnlyList<GridRowDto> MapTacoData(TacoMarkerPackModel pack, string category)
+	{
+		if (string.Equals(category, PreviewCategoryNames.Trails, StringComparison.OrdinalIgnoreCase))
+			return MapTacoTrails(pack.Trails);
+
+		if (!string.IsNullOrWhiteSpace(category))
+			return MapTacoPois(pack.Pois.Where(p => string.Equals(p.Type, category,
+				StringComparison.OrdinalIgnoreCase)));
+
+		return MapTacoPois(pack.Pois);
+	}
+
+	private static IReadOnlyList<GridRowDto> MapTacoTrails(IEnumerable<TacoTrailModel> trails)
+	{
+		var rows = new List<GridRowDto>();
+		var id = 1;
+
+		foreach (var trail in trails)
+			rows.Add(new GridRowDto(
+				id++,
+				trail.Type,
+				0,
+				0,
+				0));
+
+		return rows;
+	}
+
+	private static IReadOnlyList<GridRowDto> MapGw2PointsOfInterest(ContinentFloorModel floor)
+	{
+		var rows = new List<GridRowDto>();
+		var id = 1;
+
+		foreach (var region in floor.Regions.Values)
+		foreach (var map in region.Maps.Values)
+		foreach (var poi in map.PointsOfInterest.Values)
+			AddFromCoord(rows, ref id, poi.Name ?? poi.Type, poi.Coord);
+
+		return rows;
+	}
+
+	private static IReadOnlyList<GridRowDto> MapGw2Tasks(ContinentFloorModel floor)
+	{
+		var rows = new List<GridRowDto>();
+		var id = 1;
+
+		foreach (var region in floor.Regions.Values)
+		foreach (var map in region.Maps.Values)
+		foreach (var task in map.Tasks.Values)
+			AddFromCoord(rows, ref id, task.Objective, task.Coord);
+
+		return rows;
+	}
+
+	private static IReadOnlyList<GridRowDto> MapGw2Sectors(ContinentFloorModel floor)
+	{
+		var rows = new List<GridRowDto>();
+		var id = 1;
+
+		foreach (var region in floor.Regions.Values)
+		foreach (var map in region.Maps.Values)
+		foreach (var sector in map.Sectors.Values)
+			AddFromCoord(rows, ref id, sector.Name, sector.Coord);
+
+		return rows;
+	}
+
+	private static IReadOnlyList<GridRowDto> MapGw2SkillChallenges(ContinentFloorModel floor)
+	{
+		var rows = new List<GridRowDto>();
+		var id = 1;
+
+		foreach (var region in floor.Regions.Values)
+		foreach (var map in region.Maps.Values)
+		foreach (var skill in map.SkillChallenges)
+			AddFromCoord(rows, ref id, $"Skill {skill.Id}", skill.Coord);
+
+		return rows;
+	}
+
+	private static IReadOnlyList<GridRowDto> MapGw2MasteryPoints(ContinentFloorModel floor)
+	{
+		var rows = new List<GridRowDto>();
+		var id = 1;
+
+		foreach (var region in floor.Regions.Values)
+		foreach (var map in region.Maps.Values)
+		foreach (var mastery in map.MasteryPoints)
+			AddFromCoord(rows, ref id, mastery.Region, mastery.Coord);
+
+		return rows;
 	}
 
 	private static TacoMarkerPackModel DeserializeTacoPack(XDocument doc)

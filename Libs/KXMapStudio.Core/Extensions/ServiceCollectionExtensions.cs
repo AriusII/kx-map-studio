@@ -1,4 +1,5 @@
-﻿using KXMapStudio.Core.Services.Serializations;
+﻿using KXMapStudio.Core.Host;
+using KXMapStudio.Core.Services.Serializations;
 
 namespace KXMapStudio.Core.Extensions;
 
@@ -9,6 +10,7 @@ public static class ServiceCollectionExtensions
 		public IServiceCollection AddCoreDependencies()
 		{
 			return services
+				.AddHostedService<Initialization>()
 				.AddHttpClient()
 				.AddHttpClients()
 				.AddServices()
