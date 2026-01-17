@@ -30,7 +30,6 @@ global using KXMapStudio.Core.Types.Structs;
 global using KXMapStudio.Libs.Abstractions;
 global using KXMapStudio.Core.Models.Grid;
 global using KXMapStudio.Core.Models.Json.Continents;
-global using KXMapStudio.Core.Models.Json.Kx.v1;
 global using KXMapStudio.Core.Models.Json.Maps;
 global using KXMapStudio.Core.Models.Xml.Taco;
 global using KXMapStudio.Core.Models.Xml.Taco.Dtos;

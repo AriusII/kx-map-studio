@@ -1,3 +1,7 @@
+using KXMapStudio.Core.Abstractions.Repositories.Serializations;
+using KXMapStudio.Core.Abstractions.Services.Serializations;
+using KXMapStudio.Core.Models.Json.Json;
+
 namespace KXMapStudio.Libs.Services;
 
 public sealed class GridEditorService(
@@ -86,13 +90,13 @@ public sealed class GridEditorService(
 	private async Task SaveKxJsonAsync(string filePath, IReadOnlyList<GridRowDto> rows,
 		CancellationToken cancellationToken)
 	{
-		var model = await jsonService.LoadKxJsonV1Async(filePath, cancellationToken);
+		var model = await jsonService.LoadAsync(filePath, cancellationToken);
 		if (model is null)
 			throw new InvalidOperationException("Failed to load KX JSON file.");
 
 		var newCoordinates = rows.Select(r => new CoordinatesModel(r.Name, r.X, r.Y, r.Z)).ToArray();
-		var newModel = new KxModel(model.Name, newCoordinates);
+		var newModel = new JsonModel(model.Name, newCoordinates);
 
-		await jsonService.SaveKxJsonV1Async(newModel, filePath, cancellationToken);
+		await jsonService.SaveAsync(newModel, filePath, cancellationToken);
 	}
 }

@@ -24,7 +24,6 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddServices()
 		{
 			return services
-				.AddSingleton<IFileTypeDetectorService, FileTypeDetectorService>()
 				.AddScoped<IGw2Client, Gw2Client>()
 				.AddScoped<IJsonService, JsonService>()
 				.AddScoped<IXmlService, XmlService>()
@@ -36,7 +35,8 @@ public static class ServiceCollectionExtensions
 			return services
 				.AddScoped<IJsonDataRepository, JsonDataRepository>()
 				.AddScoped<IXmlDataRepository, XmlDataRepository>()
-				.AddScoped<IArchiveDataRepository, ArchiveDataRepository>();
+				.AddScoped<IArchiveDataRepository, ArchiveDataRepository>()
+				.AddScoped<IFileStorageRepository, FileStorageRepository>();
 		}
 	}
 }

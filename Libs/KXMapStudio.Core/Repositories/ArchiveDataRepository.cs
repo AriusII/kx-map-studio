@@ -1,39 +1,31 @@
-﻿namespace KXMapStudio.Core.Repositories;
+namespace KXMapStudio.Core.Repositories;
 
-public sealed record ArchiveDataRepository : IArchiveDataRepository
+public sealed record ArchiveDataRepository(IFileStorageRepository FileStorage) : IArchiveDataRepository
 {
-	public async Task<IEnumerable<string>> ListContentsAsync(byte[] archiveData,
-		CancellationToken cancellationToken = default)
+	public async Task<ZipArchive> LoadAsync(string filePath, CancellationToken cancellationToken = default)
 	{
-		using var memoryStream = new MemoryStream(archiveData);
-		await using var archive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
-		return await Task.FromResult(archive.Entries.Select(e => e.FullName).ToList());
+		await using var stream = await FileStorage.LoadAsync(filePath, cancellationToken);
+
+		return new ZipArchive(stream!, ZipArchiveMode.Read);
 	}
 
-	public async Task<Stream?> GetEntryStreamAsync(byte[] archiveData, string entryPath,
+	public async Task<IReadOnlyList<string>> GetEntriesAsync(string filePath,
 		CancellationToken cancellationToken = default)
 	{
-		var memoryStream = new MemoryStream(archiveData);
-		var archive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+		await using var archive = await LoadAsync(filePath, cancellationToken);
+		return archive.Entries.Select(e => e.FullName).ToList();
+	}
 
-		var entry = archive.GetEntry(entryPath);
-		if (entry == null)
-		{
-			await archive.DisposeAsync();
-			await memoryStream.DisposeAsync();
-			return null;
-		}
+	public async Task SaveAsync(byte[] archiveData, string filePath,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(archiveData);
+		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
-		var entryStream = await entry.OpenAsync(cancellationToken);
-		var ms = new MemoryStream();
-		await entryStream.CopyToAsync(ms, cancellationToken);
-		ms.Position = 0;
-
-		await entryStream.DisposeAsync();
-		await archive.DisposeAsync();
-		await memoryStream.DisposeAsync();
-
-		return ms;
+		await using var memory = new MemoryStream(archiveData, false);
+		await FileStorage.SaveAsync(filePath, memory, cancellationToken);
 	}
 }

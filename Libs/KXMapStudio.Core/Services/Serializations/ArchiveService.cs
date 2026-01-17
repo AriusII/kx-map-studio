@@ -1,68 +1,38 @@
-﻿namespace KXMapStudio.Core.Services.Serializations;
+namespace KXMapStudio.Core.Services.Serializations;
 
 public sealed record ArchiveService(
-	IArchiveDataRepository ArchiveDataRepository,
-	IXmlDataRepository XmlDataRepository) : IArchiveService
+	IArchiveDataRepository ArchiveRepository,
+	IXmlService XmlService)
+	: IArchiveService
 {
-	public async Task<IEnumerable<string>> GetXmlFilesAsync(byte[] tacoData,
+	public Task<IReadOnlyList<string>> GetEntriesAsync(string filePath,
 		CancellationToken cancellationToken = default)
 	{
-		var contents = await ArchiveDataRepository.ListContentsAsync(tacoData, cancellationToken);
-		return contents.Where(c => c.EndsWith(".xml", StringComparison.OrdinalIgnoreCase));
+		return ArchiveRepository.GetEntriesAsync(filePath, cancellationToken);
 	}
 
-	public async Task<XDocument?> LoadXmlFileAsync(byte[] tacoData, string fileName,
+	public async Task<TacoMarkerPackModel?> LoadMarkerPackAsync(
+		string filePath,
+		string? entryFullName = null,
 		CancellationToken cancellationToken = default)
 	{
-		await using var stream = await ArchiveDataRepository.GetEntryStreamAsync(tacoData, fileName, cancellationToken);
+		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
-		if (stream == null) return null;
+		await using var archive = await ArchiveRepository.LoadAsync(filePath, cancellationToken);
 
-		return await XmlDataRepository.LoadFromArchiveAsync(stream, cancellationToken);
+		var entry = ResolveEntry(archive, entryFullName);
+		if (entry is null) return null;
+
+		await using var entryStream = await entry.OpenAsync(cancellationToken);
+		return await XmlService.LoadFromStreamAsync(entryStream, cancellationToken);
 	}
 
-	public TacoMarkerPackModel ParseMarkerPack(XDocument document)
+	private static ZipArchiveEntry? ResolveEntry(ZipArchive archive, string? entryFullName)
 	{
-		try
-		{
-			var serializer = new XmlSerializer(typeof(TacoOverlayDataDto));
-			using var reader = document.CreateReader();
-			var dto = (TacoOverlayDataDto?)serializer.Deserialize(reader);
+		if (!string.IsNullOrWhiteSpace(entryFullName)) return archive.GetEntry(entryFullName);
 
-			return dto != null
-				? TacoMapper.MapToDomain(dto)
-				: new TacoMarkerPackModel([], [], []);
-		}
-		catch (Exception)
-		{
-			return new TacoMarkerPackModel([], [], []);
-		}
-	}
-
-	public async Task<IReadOnlyList<TacoMarkerPackModel>> LoadMarkerPacksAsync(byte[] archiveData,
-		CancellationToken cancellationToken = default)
-	{
-		var result = new List<TacoMarkerPackModel>();
-
-		var xmlFiles = await GetXmlFilesAsync(archiveData, cancellationToken);
-		foreach (var file in xmlFiles)
-		{
-			var doc = await LoadXmlFileAsync(archiveData, file, cancellationToken);
-			if (doc == null) continue;
-
-			result.Add(ParseMarkerPack(doc));
-		}
-
-		return result;
-	}
-
-	public async Task<IReadOnlyList<TacoMarkerPackModel>> LoadMarkerPacksAsync(string path,
-		CancellationToken cancellationToken = default)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(path);
-		if (!File.Exists(path)) return [];
-
-		var bytes = await File.ReadAllBytesAsync(path, cancellationToken);
-		return await LoadMarkerPacksAsync(bytes, cancellationToken);
+		return archive.Entries
+			.FirstOrDefault(e =>
+				e.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase));
 	}
 }

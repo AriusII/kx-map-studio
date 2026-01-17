@@ -1,3 +1,6 @@
+using KXMapStudio.Core.Abstractions.Repositories.Serializations;
+using KXMapStudio.Core.Abstractions.Services.Serializations;
+
 namespace KXMapStudio.Libs.Services;
 
 public sealed class GridDataService(
@@ -72,7 +75,7 @@ public sealed class GridDataService(
 		    !string.Equals(category, PreviewCategoryNames.Coordinates, StringComparison.OrdinalIgnoreCase))
 			return [];
 
-		var model = await jsonService.LoadKxJsonV1Async(path, cancellationToken);
+		var model = await jsonService.LoadAsync(path, cancellationToken);
 		if (model is null) return [];
 
 		var rows = new List<GridRowDto>();
@@ -101,11 +104,11 @@ public sealed class GridDataService(
 			    !string.Equals(category, PreviewCategoryNames.Maps, StringComparison.OrdinalIgnoreCase))
 				return [];
 
-			var maps = await jsonDataRepository.LoadDataAsync<List<MapModel>>(path, cancellationToken);
+			var maps = await jsonDataRepository.LoadAsync<List<MapModel>>(path, cancellationToken);
 			return MapGw2Maps(maps ?? []);
 		}
 
-		var floor = await jsonDataRepository.LoadDataAsync<ContinentFloorModel>(path, cancellationToken);
+		var floor = await jsonDataRepository.LoadAsync<ContinentFloorModel>(path, cancellationToken);
 		if (floor is null) return [];
 
 		return category switch

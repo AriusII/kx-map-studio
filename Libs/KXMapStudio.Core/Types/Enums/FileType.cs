@@ -1,8 +1,10 @@
-namespace KXMapStudio.Core.Types.Enums;
+﻿namespace KXMapStudio.Core.Types.Enums;
 
 public enum FileType : byte
 {
+	Unknown,
 	Xml,
-	JsonKxv1,
-	JsonKxv2
+	Zip,
+	Taco,
+	Json
 }

@@ -1,3 +1,6 @@
+using KXMapStudio.Core.Abstractions.Repositories.Serializations;
+using KXMapStudio.Core.Abstractions.Services.Serializations;
+
 namespace KXMapStudio.Libs.Services;
 
 public sealed class FilePreviewService(
@@ -138,7 +141,7 @@ public sealed class FilePreviewService(
 
 	private async Task BuildKxJsonTreeAsync(FilePreviewTreeNodeModel rootNode, string path, CancellationToken ct)
 	{
-		var model = await jsonService.LoadKxJsonV1Async(path, ct);
+		var model = await jsonService.LoadAsync(path, ct);
 		if (model is null) return;
 
 		var coordsNode = new FilePreviewTreeNodeModel(

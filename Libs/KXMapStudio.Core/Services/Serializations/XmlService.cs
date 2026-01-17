@@ -1,58 +1,75 @@
-﻿namespace KXMapStudio.Core.Services.Serializations;
+namespace KXMapStudio.Core.Services.Serializations;
 
-public sealed record XmlService : IXmlService
+public sealed record XmlService(IXmlDataRepository XmlDataRepository) : IXmlService
 {
-	public async Task<TacoMarkerPackModel?> LoadTacoMarkerPackAsync(string path,
+	private static readonly XmlSerializer Serializer = new(typeof(TacoOverlayDataDto));
+
+	public async Task<TacoMarkerPackModel?> LoadFromFileAsync(string filePath,
 		CancellationToken cancellationToken = default)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(path);
-		if (!File.Exists(path)) return null;
+		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
-		await using var stream = File.OpenRead(path);
-		var document = await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken);
-
-		return ParseMarkerPack(document);
+		var doc = await XmlDataRepository.LoadFromFileAsync(filePath, cancellationToken);
+		return doc is null
+			? null
+			: DeserializeXmlDocument(doc);
 	}
 
-	public async Task SaveTacoMarkerPackAsync(TacoMarkerPackModel model, string path,
+	public async Task SaveToFileAsync(TacoMarkerPackModel model, string filePath,
 		CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(model);
-		ArgumentException.ThrowIfNullOrWhiteSpace(path);
+		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
-		var directory = Path.GetDirectoryName(path);
-		if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
-
-		var dto = TacoMapper.MapToDto(model);
-		var serializer = new XmlSerializer(typeof(TacoOverlayDataDto));
-
-		var settings = new XmlWriterSettings
-		{
-			Indent = true,
-			Encoding = new UTF8Encoding(false),
-			Async = true
-		};
-
-		await using var stream = File.Create(path);
-		await using var writer = XmlWriter.Create(stream, settings);
-		serializer.Serialize(writer, dto);
+		var xmlContent = SerializeXmlModel(model);
+		await XmlDataRepository.SaveToFileAsync(xmlContent, filePath, cancellationToken);
 	}
 
-	private static TacoMarkerPackModel ParseMarkerPack(XDocument document)
+	public async Task<TacoMarkerPackModel?> LoadFromStreamAsync(Stream stream,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(stream);
+
+		var doc = await XmlDataRepository.LoadFromStreamAsync(stream, cancellationToken);
+		return doc is null
+			? null
+			: DeserializeXmlDocument(doc);
+	}
+
+	public async Task SaveToStreamAsync(TacoMarkerPackModel model, Stream stream,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(model);
+		ArgumentNullException.ThrowIfNull(stream);
+
+		var xmlContent = SerializeXmlModel(model);
+		await XmlDataRepository.SaveToStreamAsync(xmlContent, stream, cancellationToken);
+	}
+
+	public TacoMarkerPackModel ParseTacoMarkerPack(XDocument document)
+	{
+		ArgumentNullException.ThrowIfNull(document);
+		return DeserializeXmlDocument(document) ?? new TacoMarkerPackModel([], [], []);
+	}
+
+	private static TacoMarkerPackModel? DeserializeXmlDocument(XDocument doc)
 	{
 		try
 		{
-			var serializer = new XmlSerializer(typeof(TacoOverlayDataDto));
-			using var reader = document.CreateReader();
-			var dto = (TacoOverlayDataDto?)serializer.Deserialize(reader);
-
-			return dto != null
-				? TacoMapper.MapToDomain(dto)
-				: new TacoMarkerPackModel([], [], []);
+			using var reader = doc.CreateReader();
+			return Serializer.Deserialize(reader) is TacoOverlayDataDto dto ? TacoMapper.MapToDomain(dto) : null;
 		}
-		catch (Exception)
+		catch
 		{
-			return new TacoMarkerPackModel([], [], []);
+			return null;
 		}
+	}
+
+	private static XDocument SerializeXmlModel(TacoMarkerPackModel model)
+	{
+		var dto = TacoMapper.MapToDto(model);
+		using var writer = new StringWriter();
+		Serializer.Serialize(writer, dto);
+		return XDocument.Parse(writer.ToString());
 	}
 }

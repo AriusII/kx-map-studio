@@ -1,6 +1,6 @@
-﻿namespace KXMapStudio.Core.Models.Json.Kx.v1;
+﻿namespace KXMapStudio.Core.Models.Json.Json;
 
-public sealed record KxModel(
+public sealed record JsonModel(
 	[property: JsonPropertyName("Name")] string Name,
 	[property: JsonPropertyName("Coordinates")]
 	CoordinatesModel[] Coordinates
