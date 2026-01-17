@@ -1,7 +1,4 @@
-﻿using KXMapStudio.Core.Host;
-using KXMapStudio.Core.Services.Serializations;
-
-namespace KXMapStudio.Core.Extensions;
+﻿namespace KXMapStudio.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -28,6 +25,7 @@ public static class ServiceCollectionExtensions
 		{
 			return services
 				.AddSingleton<IFileTypeDetectorService, FileTypeDetectorService>()
+				.AddScoped<IGw2Client, Gw2Client>()
 				.AddScoped<IJsonService, JsonService>()
 				.AddScoped<IXmlService, XmlService>()
 				.AddScoped<IArchiveService, ArchiveService>();

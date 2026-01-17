@@ -4,13 +4,13 @@ public sealed class WorkspaceWindowViewModel : ObservableObject, IDisposable
 {
 	public MainMenuViewModel MainMenu { get; } = new();
 	public LeftWorkspaceViewModel LeftWorkspace { get; } = new();
-	public CenterWorkspaceViewModel CenterWorkspace { get; } = new();
+	public GridEditorViewModel GridEditor { get; } = new();
 	public RightWorkspaceViewModel RightWorkspace { get; } = new();
 
 	public void Dispose()
 	{
 		LeftWorkspace.Dispose();
-		CenterWorkspace.Dispose();
+		GridEditor.Dispose();
 		RightWorkspace.Dispose();
 		MainMenu.Dispose();
 	}

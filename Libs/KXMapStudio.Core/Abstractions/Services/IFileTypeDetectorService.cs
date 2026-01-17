@@ -1,6 +1,4 @@
-﻿using KXMapStudio.Core.Types.Enums;
-
-namespace KXMapStudio.Core.Abstractions.Services;
+﻿namespace KXMapStudio.Core.Abstractions.Services;
 
 public interface IFileTypeDetectorService
 {

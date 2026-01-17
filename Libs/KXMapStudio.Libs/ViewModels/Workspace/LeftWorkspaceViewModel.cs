@@ -1,11 +1,9 @@
-using System.ComponentModel;
-using KXMapStudio.Core.Services;
-
 namespace KXMapStudio.Libs.ViewModels.Workspace;
 
 public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposable
 {
 	private readonly IFilePreviewService _filePreviewService;
+	private readonly IFileSystemService _fileSystemService;
 	private readonly IMessenger _messenger;
 	private readonly DispatcherTimer _refreshDebounceTimer;
 	private readonly IWorkspaceExplorerService _workspaceExplorerService;
@@ -26,16 +24,19 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 	private FileSystemWatcher? _watcher;
 
 	public LeftWorkspaceViewModel()
-		: this(new WorkspaceExplorerService(), CreateDefaultPreviewService(), WeakReferenceMessenger.Default)
+		: this(new WorkspaceExplorerService(), new FileSystemService(Path.Combine(AppContext.BaseDirectory, "Data")),
+			CreateDefaultPreviewService(), WeakReferenceMessenger.Default)
 	{
 	}
 
 	private LeftWorkspaceViewModel(
 		IWorkspaceExplorerService workspaceExplorerService,
+		IFileSystemService fileSystemService,
 		IFilePreviewService filePreviewService,
 		IMessenger messenger)
 	{
 		_workspaceExplorerService = workspaceExplorerService;
+		_fileSystemService = fileSystemService;
 		_filePreviewService = filePreviewService;
 		_messenger = messenger;
 
@@ -206,5 +207,202 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 
 		_refreshDebounceTimer.Stop();
 		_refreshDebounceTimer.Start();
+	}
+
+	[RelayCommand]
+	private async Task CreateFile()
+	{
+		try
+		{
+			var targetPath = DetermineTargetDirectory();
+
+			var dialog = new CreateFileDialog { Owner = Application.Current.MainWindow };
+			if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.FileName))
+				return;
+
+			await _fileSystemService.CreateFileAsync(targetPath, dialog.FileName, dialog.SelectedFileType);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Failed to create file: {ex.Message}", "Error", MessageBoxButton.OK,
+				MessageBoxImage.Error);
+		}
+	}
+
+	[RelayCommand]
+	private async Task CreateFolder()
+	{
+		try
+		{
+			var targetPath = DetermineTargetDirectory();
+
+			var dialog = new CreateFolderDialog { Owner = Application.Current.MainWindow };
+			if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.FolderName))
+				return;
+
+			await _fileSystemService.CreateDirectoryAsync(targetPath, dialog.FolderName);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Failed to create folder: {ex.Message}", "Error", MessageBoxButton.OK,
+				MessageBoxImage.Error);
+		}
+	}
+
+	[RelayCommand]
+	private async Task DeleteSelected()
+	{
+		if (SelectedNode is null)
+			return;
+
+		try
+		{
+			if (_fileSystemService.IsRootDataFolder(SelectedNode.FullPath))
+			{
+				MessageBox.Show("Cannot delete the root Data folder.", "Invalid Operation", MessageBoxButton.OK,
+					MessageBoxImage.Warning);
+				return;
+			}
+
+			var itemType = SelectedNode.IsDirectory ? "folder" : "file";
+			var result = MessageBox.Show(
+				$"Are you sure you want to delete this {itemType}?\n\n{SelectedNode.Name}",
+				"Confirm Delete",
+				MessageBoxButton.YesNo,
+				MessageBoxImage.Question);
+
+			if (result != MessageBoxResult.Yes)
+				return;
+
+			if (SelectedNode.IsDirectory)
+				await _fileSystemService.DeleteDirectoryAsync(SelectedNode.FullPath);
+			else
+				await _fileSystemService.DeleteFileAsync(SelectedNode.FullPath);
+
+			SelectedNode = null;
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Failed to delete: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	[RelayCommand]
+	private async Task CreateFileInArchive(WorkspaceExplorerNodeModel? node)
+	{
+		if (node is null)
+			return;
+
+		try
+		{
+			var extension = Path.GetExtension(node.FullPath).ToLowerInvariant();
+			if (extension != ".zip" && extension != ".taco")
+			{
+				MessageBox.Show("This action is only available for .zip and .taco archives.", "Invalid Operation",
+					MessageBoxButton.OK, MessageBoxImage.Warning);
+				return;
+			}
+
+			var dialog = new CreateArchiveFileDialog { Owner = Application.Current.MainWindow };
+			if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.FileName))
+				return;
+
+			await _fileSystemService.CreateFileInArchiveAsync(node.FullPath, dialog.FileName);
+			MessageBox.Show("File created successfully in archive.", "Success", MessageBoxButton.OK,
+				MessageBoxImage.Information);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Failed to create file in archive: {ex.Message}", "Error", MessageBoxButton.OK,
+				MessageBoxImage.Error);
+		}
+	}
+
+	[RelayCommand]
+	private async Task DeleteNode(WorkspaceExplorerNodeModel? node)
+	{
+		if (node is null)
+			return;
+
+		try
+		{
+			if (_fileSystemService.IsRootDataFolder(node.FullPath))
+			{
+				MessageBox.Show("Cannot delete the root Data folder.", "Invalid Operation", MessageBoxButton.OK,
+					MessageBoxImage.Warning);
+				return;
+			}
+
+			var itemType = node.IsDirectory ? "folder" : "file";
+			var result = MessageBox.Show(
+				$"Are you sure you want to delete this {itemType}?\n\n{node.Name}",
+				"Confirm Delete",
+				MessageBoxButton.YesNo,
+				MessageBoxImage.Question);
+
+			if (result != MessageBoxResult.Yes)
+				return;
+
+			if (node.IsDirectory)
+				await _fileSystemService.DeleteDirectoryAsync(node.FullPath);
+			else
+				await _fileSystemService.DeleteFileAsync(node.FullPath);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Failed to delete: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	[RelayCommand]
+	private async Task CreateFileInFolder(WorkspaceExplorerNodeModel? node)
+	{
+		if (node is null || !node.IsDirectory)
+			return;
+
+		try
+		{
+			var dialog = new CreateFileDialog { Owner = Application.Current.MainWindow };
+			if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.FileName))
+				return;
+
+			await _fileSystemService.CreateFileAsync(node.FullPath, dialog.FileName, dialog.SelectedFileType);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Failed to create file: {ex.Message}", "Error", MessageBoxButton.OK,
+				MessageBoxImage.Error);
+		}
+	}
+
+	[RelayCommand]
+	private async Task CreateFolderInFolder(WorkspaceExplorerNodeModel? node)
+	{
+		if (node is null || !node.IsDirectory)
+			return;
+
+		try
+		{
+			var dialog = new CreateFolderDialog { Owner = Application.Current.MainWindow };
+			if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.FolderName))
+				return;
+
+			await _fileSystemService.CreateDirectoryAsync(node.FullPath, dialog.FolderName);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show($"Failed to create folder: {ex.Message}", "Error", MessageBoxButton.OK,
+				MessageBoxImage.Error);
+		}
+	}
+
+	private string DetermineTargetDirectory()
+	{
+		if (SelectedNode is null)
+			return _workspaceExplorerService.DataFolder;
+
+		return SelectedNode.IsDirectory
+			? SelectedNode.FullPath
+			: Path.GetDirectoryName(SelectedNode.FullPath) ?? _workspaceExplorerService.DataFolder;
 	}
 }

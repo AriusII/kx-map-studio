@@ -1,6 +1,4 @@
-﻿using KXMapStudio.Core.Types.Enums;
-
-namespace KXMapStudio.Core.Services;
+﻿namespace KXMapStudio.Core.Services;
 
 public sealed record FileTypeDetectorService(
 	IJsonDataRepository JsonDataRepository,

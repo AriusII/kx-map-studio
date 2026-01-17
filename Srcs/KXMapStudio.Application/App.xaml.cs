@@ -1,9 +1,4 @@
-﻿using System.Globalization;
-using KXMapStudio.Core.Models.IOptions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace KXMapStudio.Application;
+﻿namespace KXMapStudio.Application;
 
 public partial class App : System.Windows.Application
 {

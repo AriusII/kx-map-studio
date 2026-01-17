@@ -1,6 +1,4 @@
-﻿using KXMapStudio.Core.Models.Xml.Taco.Dtos;
-
-namespace KXMapStudio.Core.Mappers;
+﻿namespace KXMapStudio.Core.Mappers;
 
 public static class TacoMapper
 {

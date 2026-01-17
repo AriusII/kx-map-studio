@@ -23,13 +23,41 @@
 				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 
-			<StackPanel Grid.Row="0" Orientation="Horizontal" Background="{StaticResource MaterialDesign.Brush.Surface}">
-				<materialDesign:PackIcon Kind="FolderSearchOutline"
-				                         VerticalAlignment="Center"
-				                         Margin="12,0,0,0"
-				                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
-				<TextBlock Text="WORKSPACE EXPLORER" Style="{StaticResource PanelHeaderTextBlock}" />
-			</StackPanel>
+			<Grid Grid.Row="0" Background="{StaticResource MaterialDesign.Brush.Surface}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<StackPanel Grid.Column="0" Orientation="Horizontal">
+					<materialDesign:PackIcon Kind="FolderSearchOutline"
+					                         VerticalAlignment="Center"
+					                         Margin="12,0,0,0"
+					                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
+					<TextBlock Text="WORKSPACE EXPLORER" Style="{StaticResource PanelHeaderTextBlock}" />
+				</StackPanel>
+
+				<StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,8,0">
+					<Button Command="{Binding CreateFileCommand}"
+					        ToolTip="New File"
+					        Style="{StaticResource MaterialDesignIconButton}"
+					        Width="32" Height="32">
+						<materialDesign:PackIcon Kind="FilePlus" Width="20" Height="20" />
+					</Button>
+					<Button Command="{Binding CreateFolderCommand}"
+					        ToolTip="New Folder"
+					        Style="{StaticResource MaterialDesignIconButton}"
+					        Width="32" Height="32">
+						<materialDesign:PackIcon Kind="FolderPlus" Width="20" Height="20" />
+					</Button>
+					<Button Command="{Binding DeleteSelectedCommand}"
+					        ToolTip="Delete"
+					        Style="{StaticResource MaterialDesignIconButton}"
+					        Width="32" Height="32">
+						<materialDesign:PackIcon Kind="Delete" Width="20" Height="20" />
+					</Button>
+				</StackPanel>
+			</Grid>
 
 			<TreeView Grid.Row="1"
 			          ItemsSource="{Binding RootNodes}"
@@ -38,7 +66,64 @@
 			          Background="Transparent">
 				<TreeView.ItemTemplate>
 					<HierarchicalDataTemplate ItemsSource="{Binding Children}">
-						<TextBlock Text="{Binding Name}" Margin="4,2" />
+						<TextBlock Text="{Binding Name}" Margin="4,2">
+							<TextBlock.ContextMenu>
+								<ContextMenu>
+									<!-- For Archives (.zip, .taco) -->
+									<MenuItem Header="New XML File in Archive"
+									          Command="{Binding DataContext.CreateFileInArchiveCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+									          CommandParameter="{Binding}">
+										<MenuItem.Style>
+											<Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+												<Setter Property="Visibility" Value="Collapsed" />
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsDirectory}" Value="False">
+														<Setter Property="Visibility" Value="Visible" />
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</MenuItem.Style>
+									</MenuItem>
+
+									<!-- For Directories -->
+									<MenuItem Header="New File"
+									          Command="{Binding DataContext.CreateFileInFolderCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+									          CommandParameter="{Binding}">
+										<MenuItem.Style>
+											<Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+												<Setter Property="Visibility" Value="Collapsed" />
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsDirectory}" Value="True">
+														<Setter Property="Visibility" Value="Visible" />
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</MenuItem.Style>
+									</MenuItem>
+									<MenuItem Header="New Folder"
+									          Command="{Binding DataContext.CreateFolderInFolderCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+									          CommandParameter="{Binding}">
+										<MenuItem.Style>
+											<Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+												<Setter Property="Visibility" Value="Collapsed" />
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsDirectory}" Value="True">
+														<Setter Property="Visibility" Value="Visible" />
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</MenuItem.Style>
+									</MenuItem>
+
+									<Separator />
+
+									<!-- Delete (for both files and folders) -->
+									<MenuItem Header="Delete"
+									          Command="{Binding DataContext.DeleteNodeCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+									          CommandParameter="{Binding}" />
+								</ContextMenu>
+							</TextBlock.ContextMenu>
+						</TextBlock>
 					</HierarchicalDataTemplate>
 				</TreeView.ItemTemplate>
 				<TreeView.ItemContainerStyle>

@@ -1,7 +1,4 @@
-﻿using KXMapStudio.Core.Models.Json.Kx.v1;
-using KXMapStudio.Core.Types.Enums;
-
-namespace KXMapStudio.Core.Services.Serializations;
+﻿namespace KXMapStudio.Core.Services.Serializations;
 
 public sealed record JsonService(IJsonDataRepository JsonDataRepository) : IJsonService
 {
@@ -42,29 +39,21 @@ public sealed record JsonService(IJsonDataRepository JsonDataRepository) : IJson
 		return await JsonDataRepository.LoadDataAsync<KxModel>(path, cancellationToken);
 	}
 
-	public async Task<IReadOnlyList<MapModel>> LoadGuildWarsMapsAsync(string path,
-		CancellationToken cancellationToken = default)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-		var data = await JsonDataRepository.LoadDataAsync<List<MapModel>>(path, cancellationToken);
-		return data ?? [];
-	}
-
-	public async Task<ContinentFloorModel?> LoadGuildWarsContinentFloorAsync(string path,
-		CancellationToken cancellationToken = default)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(path);
-
-		return await JsonDataRepository.LoadDataAsync<ContinentFloorModel>(path, cancellationToken);
-	}
-
 	public async Task SaveKxJsonV1Async(KxModel data, string path, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(data);
 		ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
 		await JsonDataRepository.SaveDataAsync(data, path, cancellationToken);
+	}
+
+	public async Task<IReadOnlyList<MapModel>> LoadGuildWarsMapsAsync(string path,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+		var data = await JsonDataRepository.LoadDataAsync<IReadOnlyList<MapModel>>(path, cancellationToken);
+		return data ?? [];
 	}
 
 	public async Task SaveGuildWarsMapsAsync(IEnumerable<MapModel> maps, string path,
@@ -74,6 +63,14 @@ public sealed record JsonService(IJsonDataRepository JsonDataRepository) : IJson
 		ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
 		await JsonDataRepository.SaveDataAsync(maps.ToList(), path, cancellationToken);
+	}
+
+	public async Task<ContinentFloorModel?> LoadGuildWarsContinentFloorAsync(string path,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+		return await JsonDataRepository.LoadDataAsync<ContinentFloorModel>(path, cancellationToken);
 	}
 
 	public async Task SaveGuildWarsContinentFloorAsync(ContinentFloorModel model, string path,

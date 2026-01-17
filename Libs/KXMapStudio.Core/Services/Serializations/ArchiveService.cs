@@ -1,6 +1,4 @@
-﻿using KXMapStudio.Core.Models.Xml.Taco.Dtos;
-
-namespace KXMapStudio.Core.Services.Serializations;
+﻿namespace KXMapStudio.Core.Services.Serializations;
 
 public sealed record ArchiveService(
 	IArchiveDataRepository ArchiveDataRepository,

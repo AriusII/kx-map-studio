@@ -1,25 +1,37 @@
 ﻿// Global using directives
 
+global using System.ComponentModel;
 global using System.Globalization;
 global using System.IO.Compression;
 global using System.Net.Http.Json;
 global using System.Reflection;
+global using System.Runtime.CompilerServices;
+global using System.Text;
 global using System.Text.Encodings.Web;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
+global using System.Xml;
 global using System.Xml.Linq;
 global using System.Xml.Serialization;
+global using Gw2Sharp;
+global using KXMapStudio.Core.Abstractions;
 global using KXMapStudio.Core.Abstractions.Http;
 global using KXMapStudio.Core.Abstractions.Repositories;
 global using KXMapStudio.Core.Abstractions.Services;
+global using KXMapStudio.Core.Abstractions.StateManagement;
+global using KXMapStudio.Core.Host;
 global using KXMapStudio.Core.Mappers;
 global using KXMapStudio.Core.Models;
 global using KXMapStudio.Core.Models.Json.Continents;
+global using KXMapStudio.Core.Models.Json.Kx.v1;
 global using KXMapStudio.Core.Models.Json.Maps;
 global using KXMapStudio.Core.Models.Xml.Taco;
+global using KXMapStudio.Core.Models.Xml.Taco.Dtos;
 global using KXMapStudio.Core.Repositories;
 global using KXMapStudio.Core.Services;
 global using KXMapStudio.Core.Services.Http;
+global using KXMapStudio.Core.Services.Serializations;
+global using KXMapStudio.Core.Types.Enums;
 global using KXMapStudio.Core.Types.Structs;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;

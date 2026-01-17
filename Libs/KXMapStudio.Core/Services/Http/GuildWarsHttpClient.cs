@@ -8,9 +8,9 @@ public sealed record GuildWarsHttpClient(HttpClient HttpClient) : IGuildWarsHttp
 		return JsonSerializer.Deserialize<ContinentFloorModel>(json)!;
 	}
 
-	public async Task<List<MapModel>> GetMapsAsync(CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<MapModel>> GetMapsAsync(CancellationToken cancellationToken = default)
 	{
 		var json = await HttpClient.GetStringAsync(Constants.GuildWars.MapsUrl, cancellationToken);
-		return JsonSerializer.Deserialize<List<MapModel>>(json)!;
+		return JsonSerializer.Deserialize<IReadOnlyList<MapModel>>(json)!;
 	}
 }

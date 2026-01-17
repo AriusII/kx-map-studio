@@ -3,5 +3,5 @@
 public interface IGuildWarsHttpClient
 {
 	public Task<ContinentFloorModel> GetContinentsAsync(CancellationToken cancellationToken = default);
-	public Task<List<MapModel>> GetMapsAsync(CancellationToken cancellationToken = default);
+	public Task<IReadOnlyList<MapModel>> GetMapsAsync(CancellationToken cancellationToken = default);
 }
