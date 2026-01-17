@@ -18,12 +18,6 @@ public sealed class GridDataService(
 	IJsonService jsonService)
 	: IGridDataService
 {
-	public async Task<IReadOnlyList<GridRowDto>> LoadRowsAsync(string path,
-		CancellationToken cancellationToken = default)
-	{
-		return await LoadRowsAsync(path, string.Empty, cancellationToken);
-	}
-
 	public async Task<IReadOnlyList<GridRowDto>> LoadRowsAsync(string path, string category,
 		CancellationToken cancellationToken = default)
 	{

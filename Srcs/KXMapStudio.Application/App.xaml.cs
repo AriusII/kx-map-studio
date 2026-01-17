@@ -6,6 +6,7 @@ namespace KXMapStudio.Application;
 
 public partial class App : System.Windows.Application
 {
+	private static IHost AppHost { get; set; } = null!;
 	public App()
 	{
 		AppHost = Host.CreateDefaultBuilder()
@@ -24,8 +25,6 @@ public partial class App : System.Windows.Application
 			})
 			.Build();
 	}
-
-	private static IHost AppHost { get; set; } = null!;
 
 	protected override void OnStartup(StartupEventArgs e)
 	{

@@ -2,7 +2,7 @@
 
 namespace KXMapStudio.Libs.ViewModels.Workspace;
 
-public sealed partial class CenterWorkspaceViewModel : ObservableObject
+public sealed partial class CenterWorkspaceViewModel : ObservableObject, IDisposable
 {
 	private readonly IGridDataService _gridDataService;
 
@@ -20,14 +20,24 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject
 		_gridDataService = gridDataService;
 
 		messenger.Register<GridCategorySelectedMessageModel>(this,
-			async void (_, message) => { await LoadFromPathAsync(message.Path, message.Category); });
+			async void (_, message) =>
+			{
+				try
+				{
+					await LoadFromPathAsync(message.Path, message.Category);
+				}
+				catch (Exception e)
+				{
+					throw; // TODO handle exception
+				}
+			});
 	}
 
 	public ObservableCollection<GridRowDto> Rows { get; } = [];
 
 	private async Task LoadFromPathAsync(string path, string category, CancellationToken cancellationToken = default)
 	{
-		_loadCts?.Cancel();
+		await _loadCts?.CancelAsync()!;
 		_loadCts = new CancellationTokenSource();
 
 		try
@@ -56,7 +66,7 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject
 		}
 	}
 
-	private static IGridDataService CreateDefaultGridDataService()
+	private static GridDataService CreateDefaultGridDataService()
 	{
 		var xmlRepo = new XmlDataRepository();
 		var jsonRepo = new JsonDataRepository();
@@ -65,5 +75,10 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject
 		var kxService = new JsonService(jsonRepo);
 
 		return new GridDataService(fileTypeDetector, xmlRepo, jsonRepo, archiveRepo, kxService);
+	}
+
+	public void Dispose()
+	{
+		_loadCts?.Dispose();
 	}
 }
