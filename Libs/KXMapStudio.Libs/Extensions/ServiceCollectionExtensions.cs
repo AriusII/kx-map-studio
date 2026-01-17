@@ -1,7 +1,4 @@
-﻿using KXMapStudio.Core.Abstractions.Services;
-using KXMapStudio.Core.Services;
-
-namespace KXMapStudio.Libs.Extensions;
+﻿namespace KXMapStudio.Libs.Extensions;
 
 public static class ServiceCollectionExtensions
 {

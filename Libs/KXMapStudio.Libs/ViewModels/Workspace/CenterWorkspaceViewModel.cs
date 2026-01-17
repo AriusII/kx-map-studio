@@ -1,4 +1,5 @@
-﻿using KXMapStudio.Core.Services;
+﻿using System.ComponentModel;
+using KXMapStudio.Core.Services;
 
 namespace KXMapStudio.Libs.ViewModels.Workspace;
 
@@ -19,33 +20,36 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject, IDispos
 	{
 		_gridDataService = gridDataService;
 
+		if (IsDesignMode)
+			return;
+
 		messenger.Register<GridCategorySelectedMessageModel>(this,
-			async void (_, message) =>
-			{
-				try
-				{
-					await LoadFromPathAsync(message.Path, message.Category);
-				}
-				catch (Exception e)
-				{
-					throw; // TODO handle exception
-				}
-			});
+			async void (_, message) => { await LoadFromPathAsync(message.Path, message.NodePath); });
 	}
+
+	private static bool IsDesignMode =>
+		DesignerProperties.GetIsInDesignMode(new DependencyObject());
+
 
 	public ObservableCollection<GridRowDto> Rows { get; } = [];
 
-	private async Task LoadFromPathAsync(string path, string category, CancellationToken cancellationToken = default)
+	public void Dispose()
 	{
-		await _loadCts?.CancelAsync()!;
+		_loadCts?.Dispose();
+	}
+
+	private async Task LoadFromPathAsync(string path, string nodePath, CancellationToken cancellationToken = default)
+	{
+		_loadCts?.Cancel();
 		_loadCts = new CancellationTokenSource();
 
 		try
 		{
 			IsBusy = true;
-			Status = $"Chargement {category}...";
+			var categoryName = nodePath.Split('|', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "données";
+			Status = $"Chargement {categoryName}...";
 
-			var rows = await _gridDataService.LoadRowsAsync(path, category, _loadCts.Token);
+			var rows = await _gridDataService.LoadRowsAsync(path, nodePath, _loadCts.Token);
 
 			Rows.Clear();
 			foreach (var row in rows) Rows.Add(row);
@@ -75,10 +79,5 @@ public sealed partial class CenterWorkspaceViewModel : ObservableObject, IDispos
 		var kxService = new JsonService(jsonRepo);
 
 		return new GridDataService(fileTypeDetector, xmlRepo, jsonRepo, archiveRepo, kxService);
-	}
-
-	public void Dispose()
-	{
-		_loadCts?.Dispose();
 	}
 }

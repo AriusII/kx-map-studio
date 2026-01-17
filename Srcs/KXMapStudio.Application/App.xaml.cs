@@ -1,4 +1,5 @@
-﻿using KXMapStudio.Core.Models.IOptions;
+﻿using System.Globalization;
+using KXMapStudio.Core.Models.IOptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,7 +7,6 @@ namespace KXMapStudio.Application;
 
 public partial class App : System.Windows.Application
 {
-	private static IHost AppHost { get; set; } = null!;
 	public App()
 	{
 		AppHost = Host.CreateDefaultBuilder()
@@ -26,10 +26,23 @@ public partial class App : System.Windows.Application
 			.Build();
 	}
 
+	private static IHost AppHost { get; set; } = null!;
+
 	protected override void OnStartup(StartupEventArgs e)
 	{
+		ForceCulture("en-US");
 		base.OnStartup(e);
 		AppHost.Start();
+	}
+
+	private static void ForceCulture(string cultureName)
+	{
+		var culture = CultureInfo.GetCultureInfo(cultureName);
+
+		CultureInfo.DefaultThreadCurrentCulture = culture;
+		CultureInfo.DefaultThreadCurrentUICulture = culture;
+		Thread.CurrentThread.CurrentCulture = culture;
+		Thread.CurrentThread.CurrentUICulture = culture;
 	}
 
 	protected override void OnExit(ExitEventArgs e)

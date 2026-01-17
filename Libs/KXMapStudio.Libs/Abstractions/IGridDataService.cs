@@ -2,6 +2,6 @@
 
 public interface IGridDataService
 {
-	Task<IReadOnlyList<GridRowDto>> LoadRowsAsync(string path, string category,
+	Task<IReadOnlyList<GridRowDto>> LoadRowsAsync(string path, string nodePath,
 		CancellationToken cancellationToken = default);
 }

@@ -4,25 +4,41 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:workspace="clr-namespace:KXMapStudio.Libs.ViewModels.Workspace"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              d:DataContext="{d:DesignInstance Type=workspace:CenterWorkspaceViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/KXMapStudio.Libs;component/Themes/GlobalTheme.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
+	<Border Style="{StaticResource PanelSectionBorder}">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0"
-		           Text="{Binding Status}"
-		           Margin="8"
-		           FontSize="14"
-		           FontWeight="SemiBold" />
+			<StackPanel Grid.Row="0" Orientation="Horizontal" Background="{StaticResource MaterialDesign.Brush.Surface}">
+				<materialDesign:PackIcon Kind="TableLarge"
+				                         VerticalAlignment="Center"
+				                         Margin="12,0,0,0"
+				                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
+				<TextBlock Text="{Binding Status}" Style="{StaticResource PanelHeaderTextBlock}" />
+			</StackPanel>
 
-		<DataGrid Grid.Row="1"
-		          ItemsSource="{Binding Rows}"
-		          AutoGenerateColumns="True"
-		          IsReadOnly="True"
-		          Margin="8" />
-	</Grid>
+			<DataGrid Grid.Row="1"
+			          ItemsSource="{Binding Rows}"
+			          AutoGenerateColumns="True"
+			          IsReadOnly="True"
+			          Margin="0"
+			          BorderThickness="0"
+			          Background="Transparent"
+			          GridLinesVisibility="None"
+			          HeadersVisibility="Column" />
+		</Grid>
+	</Border>
 </UserControl>

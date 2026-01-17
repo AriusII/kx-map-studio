@@ -1,29 +1,29 @@
-﻿using KXMapStudio.Core.Services;
+using System.ComponentModel;
+using KXMapStudio.Core.Services;
 
 namespace KXMapStudio.Libs.ViewModels.Workspace;
 
 public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposable
 {
+	private readonly IFilePreviewService _filePreviewService;
 	private readonly IMessenger _messenger;
 	private readonly DispatcherTimer _refreshDebounceTimer;
 	private readonly IWorkspaceExplorerService _workspaceExplorerService;
-	private readonly IFilePreviewService _filePreviewService;
+
+	[ObservableProperty] private bool _isPreviewBusy;
+	[ObservableProperty] private string? _openedFileName;
+	[ObservableProperty] private string? _openedFilePath;
+	private CancellationTokenSource? _previewCts;
 
 	[ObservableProperty] [NotifyPropertyChangedFor(nameof(PreviewLoadTimeText))]
 	private TimeSpan _previewLoadTime;
 
-	[ObservableProperty] private bool _isPreviewBusy;
 	[ObservableProperty] private string _previewStatus = "Aucun fichier sélectionné.";
-	[ObservableProperty] private string? _openedFileName;
-	[ObservableProperty] private string? _openedFilePath;
-
-	[ObservableProperty] private FilePreviewCategoryModel? _selectedPreviewItem;
 
 	[ObservableProperty] [NotifyPropertyChangedFor(nameof(PreviewText))]
 	private WorkspaceExplorerNodeModel? _selectedNode;
 
 	private FileSystemWatcher? _watcher;
-	private CancellationTokenSource? _previewCts;
 
 	public LeftWorkspaceViewModel()
 		: this(new WorkspaceExplorerService(), CreateDefaultPreviewService(), WeakReferenceMessenger.Default)
@@ -43,6 +43,10 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 		{
 			Interval = TimeSpan.FromMilliseconds(500)
 		};
+
+		if (IsDesignMode)
+			return;
+
 		_refreshDebounceTimer.Tick += (_, _) =>
 		{
 			_refreshDebounceTimer.Stop();
@@ -53,8 +57,11 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 		InitializeWatcher();
 	}
 
+	private static bool IsDesignMode =>
+		DesignerProperties.GetIsInDesignMode(new DependencyObject());
+
 	public ObservableCollection<WorkspaceExplorerNodeModel> RootNodes { get; } = [];
-	public ObservableCollection<FilePreviewCategoryModel> PreviewItems { get; } = [];
+	public ObservableCollection<FilePreviewTreeNodeModel> PreviewTreeNodes { get; } = [];
 
 	public string PreviewText => SelectedNode is null
 		? "No file selected."
@@ -81,15 +88,13 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 	}
 
 	[RelayCommand]
-	private void SelectPreviewCategory(FilePreviewCategoryModel? item)
+	private void SelectPreviewTreeNode(FilePreviewTreeNodeModel? node)
 	{
-		if (item is null || string.IsNullOrWhiteSpace(OpenedFilePath)) return;
+		if (node is null || string.IsNullOrWhiteSpace(OpenedFilePath)) return;
+		if (node.NodeType != FilePreviewNodeType.Category) return;
+		if (string.IsNullOrWhiteSpace(node.FullPath)) return;
 
-		foreach (var category in PreviewItems)
-			category.IsSelected = ReferenceEquals(category, item);
-
-		SelectedPreviewItem = item;
-		_messenger.Send(new GridCategorySelectedMessageModel(OpenedFilePath, item.Name));
+		_messenger.Send(new GridCategorySelectedMessageModel(OpenedFilePath, node.FullPath));
 	}
 
 	[RelayCommand]
@@ -98,7 +103,7 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 		ReloadWorkspaceNodes();
 	}
 
-	private async Task LoadPreviewAsync(string path, CancellationToken cancellationToken = default)
+	private async Task LoadPreviewAsync(string path)
 	{
 		_previewCts?.Cancel();
 		_previewCts = new CancellationTokenSource();
@@ -107,21 +112,22 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 		{
 			IsPreviewBusy = true;
 			PreviewStatus = "Chargement...";
-			PreviewItems.Clear();
-			SelectedPreviewItem = null;
+			PreviewTreeNodes.Clear();
 
-			var result = await _filePreviewService.BuildPreviewAsync(path, _previewCts.Token);
+			var result = await _filePreviewService.BuildPreviewTreeAsync(path, _previewCts.Token);
 
 			OpenedFilePath = result.Path;
 			OpenedFileName = Path.GetFileName(result.Path);
 			PreviewLoadTime = result.LoadTime;
 
-			foreach (var item in result.Categories)
-				PreviewItems.Add(new FilePreviewCategoryModel(item.Name, item.Count));
+			// Expand root node by default
+			result.RootNode.IsExpanded = true;
+			PreviewTreeNodes.Add(result.RootNode);
 
-			PreviewStatus = result.Categories.Count == 0
+			var childrenCount = CountAllChildren(result.RootNode);
+			PreviewStatus = childrenCount == 0
 				? "Aucun élément détecté."
-				: $"{result.Categories.Count} catégories disponibles.";
+				: $"{childrenCount} éléments disponibles.";
 		}
 		catch (OperationCanceledException)
 		{
@@ -137,7 +143,15 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 		}
 	}
 
-	private static IFilePreviewService CreateDefaultPreviewService()
+	private static int CountAllChildren(FilePreviewTreeNodeModel node)
+	{
+		var count = node.Children.Count;
+		foreach (var child in node.Children)
+			count += CountAllChildren(child);
+		return count;
+	}
+
+	private static FilePreviewService CreateDefaultPreviewService()
 	{
 		var xmlRepo = new XmlDataRepository();
 		var jsonRepo = new JsonDataRepository();
@@ -148,9 +162,9 @@ public sealed partial class LeftWorkspaceViewModel : ObservableObject, IDisposab
 		var jsonService = new JsonService(jsonRepo);
 		var archiveService = new ArchiveService(archiveRepo, xmlRepo);
 
-		return new FilePreviewService(fileTypeDetector, xmlService, archiveService, jsonService);
+		return new FilePreviewService(fileTypeDetector, xmlService, archiveService, archiveRepo, jsonService);
 	}
-	
+
 	private void ReloadWorkspaceNodes()
 	{
 		var selectedPath = SelectedNode?.FullPath;

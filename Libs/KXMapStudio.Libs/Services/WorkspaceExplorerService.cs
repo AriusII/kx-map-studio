@@ -2,14 +2,14 @@
 
 public sealed class WorkspaceExplorerService : IWorkspaceExplorerService
 {
-	public string DataFolder { get; }
-	
 	public WorkspaceExplorerService(string? dataFolder = null)
 	{
 		DataFolder = dataFolder ?? Path.Combine(AppContext.BaseDirectory, Constants.Settings.DataFolder);
 		Directory.CreateDirectory(DataFolder);
 	}
-	
+
+	public string DataFolder { get; }
+
 	public WorkspaceExplorerNodeModel BuildRootNode()
 	{
 		var dataDirectory = new DirectoryInfo(DataFolder);

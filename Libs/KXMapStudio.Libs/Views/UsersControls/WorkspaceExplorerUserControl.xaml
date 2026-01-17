@@ -4,42 +4,55 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:viewmodel="clr-namespace:KXMapStudio.Libs.ViewModels.Workspace"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodel:LeftWorkspaceViewModel}"
              d:DesignHeight="300" d:DesignWidth="300">
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/KXMapStudio.Libs;component/Themes/GlobalTheme.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
+	<Border Style="{StaticResource PanelSectionBorder}" BorderThickness="0,0,1,0">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
 
-		<DockPanel Grid.Row="0" Margin="8">
-			<TextBlock Text="Workspace Explorer"
-			           FontSize="14"
-			           FontWeight="SemiBold"
-			           DockPanel.Dock="Left" />
-		</DockPanel>
+			<StackPanel Grid.Row="0" Orientation="Horizontal" Background="{StaticResource MaterialDesign.Brush.Surface}">
+				<materialDesign:PackIcon Kind="FolderSearchOutline"
+				                         VerticalAlignment="Center"
+				                         Margin="12,0,0,0"
+				                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
+				<TextBlock Text="WORKSPACE EXPLORER" Style="{StaticResource PanelHeaderTextBlock}" />
+			</StackPanel>
 
-		<TreeView Grid.Row="1"
-		          ItemsSource="{Binding RootNodes}"
-		          Margin="4">
-			<TreeView.ItemTemplate>
-				<HierarchicalDataTemplate ItemsSource="{Binding Children}">
-					<TextBlock Text="{Binding Name}" />
-				</HierarchicalDataTemplate>
-			</TreeView.ItemTemplate>
-			<TreeView.ItemContainerStyle>
-				<Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
-					<Setter Property="Padding" Value="6 2" />
-					<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-				</Style>
-			</TreeView.ItemContainerStyle>
-			<i:Interaction.Triggers>
-				<i:EventTrigger EventName="SelectedItemChanged">
-					<i:InvokeCommandAction Command="{Binding SelectNodeCommand}" PassEventArgsToCommand="True" />
-				</i:EventTrigger>
-			</i:Interaction.Triggers>
-		</TreeView>
-	</Grid>
+			<TreeView Grid.Row="1"
+			          ItemsSource="{Binding RootNodes}"
+			          Margin="4"
+			          BorderThickness="0"
+			          Background="Transparent">
+				<TreeView.ItemTemplate>
+					<HierarchicalDataTemplate ItemsSource="{Binding Children}">
+						<TextBlock Text="{Binding Name}" Margin="4,2" />
+					</HierarchicalDataTemplate>
+				</TreeView.ItemTemplate>
+				<TreeView.ItemContainerStyle>
+					<Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
+						<Setter Property="Padding" Value="6,2" />
+						<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+					</Style>
+				</TreeView.ItemContainerStyle>
+				<i:Interaction.Triggers>
+					<i:EventTrigger EventName="SelectedItemChanged">
+						<i:InvokeCommandAction Command="{Binding SelectNodeCommand}" PassEventArgsToCommand="True" />
+					</i:EventTrigger>
+				</i:Interaction.Triggers>
+			</TreeView>
+		</Grid>
+	</Border>
 </UserControl>

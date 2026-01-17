@@ -3,12 +3,37 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-	<Grid>
-		<TextBlock Text="Right Panel"
-		           Margin="8"
-		           FontSize="14"
-		           FontWeight="SemiBold" />
-	</Grid>
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/KXMapStudio.Libs;component/Themes/GlobalTheme.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
+	<Border Style="{StaticResource PanelSectionBorder}" BorderThickness="1,0,0,0">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<StackPanel Grid.Row="0" Orientation="Horizontal" Background="{StaticResource MaterialDesign.Brush.Surface}">
+				<materialDesign:PackIcon Kind="SettingsOutline"
+				                         VerticalAlignment="Center"
+				                         Margin="12,0,0,0"
+				                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
+				<TextBlock Text="PROPERTIES" Style="{StaticResource PanelHeaderTextBlock}" />
+			</StackPanel>
+
+			<Grid Grid.Row="1" Margin="12">
+				<TextBlock Text="Propriétés non disponibles."
+				           HorizontalAlignment="Center"
+				           VerticalAlignment="Center"
+				           Opacity="0.5" />
+			</Grid>
+		</Grid>
+	</Border>
 </UserControl>
