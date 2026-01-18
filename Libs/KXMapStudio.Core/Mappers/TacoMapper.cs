@@ -1,29 +1,67 @@
 ﻿namespace KXMapStudio.Core.Mappers;
 
+/// <summary>
+///     Provides mapping helpers between TacO XML DTOs and Core domain models.
+/// </summary>
+/// <remarks>
+///     This mapper is intentionally tolerant: invalid POIs/trails are discarded during conversion.
+/// </remarks>
 public static class TacoMapper
 {
+	/// <summary>
+	///     Converts a TacO overlay DTO into a domain marker pack.
+	/// </summary>
+	/// <param name="dto">The source DTO.</param>
+	/// <returns>A domain marker pack.</returns>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="dto" /> is <see langword="null" />.</exception>
 	public static TacoMarkerPackModel MapToDomain(TacoOverlayDataDto dto)
 	{
+		ArgumentNullException.ThrowIfNull(dto);
+
 		var categories = dto.Categories.Select(MapCategory).ToList();
 
-		var pois = dto.PoisContainer?.Pois
-			.Select(MapPoi)
-			.Where(p => p != null)
-			.Cast<TacoPoiModel>()
-			.ToList() ?? [];
+		var pois = new List<TacoPoiModel>();
+		var trails = new List<TacoTrailModel>();
 
-		var trails = dto.PoisContainer?.Trails
-			.Select(MapTrail)
-			.Where(t => t != null)
-			.Cast<TacoTrailModel>()
-			.ToList() ?? [];
+		if (dto.PoisContainer is not null)
+		{
+			if (dto.PoisContainer.Pois is { Count: > 0 })
+			{
+				pois = new List<TacoPoiModel>(dto.PoisContainer.Pois.Count);
+				foreach (var poiDto in dto.PoisContainer.Pois)
+				{
+					var poi = MapPoi(poiDto);
+					if (poi is not null)
+						pois.Add(poi);
+				}
+			}
+
+			if (dto.PoisContainer.Trails is { Count: > 0 })
+			{
+				trails = new List<TacoTrailModel>(dto.PoisContainer.Trails.Count);
+				foreach (var trailDto in dto.PoisContainer.Trails)
+				{
+					var trail = MapTrail(trailDto);
+					if (trail is not null)
+						trails.Add(trail);
+				}
+			}
+		}
 
 		return new TacoMarkerPackModel(categories, pois, trails);
 	}
 
+	/// <summary>
+	///     Converts a domain marker pack into a TacO overlay DTO.
+	/// </summary>
+	/// <param name="model">The domain marker pack.</param>
+	/// <returns>A DTO suitable for XML serialization.</returns>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="model" /> is <see langword="null" />.</exception>
 	public static TacoOverlayDataDto MapToDto(TacoMarkerPackModel model)
 	{
-		var dto = new TacoOverlayDataDto
+		ArgumentNullException.ThrowIfNull(model);
+
+		return new TacoOverlayDataDto
 		{
 			Categories = model.Categories.Select(MapCategoryDto).ToList(),
 			PoisContainer = new TacoPoisContainerDto
@@ -32,8 +70,6 @@ public static class TacoMapper
 				Trails = model.Trails.Select(MapTrailDto).ToList()
 			}
 		};
-
-		return dto;
 	}
 
 	private static TacoMarkerCategoryDto MapCategoryDto(TacoMarkerCategoryModel model)

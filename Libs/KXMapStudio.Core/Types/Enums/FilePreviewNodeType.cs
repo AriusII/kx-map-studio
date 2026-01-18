@@ -23,5 +23,20 @@ public enum FilePreviewNodeType : byte
 	/// <summary>
 	///     A data category (e.g., "Waypoints", "POI", "Trails").
 	/// </summary>
-	Category
+	Category,
+
+	/// <summary>
+	///     Represents a folder node.
+	/// </summary>
+	Folder,
+
+	/// <summary>
+	///     Represents a file node.
+	/// </summary>
+	File,
+
+	/// <summary>
+	///     Represents an archive node.
+	/// </summary>
+	Archive
 }

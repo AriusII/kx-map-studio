@@ -1,23 +1,45 @@
 namespace KXMapStudio.Core.Services.Http;
 
+/// <summary>
+///     Provides minimal GitHub API operations used by KXMapStudio.
+/// </summary>
+/// <param name="HttpClient">The HTTP client used to call the GitHub API.</param>
 public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 {
+	/// <summary>
+	///     Checks if the latest GitHub release version is newer than the currently executing assembly version.
+	/// </summary>
+	/// <param name="cancellationToken">A token used to cancel the operation.</param>
+	/// <returns>
+	///     <see langword="true" /> when a newer version is available; otherwise, <see langword="false" />.
+	/// </returns>
+	/// <remarks>
+	///     This method is intentionally defensive: any failure (network, invalid payload, missing version) returns
+	///     <see langword="false" /> to avoid blocking the application startup or UI.
+	/// </remarks>
 	public async Task<bool> CheckCurrentVersion(CancellationToken cancellationToken = default)
 	{
 		try
 		{
-			var latestRelease = await HttpClient
-				.GetFromJsonAsync<GitHubRelease>(Constants.Settings.GitHubApiUrl, cancellationToken);
-			if (latestRelease == null || string.IsNullOrEmpty(latestRelease.TagName)) return false;
+			var latestRelease = await HttpClient.GetFromJsonAsync<GitHubReleaseModel>(
+				Constants.Settings.GitHubApiUrl,
+				JsonDataRepository.DefaultJsonOptions,
+				cancellationToken);
+
+			if (latestRelease == null || string.IsNullOrEmpty(latestRelease.TagName))
+				return false;
 
 			var latestVersionString = latestRelease.TagName.TrimStart('v');
-			if (!Version.TryParse(latestVersionString, out var latestVersion)) return false;
+			if (!Version.TryParse(latestVersionString, out var latestVersion))
+				return false;
 
 			var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-			if (currentVersion == null) return false;
+			if (currentVersion == null)
+				return false;
+
 			return latestVersion > currentVersion;
 		}
-		catch (Exception)
+		catch
 		{
 			return false;
 		}

@@ -1,21 +1,49 @@
 ﻿namespace KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 /// <summary>
-///     DTO for the Trail element.
+///     Represents the <c>Trail</c> XML element in a TacO marker pack.
 /// </summary>
 public sealed class TacoTrailDto
 {
-	[XmlAttribute("GUID")] public string? Guid { get; set; }
+	/// <summary>
+	///     Gets or sets the GUID attribute.
+	/// </summary>
+	[XmlAttribute("GUID")]
+	public string? Guid { get; set; }
 
-	[XmlAttribute("type")] public string? Type { get; set; }
+	/// <summary>
+	///     Gets or sets the trail type.
+	/// </summary>
+	[XmlAttribute("type")]
+	public string? Type { get; set; }
 
-	[XmlAttribute("trailData")] public string? TrailData { get; set; }
+	/// <summary>
+	///     Gets or sets the encoded trail polyline.
+	/// </summary>
+	[XmlAttribute("trailData")]
+	public string? TrailData { get; set; }
 
-	[XmlAttribute("texture")] public string? Texture { get; set; }
+	/// <summary>
+	///     Gets or sets the trail texture.
+	/// </summary>
+	[XmlAttribute("texture")]
+	public string? Texture { get; set; }
 
-	[XmlAttribute("animSpeed")] public string? AnimSpeed { get; set; }
+	/// <summary>
+	///     Gets or sets the animation speed.
+	/// </summary>
+	[XmlAttribute("animSpeed")]
+	public string? AnimSpeed { get; set; }
 
-	[XmlAttribute("fadeNear")] public string? FadeNear { get; set; }
+	/// <summary>
+	///     Gets or sets the near fade distance.
+	/// </summary>
+	[XmlAttribute("fadeNear")]
+	public string? FadeNear { get; set; }
 
-	[XmlAttribute("fadeFar")] public string? FadeFar { get; set; }
+	/// <summary>
+	///     Gets or sets the far fade distance.
+	/// </summary>
+	[XmlAttribute("fadeFar")]
+	public string? FadeFar { get; set; }
 }

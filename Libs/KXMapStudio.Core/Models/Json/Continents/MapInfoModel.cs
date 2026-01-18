@@ -1,5 +1,22 @@
 ﻿namespace KXMapStudio.Core.Models.Json.Continents;
 
+/// <summary>
+///     Represents a map entry inside a continent floor payload.
+/// </summary>
+/// <param name="Id">The map identifier.</param>
+/// <param name="Name">The map name.</param>
+/// <param name="MinLevel">The minimum level for the map.</param>
+/// <param name="MaxLevel">The maximum level for the map.</param>
+/// <param name="DefaultFloor">The default floor index.</param>
+/// <param name="LabelCoord">The optional label coordinate.</param>
+/// <param name="MapRect">The map rectangle in world coordinates.</param>
+/// <param name="ContinentRect">The map rectangle in continent coordinates.</param>
+/// <param name="PointsOfInterest">The keyed points-of-interest dictionary.</param>
+/// <param name="Tasks">The keyed task dictionary.</param>
+/// <param name="Sectors">The keyed sector dictionary.</param>
+/// <param name="SkillChallenges">The list of skill challenges.</param>
+/// <param name="Adventures">The list of adventures.</param>
+/// <param name="MasteryPoints">The list of mastery points.</param>
 public sealed record MapInfoModel(
 	[property: JsonPropertyName("id")] int Id,
 	[property: JsonPropertyName("name")] string Name,

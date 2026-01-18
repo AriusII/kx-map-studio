@@ -1,7 +1,7 @@
 namespace KXMapStudio.Core.Models.Grid;
 
 /// <summary>
-///     Mutable model representing a grid row with property change notifications.
+///     Represents a mutable grid row with property change notifications.
 /// </summary>
 public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowModel>
 {
@@ -11,30 +11,45 @@ public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowMod
 	private double _y;
 	private double _z;
 
+	/// <summary>
+	///     Gets or sets the row identifier.
+	/// </summary>
 	public int Id
 	{
 		get => _id;
 		set => SetField(ref _id, value);
 	}
 
+	/// <summary>
+	///     Gets or sets the row display name.
+	/// </summary>
 	public string Name
 	{
 		get => _name;
-		set => SetField(ref _name, value ?? string.Empty);
+		set => SetField(ref _name, value);
 	}
 
+	/// <summary>
+	///     Gets or sets the X coordinate.
+	/// </summary>
 	public double X
 	{
 		get => _x;
 		set => SetField(ref _x, value);
 	}
 
+	/// <summary>
+	///     Gets or sets the Y coordinate.
+	/// </summary>
 	public double Y
 	{
 		get => _y;
 		set => SetField(ref _y, value);
 	}
 
+	/// <summary>
+	///     Gets or sets the Z coordinate.
+	/// </summary>
 	public double Z
 	{
 		get => _z;
@@ -48,19 +63,21 @@ public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowMod
 		return Id == other.Id && Name == other.Name && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 	}
 
+	/// <summary>
+	///     Occurs when a property value changes.
+	/// </summary>
 	public event PropertyChangedEventHandler? PropertyChanged;
 
-	private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-	{
-		if (EqualityComparer<T>.Default.Equals(field, value))
-			return;
-
-		field = value;
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-	}
-
+	/// <summary>
+	///     Creates a <see cref="GridRowModel" /> instance from a DTO.
+	/// </summary>
+	/// <param name="dto">The source DTO.</param>
+	/// <returns>A new <see cref="GridRowModel" /> instance.</returns>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="dto" /> is <see langword="null" />.</exception>
 	public static GridRowModel FromDto(GridRowDto dto)
 	{
+		ArgumentNullException.ThrowIfNull(dto);
+
 		return new GridRowModel
 		{
 			Id = dto.Id,
@@ -71,11 +88,19 @@ public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowMod
 		};
 	}
 
+	/// <summary>
+	///     Converts this instance to a DTO.
+	/// </summary>
+	/// <returns>A DTO snapshot.</returns>
 	public GridRowDto ToDto()
 	{
 		return new GridRowDto(Id, Name, X, Y, Z);
 	}
 
+	/// <summary>
+	///     Creates a deep copy of this instance.
+	/// </summary>
+	/// <returns>A cloned <see cref="GridRowModel" />.</returns>
 	public GridRowModel Clone()
 	{
 		return new GridRowModel
@@ -96,5 +121,14 @@ public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowMod
 	public override int GetHashCode()
 	{
 		return HashCode.Combine(Id, Name, X, Y, Z);
+	}
+
+	private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+	{
+		if (EqualityComparer<T>.Default.Equals(field, value))
+			return;
+
+		field = value;
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }

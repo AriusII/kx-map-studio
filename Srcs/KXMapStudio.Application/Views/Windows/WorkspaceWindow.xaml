@@ -1,27 +1,18 @@
 <Window x:Class="KXMapStudio.Application.Views.Windows.WorkspaceWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:views="clr-namespace:KXMapStudio.Libs.Views.UsersControls;assembly=KXMapStudio.Libs"
-        xmlns:workspace="clr-namespace:KXMapStudio.Libs.ViewModels.Workspace;assembly=KXMapStudio.Libs"
+        xmlns:viewModels="clr-namespace:KXMapStudio.Libs.ViewModels;assembly=KXMapStudio.Libs"
+        xmlns:leftSide="clr-namespace:KXMapStudio.Libs.Views.UsersControls.LeftSide;assembly=KXMapStudio.Libs"
         Style="{StaticResource MaterialDesignWindow}"
         Title="WorkspaceWindow" Height="800" Width="1280">
 	<Window.DataContext>
-		<workspace:WorkspaceWindowViewModel />
+		<viewModels:WorkspaceWindowViewModel />
 	</Window.DataContext>
-	<Window.InputBindings>
-		<KeyBinding Key="Z" Modifiers="Ctrl" Command="{Binding MainMenu.UndoCommand}" />
-		<KeyBinding Key="Y" Modifiers="Ctrl" Command="{Binding MainMenu.RedoCommand}" />
-		<KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding MainMenu.SaveDocumentCommand}" />
-	</Window.InputBindings>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
-
-		<views:MainMenuUserControl
-			Grid.Row="0"
-			DataContext="{Binding MainMenu}" />
 
 		<Grid Grid.Row="1">
 			<Grid.ColumnDefinitions>
@@ -38,9 +29,9 @@
 					<RowDefinition Height="2*" MinHeight="100" />
 				</Grid.RowDefinitions>
 
-				<views:WorkspaceExplorerUserControl
+				<leftSide:WorkspaceExplorerUserControl
 					Grid.Row="0"
-					DataContext="{Binding LeftWorkspace}" />
+					DataContext="{Binding LeftPanel}" />
 
 				<GridSplitter Grid.Row="1"
 				              Height="4"
@@ -49,9 +40,9 @@
 				              Background="Transparent"
 				              ShowsPreview="True" />
 
-				<views:FilePreviewUserControl
+				<leftSide:FilePreviewUserControl
 					Grid.Row="2"
-					DataContext="{Binding LeftWorkspace}" />
+					DataContext="{Binding LeftPanel}" />
 			</Grid>
 
 			<!-- Horizontal Splitter Left-Center -->
@@ -62,11 +53,6 @@
 			              Background="Transparent"
 			              ShowsPreview="True" />
 
-			<!-- Center Panel -->
-			<Grid Grid.Column="2">
-				<views:GridEditorUserControl
-					DataContext="{Binding GridEditor}" />
-			</Grid>
 		</Grid>
 	</Grid>
 </Window>

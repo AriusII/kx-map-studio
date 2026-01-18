@@ -11,16 +11,7 @@ public static class ServiceCollectionExtensions
 
 		private IServiceCollection AddServices()
 		{
-			return services
-				.AddSingleton<IWorkspaceExplorerService, WorkspaceExplorerService>()
-				.AddSingleton<IFileSystemService>(sp =>
-				{
-					var workspaceService = sp.GetRequiredService<IWorkspaceExplorerService>();
-					return new FileSystemService(workspaceService.DataFolder);
-				})
-				.AddSingleton<IGridDataService, GridDataService>()
-				.AddSingleton<IGridEditorService, GridEditorService>()
-				.AddSingleton<IFilePreviewService, FilePreviewService>();
+			return services;
 		}
 	}
 }

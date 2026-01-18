@@ -1,10 +1,15 @@
 ﻿namespace KXMapStudio.Core.Host;
 
+/// <summary>
+///     Hosted startup task that ensures the application data folder exists.
+/// </summary>
+/// <param name="Logger">The logger instance.</param>
 public sealed record Initialization(ILogger<Initialization> Logger) : IHostedService
 {
-	public async Task StartAsync(CancellationToken cancellationToken)
+	/// <inheritdoc />
+	public Task StartAsync(CancellationToken cancellationToken)
 	{
-		var appLocation = AppDomain.CurrentDomain.BaseDirectory;
+		var appLocation = AppContext.BaseDirectory;
 		var dataFolderPath = Path.Combine(appLocation, Constants.Settings.DataFolder);
 
 		if (!Directory.Exists(dataFolderPath))
@@ -21,11 +26,12 @@ public sealed record Initialization(ILogger<Initialization> Logger) : IHostedSer
 		else
 			Logger.LogInformation("Data folder already exists at: {DataFolderPath}", dataFolderPath);
 
-		await Task.CompletedTask;
+		return Task.CompletedTask;
 	}
 
-	public async Task StopAsync(CancellationToken cancellationToken)
+	/// <inheritdoc />
+	public Task StopAsync(CancellationToken cancellationToken)
 	{
-		await Task.CompletedTask;
+		return Task.CompletedTask;
 	}
 }

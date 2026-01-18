@@ -1,11 +1,18 @@
 namespace KXMapStudio.Core.Services;
 
+/// <summary>
+///     Provides high-level file workflows by delegating to format-specific services (XML/JSON/Archive).
+/// </summary>
+/// <param name="ArchiveService">The archive service.</param>
+/// <param name="XmlService">The XML service.</param>
+/// <param name="JsonService">The JSON service.</param>
 public sealed record FileReaderService(
 	IArchiveService ArchiveService,
 	IXmlService XmlService,
 	IJsonService JsonService)
 	: IFileReaderService
 {
+	/// <inheritdoc />
 	public async Task<TacoMarkerPackModel?> ReadTacoAsync(string filePath, FileType fileType,
 		CancellationToken cancellationToken = default)
 	{
@@ -20,6 +27,7 @@ public sealed record FileReaderService(
 		};
 	}
 
+	/// <inheritdoc />
 	public Task<IReadOnlyList<MapModel>> ReadMapsJsonAsync(string filePath,
 		CancellationToken cancellationToken = default)
 	{
@@ -27,6 +35,7 @@ public sealed record FileReaderService(
 		return JsonService.LoadGuildWarsMapsAsync(filePath, cancellationToken);
 	}
 
+	/// <inheritdoc />
 	public Task<ContinentFloorModel?> ReadContinentsJsonAsync(string filePath,
 		CancellationToken cancellationToken = default)
 	{
@@ -34,6 +43,7 @@ public sealed record FileReaderService(
 		return JsonService.LoadGuildWarsContinentFloorAsync(filePath, cancellationToken);
 	}
 
+	/// <inheritdoc />
 	public Task<JsonModel> ReadJsonAsync(string filePath, CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);

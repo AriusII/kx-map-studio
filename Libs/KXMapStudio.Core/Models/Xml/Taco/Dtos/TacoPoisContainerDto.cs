@@ -1,11 +1,19 @@
 ﻿namespace KXMapStudio.Core.Models.Xml.Taco.Dtos;
 
 /// <summary>
-///     DTO for the POIs container element.
+///     Represents the <c>POIs</c> container element in a TacO marker pack.
 /// </summary>
 public sealed class TacoPoisContainerDto
 {
-	[XmlElement("POI")] public List<TacoPoiDto> Pois { get; set; } = new();
+	/// <summary>
+	///     Gets or sets the list of POI elements.
+	/// </summary>
+	[XmlElement("POI")]
+	public List<TacoPoiDto> Pois { get; set; } = new();
 
-	[XmlElement("Trail")] public List<TacoTrailDto> Trails { get; set; } = new();
+	/// <summary>
+	///     Gets or sets the list of trail elements.
+	/// </summary>
+	[XmlElement("Trail")]
+	public List<TacoTrailDto> Trails { get; set; } = new();
 }

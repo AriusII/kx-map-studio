@@ -14,7 +14,7 @@ global using System.Xml;
 global using System.Xml.Linq;
 global using System.Xml.Serialization;
 global using Gw2Sharp;
-global using KXMapStudio.Core.Abstractions;
+global using Gw2Sharp.Models;
 global using KXMapStudio.Core.Abstractions.Http;
 global using KXMapStudio.Core.Abstractions.Repositories;
 global using KXMapStudio.Core.Abstractions.Repositories.Serializations;

@@ -5,6 +5,6 @@ namespace KXMapStudio.Libs.Models.Workspace;
 /// </summary>
 public sealed record FilePreviewTreeResultModel(
 	string Path,
-	DataType DataType,
+	FileType FileType,
 	TimeSpan LoadTime,
 	FilePreviewTreeNodeModel RootNode);
