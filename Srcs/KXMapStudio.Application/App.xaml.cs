@@ -1,22 +1,20 @@
 ﻿namespace KXMapStudio.Application;
 
-public partial class App : System.Windows.Application
+public sealed partial class App
 {
 	public App()
 	{
 		AppHost = Host.CreateDefaultBuilder()
-			.ConfigureAppConfiguration(configuration =>
-			{
-				configuration
-					.AddJsonFile("appsettings.json");
-			})
+			.ConfigureAppConfiguration(configuration => { configuration.AddJsonFile("appsettings.json"); })
 			.ConfigureServices((contexts, services) =>
 			{
 				services
 					.AddCoreDependencies()
 					.AddLibsDependencies();
-				services.Configure<SettingsOption>(
-					contexts.Configuration.GetSection("Settings"));
+				services.AddTransient<WorkspaceWindowViewModel>();
+				services.AddTransient<WorkspaceWindow>();
+
+				services.Configure<SettingsOption>(contexts.Configuration.GetSection("Settings"));
 			})
 			.Build();
 	}
@@ -28,6 +26,10 @@ public partial class App : System.Windows.Application
 		ForceCulture("en-US");
 		base.OnStartup(e);
 		AppHost.Start();
+
+		var mainWindow = AppHost.Services.GetRequiredService<WorkspaceWindow>();
+		MainWindow = mainWindow;
+		mainWindow.Show();
 	}
 
 	private static void ForceCulture(string cultureName)

@@ -6,12 +6,24 @@ public static class ServiceCollectionExtensions
 	{
 		public IServiceCollection AddLibsDependencies()
 		{
-			return services.AddServices();
+			return services
+				.AddServices()
+				.AddViewModels();
 		}
 
 		private IServiceCollection AddServices()
 		{
-			return services;
+			return services
+				.AddSingleton<IWorkshopFileExplorerService, WorkshopFileExplorerService>()
+				.AddSingleton<IFileExplorerNodeService, FileExplorerNodeService>();
+		}
+
+		private IServiceCollection AddViewModels()
+		{
+			return services
+				.AddSingleton<IFileExplorerViewModel, FileExplorerViewModel>()
+				.AddSingleton<ILeftPanelViewModel, LeftPanelViewModel>()
+				.AddSingleton<IWorkspaceWindowViewModel, WorkspaceWindowViewModel>();
 		}
 	}
 }

@@ -1,12 +1,7 @@
-﻿using KXMapStudio.Libs.ViewModels.Workspace;
+﻿namespace KXMapStudio.Libs.ViewModels;
 
-namespace KXMapStudio.Libs.ViewModels;
-
-public sealed class WorkspaceWindowViewModel : ObservableObject, IDisposable
+public sealed class WorkspaceWindowViewModel(ILeftPanelViewModel leftPanel)
+	: ObservableObject, IWorkspaceWindowViewModel
 {
-	public LeftPanelViewModel LeftPanel { get; } = new();
-
-	public void Dispose()
-	{
-	}
+	public ILeftPanelViewModel LeftPanel { get; } = leftPanel;
 }

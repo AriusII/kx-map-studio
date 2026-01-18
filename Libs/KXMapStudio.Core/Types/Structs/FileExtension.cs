@@ -3,7 +3,7 @@
 /// <summary>
 ///     Defines file extension constants used by KXMapStudio.
 /// </summary>
-public static class FileExtension
+public readonly ref struct FileExtension
 {
 	/// <summary>
 	///     The <c>.xml</c> file extension.

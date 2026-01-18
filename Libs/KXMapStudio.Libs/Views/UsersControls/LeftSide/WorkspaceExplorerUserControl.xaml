@@ -36,31 +36,10 @@
 					                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
 					<TextBlock Text="WORKSPACE EXPLORER" Style="{StaticResource PanelHeaderTextBlock}" />
 				</StackPanel>
-
-				<StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,8,0">
-					<Button Command="{Binding CreateFileCommand}"
-					        ToolTip="New File"
-					        Style="{StaticResource MaterialDesignIconButton}"
-					        Width="32" Height="32">
-						<materialDesign:PackIcon Kind="FilePlus" Width="20" Height="20" />
-					</Button>
-					<Button Command="{Binding CreateFolderCommand}"
-					        ToolTip="New Folder"
-					        Style="{StaticResource MaterialDesignIconButton}"
-					        Width="32" Height="32">
-						<materialDesign:PackIcon Kind="FolderPlus" Width="20" Height="20" />
-					</Button>
-					<Button Command="{Binding DeleteSelectedCommand}"
-					        ToolTip="Delete"
-					        Style="{StaticResource MaterialDesignIconButton}"
-					        Width="32" Height="32">
-						<materialDesign:PackIcon Kind="Delete" Width="20" Height="20" />
-					</Button>
-				</StackPanel>
 			</Grid>
 
 			<TreeView Grid.Row="1"
-			          ItemsSource="{Binding RootNodes}"
+			          ItemsSource="{Binding FileExplorer.RootNodes}"
 			          Margin="4"
 			          BorderThickness="0"
 			          Background="Transparent">
@@ -134,7 +113,7 @@
 				</TreeView.ItemContainerStyle>
 				<i:Interaction.Triggers>
 					<i:EventTrigger EventName="SelectedItemChanged">
-						<i:InvokeCommandAction Command="{Binding SelectNodeCommand}" PassEventArgsToCommand="True" />
+						<i:InvokeCommandAction Command="{Binding FileExplorer.SelectNodeCommand}" PassEventArgsToCommand="True" />
 					</i:EventTrigger>
 				</i:Interaction.Triggers>
 			</TreeView>

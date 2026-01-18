@@ -1,9 +1,11 @@
 namespace KXMapStudio.Libs.ViewModels.Workspace;
 
-public sealed class LeftPanelViewModel : ObservableObject, IDisposable
+public sealed class LeftPanelViewModel(IFileExplorerViewModel fileExplorer) : ObservableObject, ILeftPanelViewModel
 {
+	public IFileExplorerViewModel FileExplorer { get; } = fileExplorer;
+
 	public void Dispose()
 	{
-		// TODO release managed resources here
+		FileExplorer.Dispose();
 	}
 }

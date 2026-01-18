@@ -5,10 +5,91 @@ namespace KXMapStudio.Core.Services;
 /// </summary>
 public sealed record FileExplorerService : IFileExplorerService
 {
-	/// <inheritdoc />
 	public IEnumerable<FileSystemEntryModel> EnumerateEntries(bool recursive = true)
 	{
 		return EnumerateFrom(GetDataRootPath(), recursive);
+	}
+
+	public FileSystemEntryNodeModel BuildTree(bool recursive = true)
+	{
+		var dataRoot = Path.GetFullPath(GetDataRootPath());
+		Directory.CreateDirectory(dataRoot);
+
+		var entries = EnumerateEntries(recursive)
+			.Where(e => e.Type != ExplorerEntryType.Root)
+			.ToList();
+
+		var root = new FileSystemEntryNodeModel(
+			Path.GetFileName(dataRoot) is { Length: > 0 } n ? n : dataRoot,
+			dataRoot,
+			ExplorerEntryType.Root
+		);
+
+		var nodes = new Dictionary<string, FileSystemEntryNodeModel>(StringComparer.OrdinalIgnoreCase)
+		{
+			[dataRoot] = root
+		};
+
+		foreach (var entry in entries)
+		{
+			var fullPath = Path.GetFullPath(entry.FullPath);
+			nodes[fullPath] = new FileSystemEntryNodeModel(entry.Name, fullPath, entry.Type);
+		}
+
+		foreach (var (path, node) in nodes.ToList())
+		{
+			if (ReferenceEquals(node, root))
+				continue;
+
+			var parentPath = Path.GetDirectoryName(path);
+			if (string.IsNullOrWhiteSpace(parentPath))
+				continue;
+
+			parentPath = Path.GetFullPath(parentPath);
+
+			if (!nodes.TryGetValue(parentPath, out var parent))
+			{
+				var parentName = Path.GetFileName(parentPath) is { Length: > 0 } pn ? pn : parentPath;
+				parent = new FileSystemEntryNodeModel(parentName, parentPath, ExplorerEntryType.Folder);
+				nodes[parentPath] = parent;
+			}
+
+			if (!parent.Children.Any(c => string.Equals(c.FullPath, node.FullPath, StringComparison.OrdinalIgnoreCase)))
+				parent.Children.Add(node);
+		}
+
+		SortRecursively(root);
+		return root;
+	}
+
+	private static void SortRecursively(FileSystemEntryNodeModel node)
+	{
+		if (node.Children.Count == 0)
+			return;
+
+		var sorted = node.Children
+			.OrderBy(c => Rank(c.Type))
+			.ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		node.Children.Clear();
+		node.Children.AddRange(sorted);
+
+		foreach (var child in node.Children)
+			SortRecursively(child);
+		return;
+
+		static int Rank(ExplorerEntryType t)
+		{
+			return t switch
+			{
+				ExplorerEntryType.Root => 0,
+				ExplorerEntryType.Folder => 1,
+				ExplorerEntryType.Archive => 2,
+				ExplorerEntryType.File => 3,
+				_ => 9
+			};
+		}
 	}
 
 	private static string GetDataRootPath()

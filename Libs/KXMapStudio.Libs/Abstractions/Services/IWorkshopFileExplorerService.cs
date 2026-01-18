@@ -1,6 +1,6 @@
-﻿namespace KXMapStudio.Libs.Abstractions;
+﻿namespace KXMapStudio.Libs.Abstractions.Services;
 
-public interface IWorkspaceExplorerService
+public interface IWorkshopFileExplorerService
 {
 	string DataFolder { get; }
 	WorkspaceExplorerNodeModel BuildRootNode();

@@ -1,11 +1,11 @@
 ﻿namespace KXMapStudio.Core.Types.Structs;
 
-public static partial class Constants
+public readonly ref partial struct Constants
 {
 	/// <summary>
 	///     Contains constants related to KXMapStudio runtime settings and well-known paths.
 	/// </summary>
-	public static class Settings
+	public readonly ref struct Settings
 	{
 		/// <summary>
 		///     Gets the name of the runtime data folder created next to the application binaries.

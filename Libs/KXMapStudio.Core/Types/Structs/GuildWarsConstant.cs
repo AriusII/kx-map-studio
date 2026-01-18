@@ -1,11 +1,11 @@
 ﻿namespace KXMapStudio.Core.Types.Structs;
 
-public static partial class Constants
+public readonly ref partial struct Constants
 {
 	/// <summary>
 	///     Contains constants related to the Guild Wars 2 external API.
 	/// </summary>
-	public static class GuildWars
+	public readonly ref struct GuildWars
 	{
 		/// <summary>
 		///     Gets the GW2 API endpoint that returns continent floor data used by the application.
