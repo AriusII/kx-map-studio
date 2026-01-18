@@ -9,11 +9,11 @@ public sealed class TacoPoisContainerDto
 	///     Gets or sets the list of POI elements.
 	/// </summary>
 	[XmlElement("POI")]
-	public List<TacoPoiDto> Pois { get; set; } = new();
+	public List<TacoPoiDto> Pois { get; set; } = [];
 
 	/// <summary>
 	///     Gets or sets the list of trail elements.
 	/// </summary>
 	[XmlElement("Trail")]
-	public List<TacoTrailDto> Trails { get; set; } = new();
+	public List<TacoTrailDto> Trails { get; set; } = [];
 }

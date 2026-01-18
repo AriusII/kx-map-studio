@@ -1,23 +1,29 @@
 namespace KXMapStudio.Libs.ViewModels.Workspace.LeftSide;
 
-public sealed partial class FileExplorerViewModel : ObservableObject, IFileExplorerViewModel
+public sealed partial class FileExplorerViewModel : ObservableObject, IFileExplorerViewModel, IDisposable
 {
+	private readonly IFileExplorerNodeService _nodeService;
 	private readonly Lock _refreshLock = new();
 	private readonly FileSystemWatcher _watcher;
-	private readonly IWorkshopFileExplorerService _workshopFileExplorerService;
+	private readonly IWorkshopExplorerService _workshopExplorerService;
+	private int _isRefreshing;
+
 	private string? _pendingSelectedPath;
 	private Timer? _refreshTimer;
 
 	[ObservableProperty] private WorkspaceExplorerNodeModel? _selectedNode;
 
-	public FileExplorerViewModel(IWorkshopFileExplorerService workshopFileExplorerService)
+	public FileExplorerViewModel(IWorkshopExplorerService workshopExplorerService, IFileExplorerNodeService nodeService)
 	{
-		_workshopFileExplorerService = workshopFileExplorerService;
+		_workshopExplorerService = workshopExplorerService;
+		_nodeService = nodeService;
 
 		RootNodes = [];
 		RefreshTree();
 
-		_watcher = new FileSystemWatcher(_workshopFileExplorerService.DataFolder)
+		SelectNodeCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>(OnSelectedItemChanged);
+
+		_watcher = new FileSystemWatcher(_workshopExplorerService.DataFolder)
 		{
 			IncludeSubdirectories = true,
 			EnableRaisingEvents = true,
@@ -31,6 +37,8 @@ public sealed partial class FileExplorerViewModel : ObservableObject, IFileExplo
 	}
 
 	public ObservableCollection<WorkspaceExplorerNodeModel> RootNodes { get; }
+
+	public IRelayCommand<RoutedPropertyChangedEventArgs<object>> SelectNodeCommand { get; }
 
 	public void Dispose()
 	{
@@ -48,9 +56,32 @@ public sealed partial class FileExplorerViewModel : ObservableObject, IFileExplo
 		}
 	}
 
+	public event EventHandler<string>? FileSelected;
+
+	private void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object>? e)
+	{
+		if (e?.NewValue is not WorkspaceExplorerNodeModel node)
+			return;
+
+		SelectedNode = node;
+	}
+
+	partial void OnSelectedNodeChanged(WorkspaceExplorerNodeModel? value)
+	{
+		_pendingSelectedPath = value?.FullPath;
+
+		if (value is null || value.IsDirectory)
+			return;
+
+		if (!_workshopExplorerService.IsAllowedFilePath(value.FullPath))
+			return;
+
+		FileSelected?.Invoke(this, value.FullPath);
+	}
+
 	private void OnFsChanged(object sender, FileSystemEventArgs e)
 	{
-		if (!_workshopFileExplorerService.IsRelevantChange(e.FullPath))
+		if (!_workshopExplorerService.IsRelevantChange(e.FullPath))
 			return;
 
 		QueueRefresh();
@@ -58,8 +89,8 @@ public sealed partial class FileExplorerViewModel : ObservableObject, IFileExplo
 
 	private void OnFsRenamed(object sender, RenamedEventArgs e)
 	{
-		if (_workshopFileExplorerService.IsRelevantChange(e.FullPath) ||
-		    _workshopFileExplorerService.IsRelevantChange(e.OldFullPath))
+		if (_workshopExplorerService.IsRelevantChange(e.FullPath) ||
+		    _workshopExplorerService.IsRelevantChange(e.OldFullPath))
 			QueueRefresh();
 	}
 
@@ -78,45 +109,40 @@ public sealed partial class FileExplorerViewModel : ObservableObject, IFileExplo
 
 	private void RefreshTimerOnElapsed(object? sender, ElapsedEventArgs e)
 	{
-		// FileSystemWatcher events are not on the UI thread.
 		var app = Application.Current;
-
 		app?.Dispatcher.Invoke(RefreshTree);
 	}
 
 	private void RefreshTree()
 	{
-		_pendingSelectedPath ??= SelectedNode?.FullPath;
+		if (Interlocked.Exchange(ref _isRefreshing, 1) == 1)
+			return;
 
-		var root = _workshopFileExplorerService.BuildRootNode();
-		RootNodes.Clear();
-		RootNodes.Add(root);
-
-		if (!string.IsNullOrWhiteSpace(_pendingSelectedPath))
+		try
 		{
-			var found = _workshopFileExplorerService.FindNodeByPath(root, _pendingSelectedPath!);
-			if (found != null)
+			_pendingSelectedPath ??= SelectedNode?.FullPath;
+
+			var root = _workshopExplorerService.BuildRootNode();
+			root.IsExpanded = true;
+
+			RootNodes.Clear();
+			RootNodes.Add(root);
+
+			WorkspaceExplorerNodeModel? toSelect = null;
+
+			if (!string.IsNullOrWhiteSpace(_pendingSelectedPath))
 			{
-				ExpandParents(root, found.FullPath);
-				SelectedNode = found;
+				toSelect = _workshopExplorerService.FindNodeByPath(root, _pendingSelectedPath!);
+				if (toSelect != null)
+					_nodeService.ExpandParents(root, toSelect.FullPath);
 			}
+
+			SelectedNode = toSelect ?? root;
+			_pendingSelectedPath = null;
 		}
-
-		_pendingSelectedPath = null;
-	}
-
-	private static bool ExpandParents(WorkspaceExplorerNodeModel current, string targetFullPath)
-	{
-		if (string.Equals(current.FullPath, targetFullPath, StringComparison.OrdinalIgnoreCase))
-			return true;
-
-		foreach (var child in current.Children)
-			if (ExpandParents(child, targetFullPath))
-			{
-				current.IsExpanded = true;
-				return true;
-			}
-
-		return false;
+		finally
+		{
+			Interlocked.Exchange(ref _isRefreshing, 0);
+		}
 	}
 }

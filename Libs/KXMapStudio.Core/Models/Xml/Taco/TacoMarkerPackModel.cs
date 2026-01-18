@@ -7,6 +7,6 @@
 /// <param name="Pois">The list of points of interest.</param>
 /// <param name="Trails">The list of trail definitions.</param>
 public sealed record TacoMarkerPackModel(
-	List<TacoMarkerCategoryModel> Categories,
-	List<TacoPoiModel> Pois,
-	List<TacoTrailModel> Trails);
+	IReadOnlyList<TacoMarkerCategoryModel> Categories,
+	IReadOnlyList<TacoPoiModel> Pois,
+	IReadOnlyList<TacoTrailModel> Trails);

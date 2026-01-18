@@ -11,7 +11,7 @@ public sealed record TacoMarkerCategoryModel(
 	string Name,
 	string? DisplayName,
 	bool IsSeparator,
-	List<TacoMarkerCategoryModel> SubCategories)
+	IReadOnlyList<TacoMarkerCategoryModel> SubCategories)
 {
 	/// <summary>
 	///     Gets the tooltip title.

@@ -10,7 +10,7 @@ public sealed class TacoOverlayDataDto
 	///     Gets or sets the list of marker categories.
 	/// </summary>
 	[XmlElement("MarkerCategory")]
-	public List<TacoMarkerCategoryDto> Categories { get; set; } = new();
+	public List<TacoMarkerCategoryDto> Categories { get; set; } = [];
 
 	/// <summary>
 	///     Gets or sets the POIs container element.

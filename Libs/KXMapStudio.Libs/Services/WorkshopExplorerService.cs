@@ -3,17 +3,15 @@ namespace KXMapStudio.Libs.Services;
 /// <summary>
 ///     UI-facing explorer service (WPF). Delegates filesystem/tree construction to Core and maps to WPF models.
 /// </summary>
-public sealed class WorkshopFileExplorerService : IWorkshopFileExplorerService
+public sealed class WorkshopExplorerService : IWorkshopExplorerService
 {
 	private readonly IFileExplorerService _coreExplorer;
-	private readonly IFileExplorerNodeService _fileExplorerNodeService;
+	private readonly IFileExplorerNodeService _nodeService;
 
-	public WorkshopFileExplorerService(IFileExplorerService coreExplorer,
-		IFileExplorerNodeService fileExplorerNodeService)
+	public WorkshopExplorerService(IFileExplorerService coreExplorer, IFileExplorerNodeService nodeService)
 	{
 		_coreExplorer = coreExplorer ?? throw new ArgumentNullException(nameof(coreExplorer));
-		_fileExplorerNodeService =
-			fileExplorerNodeService ?? throw new ArgumentNullException(nameof(fileExplorerNodeService));
+		_nodeService = nodeService ?? throw new ArgumentNullException(nameof(nodeService));
 
 		DataFolder = Path.Combine(AppContext.BaseDirectory, Constants.Settings.DataFolder);
 		Directory.CreateDirectory(DataFolder);
@@ -21,15 +19,15 @@ public sealed class WorkshopFileExplorerService : IWorkshopFileExplorerService
 
 	public string DataFolder { get; }
 
-	public WorkspaceExplorerNodeModel BuildRootNode()
+	public WorkspaceExplorerNodeModel BuildRootNode(bool recursive = true)
 	{
-		var coreRoot = _coreExplorer.BuildTree();
+		var coreRoot = _coreExplorer.BuildTree(recursive);
 		return Map(coreRoot);
 	}
 
 	public WorkspaceExplorerNodeModel? FindNodeByPath(WorkspaceExplorerNodeModel nodeModel, string fullPath)
 	{
-		return _fileExplorerNodeService.FindByPath(nodeModel, fullPath);
+		return _nodeService.FindByPath(nodeModel, fullPath);
 	}
 
 	public bool IsRelevantChange(string fullPath)
@@ -40,10 +38,9 @@ public sealed class WorkshopFileExplorerService : IWorkshopFileExplorerService
 		try
 		{
 			var normalized = Path.GetFullPath(fullPath);
-			if (!normalized.StartsWith(Path.GetFullPath(DataFolder), StringComparison.OrdinalIgnoreCase))
-				return false;
+			var dataRoot = Path.GetFullPath(DataFolder);
 
-			return Directory.Exists(normalized) || IsAllowedFilePath(normalized);
+			return normalized.StartsWith(dataRoot, StringComparison.OrdinalIgnoreCase);
 		}
 		catch
 		{

@@ -2,7 +2,7 @@ namespace KXMapStudio.Application.Views.Windows;
 
 public sealed partial class WorkspaceWindow : Window
 {
-	public WorkspaceWindow(WorkspaceWindowViewModel viewModel)
+	public WorkspaceWindow(IWorkspaceWindowViewModel viewModel)
 	{
 		InitializeComponent();
 		DataContext = viewModel;

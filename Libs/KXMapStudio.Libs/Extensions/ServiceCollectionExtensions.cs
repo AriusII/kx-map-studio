@@ -14,14 +14,16 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddServices()
 		{
 			return services
-				.AddSingleton<IWorkshopFileExplorerService, WorkshopFileExplorerService>()
-				.AddSingleton<IFileExplorerNodeService, FileExplorerNodeService>();
+				.AddSingleton<IWorkshopExplorerService, WorkshopExplorerService>()
+				.AddSingleton<IFileExplorerNodeService, FileExplorerNodeService>()
+				.AddSingleton<IFilePreviewService, FilePreviewService>();
 		}
 
 		private IServiceCollection AddViewModels()
 		{
 			return services
 				.AddSingleton<IFileExplorerViewModel, FileExplorerViewModel>()
+				.AddSingleton<IFilePreviewViewModel, FilePreviewViewModel>()
 				.AddSingleton<ILeftPanelViewModel, LeftPanelViewModel>()
 				.AddSingleton<IWorkspaceWindowViewModel, WorkspaceWindowViewModel>();
 		}

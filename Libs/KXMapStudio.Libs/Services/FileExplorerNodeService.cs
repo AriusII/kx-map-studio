@@ -3,7 +3,7 @@ namespace KXMapStudio.Libs.Services;
 /// <summary>
 ///     UI-only tree helpers (selection + expansion).
 /// </summary>
-public sealed class FileExplorerNodeService : IFileExplorerNodeService
+public sealed record FileExplorerNodeService : IFileExplorerNodeService
 {
 	public WorkspaceExplorerNodeModel? FindByPath(WorkspaceExplorerNodeModel root, string fullPath)
 	{

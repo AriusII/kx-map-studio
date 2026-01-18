@@ -5,9 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:viewmodel="clr-namespace:KXMapStudio.Libs.ViewModels.Workspace.LeftSide"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=viewmodel:FilePreviewViewModel}"
              d:DesignHeight="300" d:DesignWidth="300">
 	<UserControl.Resources>
 		<ResourceDictionary>
@@ -33,7 +31,7 @@
 			</StackPanel>
 
 			<StackPanel Grid.Row="1" Margin="12,4,12,8">
-				<TextBlock Text="{Binding OpenedFileName, TargetNullValue='Aucun fichier sélectionné.'}"
+				<TextBlock Text="{Binding OpenedFileName, TargetNullValue='No file selected.'}"
 				           FontWeight="SemiBold"
 				           FontSize="13" />
 				<TextBlock Text="{Binding PreviewStatus}"

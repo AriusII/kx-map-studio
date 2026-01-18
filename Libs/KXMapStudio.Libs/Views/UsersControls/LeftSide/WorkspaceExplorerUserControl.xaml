@@ -5,10 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:viewmodel="clr-namespace:KXMapStudio.Libs.ViewModels.Workspace.LeftSide"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=viewmodel:FileExplorerViewModel}"
              d:DesignHeight="300" d:DesignWidth="300">
+
 	<UserControl.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
@@ -16,6 +15,7 @@
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</UserControl.Resources>
+
 	<Border Style="{StaticResource PanelSectionBorder}" BorderThickness="0,0,1,0">
 		<Grid>
 			<Grid.RowDefinitions>
@@ -39,16 +39,17 @@
 			</Grid>
 
 			<TreeView Grid.Row="1"
-			          ItemsSource="{Binding FileExplorer.RootNodes}"
+			          ItemsSource="{Binding RootNodes}"
 			          Margin="4"
 			          BorderThickness="0"
 			          Background="Transparent">
+
 				<TreeView.ItemTemplate>
 					<HierarchicalDataTemplate ItemsSource="{Binding Children}">
 						<TextBlock Text="{Binding Name}" Margin="4,2">
 							<TextBlock.ContextMenu>
 								<ContextMenu>
-									<!-- For Archives (.zip, .taco) -->
+
 									<MenuItem Header="New XML File in Archive"
 									          Command="{Binding DataContext.CreateFileInArchiveCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
 									          CommandParameter="{Binding}">
@@ -64,7 +65,6 @@
 										</MenuItem.Style>
 									</MenuItem>
 
-									<!-- For Directories -->
 									<MenuItem Header="New File"
 									          Command="{Binding DataContext.CreateFileInFolderCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
 									          CommandParameter="{Binding}">
@@ -79,6 +79,7 @@
 											</Style>
 										</MenuItem.Style>
 									</MenuItem>
+
 									<MenuItem Header="New Folder"
 									          Command="{Binding DataContext.CreateFolderInFolderCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
 									          CommandParameter="{Binding}">
@@ -96,7 +97,6 @@
 
 									<Separator />
 
-									<!-- Delete (for both files and folders) -->
 									<MenuItem Header="Delete"
 									          Command="{Binding DataContext.DeleteNodeCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
 									          CommandParameter="{Binding}" />
@@ -105,17 +105,20 @@
 						</TextBlock>
 					</HierarchicalDataTemplate>
 				</TreeView.ItemTemplate>
+
 				<TreeView.ItemContainerStyle>
 					<Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
 						<Setter Property="Padding" Value="6,2" />
 						<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
 					</Style>
 				</TreeView.ItemContainerStyle>
+
 				<i:Interaction.Triggers>
 					<i:EventTrigger EventName="SelectedItemChanged">
-						<i:InvokeCommandAction Command="{Binding FileExplorer.SelectNodeCommand}" PassEventArgsToCommand="True" />
+						<i:InvokeCommandAction Command="{Binding SelectNodeCommand}" PassEventArgsToCommand="True" />
 					</i:EventTrigger>
 				</i:Interaction.Triggers>
+
 			</TreeView>
 		</Grid>
 	</Border>

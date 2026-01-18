@@ -111,5 +111,5 @@ public sealed class TacoMarkerCategoryDto
 	///     Gets or sets the nested marker categories.
 	/// </summary>
 	[XmlElement("MarkerCategory")]
-	public List<TacoMarkerCategoryDto> SubCategories { get; set; } = [];
+	public IReadOnlyList<TacoMarkerCategoryDto> SubCategories { get; set; } = [];
 }

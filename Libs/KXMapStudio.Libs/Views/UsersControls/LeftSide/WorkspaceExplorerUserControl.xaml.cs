@@ -6,9 +6,4 @@ public sealed partial class WorkspaceExplorerUserControl : UserControl
 	{
 		InitializeComponent();
 	}
-
-	public WorkspaceExplorerUserControl(FileExplorerViewModel viewModel) : this()
-	{
-		DataContext = viewModel;
-	}
 }

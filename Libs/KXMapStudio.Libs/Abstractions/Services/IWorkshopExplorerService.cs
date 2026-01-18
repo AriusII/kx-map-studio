@@ -1,9 +1,9 @@
 ﻿namespace KXMapStudio.Libs.Abstractions.Services;
 
-public interface IWorkshopFileExplorerService
+public interface IWorkshopExplorerService
 {
 	string DataFolder { get; }
-	WorkspaceExplorerNodeModel BuildRootNode();
+	WorkspaceExplorerNodeModel BuildRootNode(bool recursive = true);
 	WorkspaceExplorerNodeModel? FindNodeByPath(WorkspaceExplorerNodeModel nodeModel, string fullPath);
 	bool IsRelevantChange(string fullPath);
 	bool IsAllowedFilePath(string fullPath);

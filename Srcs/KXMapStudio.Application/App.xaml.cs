@@ -10,9 +10,9 @@ public sealed partial class App
 			{
 				services
 					.AddCoreDependencies()
-					.AddLibsDependencies();
-				services.AddTransient<WorkspaceWindowViewModel>();
-				services.AddTransient<WorkspaceWindow>();
+					.AddLibsDependencies()
+					.AddSingleton<WorkspaceWindow>();
+
 
 				services.Configure<SettingsOption>(contexts.Configuration.GetSection("Settings"));
 			})
@@ -28,7 +28,6 @@ public sealed partial class App
 		AppHost.Start();
 
 		var mainWindow = AppHost.Services.GetRequiredService<WorkspaceWindow>();
-		MainWindow = mainWindow;
 		mainWindow.Show();
 	}
 
