@@ -17,6 +17,8 @@ public static class ServiceCollectionExtension
 				.AddSingleton<IWorkshopExplorerService, WorkshopExplorerService>()
 				.AddSingleton<IWorkshopExplorerNodeService, WorkshopExplorerNodeService>()
 				.AddSingleton<IFilePreviewService, FilePreviewService>()
+				.AddSingleton<ISaveFileDialogService, SaveFileDialogService>()
+				.AddSingleton<IGridEditorDocumentService, GridEditorDocumentService>()
 				.AddSingleton<IGridEditorService, GridEditorService>();
 		}
 
@@ -25,8 +27,9 @@ public static class ServiceCollectionExtension
 			return services
 				.AddSingleton<IWorkshopExplorerViewModel, WorkshopExplorerViewModel>()
 				.AddSingleton<IFilePreviewViewModel, FilePreviewViewModel>()
-				.AddSingleton<ILeftPanelViewModel, LeftSidePanelViewModel>()
 				.AddSingleton<IGridEditorViewModel, GridEditorViewModel>()
+				.AddSingleton<ILeftPanelViewModel, LeftSidePanelViewModel>()
+				.AddSingleton<IMainMenuViewModel, MainMenuViewModel>()
 				.AddSingleton<IWorkspaceWindowViewModel, WorkspaceWindowViewModel>();
 		}
 	}

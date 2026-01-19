@@ -28,6 +28,25 @@ public sealed record FileReaderService(
 	}
 
 	/// <inheritdoc />
+	public Task<TacoMarkerPackModel?> ReadTacoAsync(
+		string archiveFilePath,
+		FileType fileType,
+		string entryFullName,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(archiveFilePath);
+		ArgumentException.ThrowIfNullOrWhiteSpace(entryFullName);
+
+		return fileType switch
+		{
+			FileType.Zip or FileType.Taco => ArchiveService.LoadMarkerPackAsync(archiveFilePath, entryFullName,
+				cancellationToken),
+			_ => throw new ArgumentOutOfRangeException(nameof(fileType), fileType,
+				"Unsupported file type for archive entry load.")
+		};
+	}
+
+	/// <inheritdoc />
 	public Task<IReadOnlyList<MapModel>> ReadMapsJsonAsync(string filePath,
 		CancellationToken cancellationToken = default)
 	{

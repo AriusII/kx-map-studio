@@ -4,6 +4,40 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
-	<Grid />
+             d:DesignHeight="300" d:DesignWidth="500">
+	<Grid>
+		<DataGrid Margin="8"
+		          ItemsSource="{Binding Rows}"
+		          AutoGenerateColumns="False"
+		          CanUserAddRows="False"
+		          CanUserDeleteRows="False"
+		          IsReadOnly="False"
+		          FrozenColumnCount="1">
+			<DataGrid.Columns>
+				<!-- ID pinned left, not editable -->
+				<DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60" />
+
+				<DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="200" />
+				<DataGridTextColumn Header="X" Binding="{Binding X, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}" Width="110" />
+				<DataGridTextColumn Header="Y" Binding="{Binding Y, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}" Width="110" />
+				<DataGridTextColumn Header="Z" Binding="{Binding Z, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}" Width="110" />
+
+				<!-- Actions pinned right -->
+				<DataGridTemplateColumn Header="Actions" Width="110">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+								<Button Content="▲" Width="24" Height="24" Margin="0,0,6,0"
+								        Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+								        CommandParameter="{Binding}" />
+								<Button Content="▼" Width="24" Height="24"
+								        Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+								        CommandParameter="{Binding}" />
+							</StackPanel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+	</Grid>
 </UserControl>

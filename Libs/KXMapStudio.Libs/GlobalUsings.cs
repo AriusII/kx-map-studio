@@ -1,19 +1,30 @@
 ﻿// Global using directives
 
 global using System.Collections.ObjectModel;
+global using System.ComponentModel;
 global using System.Diagnostics;
 global using System.Globalization;
 global using System.IO;
 global using System.IO.Compression;
+global using System.Linq;
+global using System.Security;
+global using System.Text;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
 global using System.Timers;
 global using System.Windows;
 global using System.Windows.Controls;
+global using System.Xml.Linq;
 global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
 global using KXMapStudio.Core.Abstractions.Services;
+global using KXMapStudio.Core.Abstractions.Services.Serializations;
 global using KXMapStudio.Core.Models;
+global using KXMapStudio.Core.Models.Json.Json;
+global using KXMapStudio.Core.Models.Xml.Taco;
 global using KXMapStudio.Core.Types.Enums;
 global using KXMapStudio.Core.Types.Structs;
+global using KXMapStudio.Libs.Abstractions.Services.Dialogs;
 global using KXMapStudio.Libs.Abstractions.Services.FilePreview;
 global using KXMapStudio.Libs.Abstractions.Services.GridEditor;
 global using KXMapStudio.Libs.Abstractions.Services.WorkshopExplorer;
@@ -22,8 +33,10 @@ global using KXMapStudio.Libs.Abstractions.ViewModels.LeftSide;
 global using KXMapStudio.Libs.Abstractions.ViewModels.LeftSide.FileExplorer;
 global using KXMapStudio.Libs.Abstractions.ViewModels.LeftSide.WorkshopExplorer;
 global using KXMapStudio.Libs.Abstractions.ViewModels.RightSide.GridEditor;
+global using KXMapStudio.Libs.Models.Editor;
 global using KXMapStudio.Libs.Models.LeftSide.FilePreview;
 global using KXMapStudio.Libs.Models.LeftSide.WorkshopExplorer;
+global using KXMapStudio.Libs.Services.Dialogs;
 global using KXMapStudio.Libs.Services.FilePreview;
 global using KXMapStudio.Libs.Services.GridEditor;
 global using KXMapStudio.Libs.Services.WorkshopExplorer;
@@ -35,3 +48,6 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Timer = System.Timers.Timer;
 global using WorkshopExplorerViewModel =
 	KXMapStudio.Libs.ViewModels.LeftSide.WorkshopExplorer.WorkshopExplorerViewModel;
+global using KXMapStudio.Libs.Abstractions.ViewModels.TopSide.MainMenu;
+global using KXMapStudio.Libs.ViewModels.TopSide.MainMenu;
+global using Microsoft.Win32;

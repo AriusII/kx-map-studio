@@ -57,7 +57,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		}
 	}
 
-	public event EventHandler<string>? FileSelected;
+	public event EventHandler<EditorDocumentReference>? FileSelected;
 
 	private void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object>? e)
 	{
@@ -77,7 +77,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		if (!_workshopExplorerService.IsAllowedFilePath(value.FullPath))
 			return;
 
-		FileSelected?.Invoke(this, value.FullPath);
+		FileSelected?.Invoke(this, EditorDocumentReference.FromWorkspaceFile(value.FullPath));
 	}
 
 	private void OnFsChanged(object sender, FileSystemEventArgs e)

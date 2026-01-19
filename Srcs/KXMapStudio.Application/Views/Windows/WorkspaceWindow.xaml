@@ -3,13 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:leftSide="clr-namespace:KXMapStudio.Libs.Views.LeftSide;assembly=KXMapStudio.Libs"
         xmlns:gridEditor="clr-namespace:KXMapStudio.Libs.Views.RightSide.GridEditor;assembly=KXMapStudio.Libs"
+        xmlns:topSide="clr-namespace:KXMapStudio.Libs.Views.TopSide.MainMenu;assembly=KXMapStudio.Libs"
         Style="{StaticResource MaterialDesignWindow}"
         Title="WorkspaceWindow" Height="800" Width="1280">
+
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
+
+		<topSide:MainMenuUserControl Grid.Row="0" DataContext="{Binding MainMenu}" />
 
 		<Grid Grid.Row="1">
 			<Grid.ColumnDefinitions>
@@ -34,10 +38,10 @@
 			              Background="Transparent"
 			              ShowsPreview="True" />
 
-			<!-- Center / Right content placeholder -->
+			<!-- Grid editor -->
 			<gridEditor:GridEditorUserControl
-				Grid.Column="2" 
-				/>
+				Grid.Column="2"
+				DataContext="{Binding GridEditor}" />
 		</Grid>
 	</Grid>
 </Window>

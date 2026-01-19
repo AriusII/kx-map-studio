@@ -1,4 +1,4 @@
-﻿namespace KXMapStudio.Core.Extensions;
+﻿﻿namespace KXMapStudio.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -33,21 +33,21 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddCoreServices()
 		{
 			return services
-				.AddScoped<IFileReaderService, FileReaderService>()
-				.AddScoped<IFileExplorerService, FileExplorerService>()
-				.AddScoped<IGw2Client, Gw2Client>()
-				.AddScoped<IJsonService, JsonService>()
-				.AddScoped<IXmlService, XmlService>()
-				.AddScoped<IArchiveService, ArchiveService>();
+				.AddSingleton<IFileReaderService, FileReaderService>()
+				.AddSingleton<IFileExplorerService, FileExplorerService>()
+				.AddSingleton<IGw2Client, Gw2Client>()
+				.AddSingleton<IJsonService, JsonService>()
+				.AddSingleton<IXmlService, XmlService>()
+				.AddSingleton<IArchiveService, ArchiveService>();
 		}
 
 		private IServiceCollection AddCoreRepositories()
 		{
 			return services
-				.AddScoped<IJsonDataRepository, JsonDataRepository>()
-				.AddScoped<IXmlDataRepository, XmlDataRepository>()
-				.AddScoped<IArchiveDataRepository, ArchiveDataRepository>()
-				.AddScoped<IFileStorageRepository, FileStorageRepository>();
+				.AddSingleton<IJsonDataRepository, JsonDataRepository>()
+				.AddSingleton<IXmlDataRepository, XmlDataRepository>()
+				.AddSingleton<IArchiveDataRepository, ArchiveDataRepository>()
+				.AddSingleton<IFileStorageRepository, FileStorageRepository>();
 		}
 	}
 }

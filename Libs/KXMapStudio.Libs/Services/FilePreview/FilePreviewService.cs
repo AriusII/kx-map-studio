@@ -101,7 +101,13 @@ public sealed record FilePreviewService(IFileReaderService FileReaderService) : 
 
 				if (isLast && !isDir)
 				{
-					var leaf = new PreviewTreeNodeModel(part, currentPath, null, true);
+					var leaf = new PreviewTreeNodeModel(
+						part,
+						currentPath,
+						null,
+						true,
+						archivePath,
+						currentPath);
 					parent.Children.Add(leaf);
 					continue;
 				}

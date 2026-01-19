@@ -46,9 +46,21 @@ public sealed partial class FilePreviewViewModel : ObservableObject, IFilePrevie
 			PreviewTreeNodes.Add(n);
 	}
 
+	public event EventHandler<EditorDocumentReference>? DocumentSelected;
+
 	[RelayCommand]
-	private static void SelectPreviewTreeNode(PreviewTreeNodeModel? node)
+	private void SelectPreviewTreeNode(PreviewTreeNodeModel? node)
 	{
-		_ = node;
+		if (node is null)
+			return;
+
+		if (node.IsArchiveEntryLeaf)
+		{
+			var doc = EditorDocumentReference.FromArchiveEntry(node.ArchivePath!, node.ArchiveEntryFullName!);
+
+			// Only XML entries should drive the grid editor for now.
+			if (string.Equals(doc.Extension, ".xml", StringComparison.OrdinalIgnoreCase))
+				DocumentSelected?.Invoke(this, doc);
+		}
 	}
 }

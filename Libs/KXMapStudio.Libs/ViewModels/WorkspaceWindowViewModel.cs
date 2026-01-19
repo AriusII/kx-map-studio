@@ -1,13 +1,20 @@
 ﻿namespace KXMapStudio.Libs.ViewModels;
 
+using KXMapStudio.Libs.Abstractions.ViewModels.TopSide.MainMenu;
+
 public sealed class WorkspaceWindowViewModel : ObservableObject, IWorkspaceWindowViewModel
 {
-	public WorkspaceWindowViewModel(IWorkshopExplorerViewModel workshopExplorer, ILeftPanelViewModel leftPanel)
+	public WorkspaceWindowViewModel(
+		IMainMenuViewModel mainMenu,
+		ILeftPanelViewModel leftPanel,
+		IGridEditorViewModel gridEditor)
 	{
-		WorkshopExplorer = workshopExplorer;
+		MainMenu = mainMenu;
 		LeftPanel = leftPanel;
+		GridEditor = gridEditor;
 	}
 
-	public IWorkshopExplorerViewModel WorkshopExplorer { get; }
+	public IMainMenuViewModel MainMenu { get; }
 	public ILeftPanelViewModel LeftPanel { get; }
+	public IGridEditorViewModel GridEditor { get; }
 }

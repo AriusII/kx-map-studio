@@ -19,6 +19,20 @@ public interface IFileReaderService
 		CancellationToken cancellationToken = default);
 
 	/// <summary>
+	///     Reads a TACO marker pack from a specific entry inside an archive.
+	/// </summary>
+	/// <param name="archiveFilePath">The archive file path.</param>
+	/// <param name="fileType">The archive type (ZIP/TACO).</param>
+	/// <param name="entryFullName">The archive entry full name (ZIP path with '/').</param>
+	/// <param name="cancellationToken">A token used to cancel the operation.</param>
+	/// <returns>The loaded marker pack, or <see langword="null" /> when invalid or missing.</returns>
+	Task<TacoMarkerPackModel?> ReadTacoAsync(
+		string archiveFilePath,
+		FileType fileType,
+		string entryFullName,
+		CancellationToken cancellationToken = default);
+
+	/// <summary>
 	///     Reads the cached GW2 maps JSON payload.
 	/// </summary>
 	/// <param name="filePath">The JSON file path.</param>
