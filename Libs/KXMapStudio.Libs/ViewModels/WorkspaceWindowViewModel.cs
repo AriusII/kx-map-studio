@@ -2,12 +2,12 @@
 
 public sealed class WorkspaceWindowViewModel : ObservableObject, IWorkspaceWindowViewModel
 {
-	public WorkspaceWindowViewModel(IFileExplorerViewModel fileExplorer, ILeftPanelViewModel leftPanel)
+	public WorkspaceWindowViewModel(IWorkshopExplorerViewModel workshopExplorer, ILeftPanelViewModel leftPanel)
 	{
-		FileExplorer = fileExplorer;
+		WorkshopExplorer = workshopExplorer;
 		LeftPanel = leftPanel;
 	}
 
-	public IFileExplorerViewModel FileExplorer { get; }
+	public IWorkshopExplorerViewModel WorkshopExplorer { get; }
 	public ILeftPanelViewModel LeftPanel { get; }
 }

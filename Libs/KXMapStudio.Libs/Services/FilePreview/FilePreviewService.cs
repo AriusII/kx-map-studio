@@ -108,7 +108,7 @@ public sealed record FilePreviewService(IFileReaderService FileReaderService) : 
 
 				if (!folders.TryGetValue(currentPath, out var folderNode))
 				{
-					folderNode = new PreviewTreeNodeModel(part, currentPath, null, false);
+					folderNode = new PreviewTreeNodeModel(part, currentPath);
 					folders[currentPath] = folderNode;
 					parent.Children.Add(folderNode);
 				}

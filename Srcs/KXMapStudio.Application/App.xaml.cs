@@ -12,8 +12,7 @@ public sealed partial class App
 					.AddCoreDependencies()
 					.AddLibsDependencies()
 					.AddSingleton<WorkspaceWindow>();
-
-
+				
 				services.Configure<SettingsOption>(contexts.Configuration.GetSection("Settings"));
 			})
 			.Build();

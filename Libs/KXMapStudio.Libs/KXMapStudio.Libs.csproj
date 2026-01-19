@@ -18,20 +18,36 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Page Update="Views\UsersControls\LeftSide\FilePreviewUserControl.xaml">
+		<Page Update="Views\UsersControls\LeftSide\FilePreview\FilePreviewUserControl.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<XamlRuntime>Wpf</XamlRuntime>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Update="Views\UsersControls\LeftSide\WorkspaceExplorerUserControl.xaml">
+		<Page Update="Views\UsersControls\LeftSide\WorkshopExplorer\WorkspaceExplorerUserControl.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<XamlRuntime>Wpf</XamlRuntime>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Update="Views\UsersControls\LeftSidePanelUserControl.xaml">
+		<Page Update="Views\UsersControls\LeftSide\LeftSidePanelUserControl.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<XamlRuntime>Wpf</XamlRuntime>
 			<SubType>Designer</SubType>
 		</Page>
+		<Page Update="Views\LeftSide\FilePreview\FilePreviewUserControl.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Views\LeftSide\WorkshopExplorer\WorkspaceExplorerUserControl.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Views\LeftSide\LeftSidePanelUserControl.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Views\RightSide\GridEditor\GridEditorUserControl.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Folder Include="Models\LeftSide\"/>
 	</ItemGroup>
 </Project>
