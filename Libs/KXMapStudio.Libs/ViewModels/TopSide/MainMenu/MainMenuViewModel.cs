@@ -1,5 +1,3 @@
-using KXMapStudio.Libs.Abstractions.ViewModels.TopSide.MainMenu;
-
 namespace KXMapStudio.Libs.ViewModels.TopSide.MainMenu;
 
 public sealed class MainMenuViewModel : ObservableObject, IMainMenuViewModel

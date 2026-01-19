@@ -1,8 +1,5 @@
 namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 
-using System.ComponentModel;
-using System.Linq;
-
 public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel, IDisposable
 {
 	private readonly IGridEditorDocumentService _documentService;

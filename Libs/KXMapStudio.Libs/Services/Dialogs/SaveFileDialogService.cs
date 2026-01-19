@@ -1,5 +1,3 @@
-using Microsoft.Win32;
-
 namespace KXMapStudio.Libs.Services.Dialogs;
 
 public sealed class SaveFileDialogService : ISaveFileDialogService

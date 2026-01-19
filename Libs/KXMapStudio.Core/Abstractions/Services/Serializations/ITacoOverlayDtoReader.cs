@@ -1,7 +1,5 @@
 namespace KXMapStudio.Core.Abstractions.Services.Serializations;
 
-using KXMapStudio.Core.Models.Xml.Taco.Dtos;
-
 /// <summary>
 /// Provides tolerant deserialization helpers for TacO <c>OverlayData</c> XML payloads.
 /// </summary>

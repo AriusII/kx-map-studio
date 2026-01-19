@@ -7,7 +7,7 @@ public interface IFilePreviewViewModel
 	string PreviewLoadTimeText { get; }
 	ObservableCollection<PreviewTreeNodeModel> PreviewTreeNodes { get; }
 
-	IRelayCommand<PreviewTreeNodeModel?> SelectPreviewTreeNodeCommand { get; }
+	IAsyncRelayCommand<PreviewTreeNodeModel?> SelectPreviewTreeNodeCommand { get; }
 
 	Task LoadPreviewAsync(string fullPath);
 }

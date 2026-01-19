@@ -27,6 +27,7 @@ global using KXMapStudio.Core.Models;
 global using KXMapStudio.Core.Models.Json.Continents;
 global using KXMapStudio.Core.Models.Json.Json;
 global using KXMapStudio.Core.Models.Json.Maps;
+global using KXMapStudio.Core.Models.Xml;
 global using KXMapStudio.Core.Models.Xml.Taco;
 global using KXMapStudio.Core.Models.Xml.Taco.Dtos;
 global using KXMapStudio.Core.Repositories;

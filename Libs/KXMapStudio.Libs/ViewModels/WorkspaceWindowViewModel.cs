@@ -1,7 +1,5 @@
 ﻿namespace KXMapStudio.Libs.ViewModels;
 
-using KXMapStudio.Libs.Abstractions.ViewModels.TopSide.MainMenu;
-
 public sealed class WorkspaceWindowViewModel : ObservableObject, IWorkspaceWindowViewModel
 {
 	public WorkspaceWindowViewModel(

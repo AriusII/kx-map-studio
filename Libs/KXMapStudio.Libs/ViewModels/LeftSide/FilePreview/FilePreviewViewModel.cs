@@ -8,6 +8,7 @@ public sealed partial class FilePreviewViewModel : ObservableObject, IFilePrevie
 	[ObservableProperty] private string? _openedFileName;
 	[ObservableProperty] private string _previewLoadTimeText = string.Empty;
 	[ObservableProperty] private string _previewStatus = string.Empty;
+	private PreviewTreeNodeModel? _selectedArchiveXml;
 
 	public FilePreviewViewModel(IFilePreviewService previewService)
 	{
@@ -49,11 +50,47 @@ public sealed partial class FilePreviewViewModel : ObservableObject, IFilePrevie
 	public event EventHandler<EditorDocumentReference>? DocumentSelected;
 
 	[RelayCommand]
-	private void SelectPreviewTreeNode(PreviewTreeNodeModel? node)
+	private async Task SelectPreviewTreeNodeAsync(PreviewTreeNodeModel? node)
 	{
 		if (node is null)
 			return;
 
+		// Selecting an archive XML entry expands it (multi-level exploration) instead of directly loading the grid.
+		if (node.IsArchiveEntryLeaf && string.Equals(Path.GetExtension(node.ArchiveEntryFullName), ".xml",
+			    StringComparison.OrdinalIgnoreCase))
+		{
+			// Avoid re-expanding over and over.
+			if (node.Children.Count == 0)
+			{
+				var ct = _cts?.Token ?? CancellationToken.None;
+				var children = await _previewService.ExpandArchiveXmlAsync(node, ct);
+
+				node.Children.Clear();
+				foreach (var c in children)
+					node.Children.Add(c);
+			}
+
+			node.IsExpanded = true;
+			_selectedArchiveXml = node;
+			return;
+		}
+
+		// Selecting an XML child node drives the grid editor.
+		if (node.IsXmlNode)
+		{
+			if (_selectedArchiveXml?.IsArchiveEntryLeaf == true)
+			{
+				var doc = EditorDocumentReference.FromArchiveEntry(
+					_selectedArchiveXml.ArchivePath!,
+					_selectedArchiveXml.ArchiveEntryFullName!);
+
+				DocumentSelected?.Invoke(this, doc);
+			}
+
+			return;
+		}
+
+		// Back-compat: selecting an XML file entry (outside of the new XML node flow) can still open it.
 		if (node.IsArchiveEntryLeaf)
 		{
 			var doc = EditorDocumentReference.FromArchiveEntry(node.ArchivePath!, node.ArchiveEntryFullName!);

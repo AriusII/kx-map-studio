@@ -1,7 +1,28 @@
 namespace KXMapStudio.Libs.Services.FilePreview;
 
-public sealed record FilePreviewService(IFileReaderService FileReaderService) : IFilePreviewService
+public sealed class FilePreviewService : IFilePreviewService, IDisposable
 {
+	private readonly IFileReaderService _fileReaderService;
+	private readonly Dictionary<string, ZipArchive> _openArchives = new(StringComparer.OrdinalIgnoreCase);
+	private readonly ITacoXmlTreeService _tacoXmlTreeService;
+
+	/// <summary>
+	///     Initializes a new instance of the <see cref="FilePreviewService" />.
+	/// </summary>
+	public FilePreviewService(IFileReaderService fileReaderService, ITacoXmlTreeService tacoXmlTreeService)
+	{
+		_fileReaderService = fileReaderService ?? throw new ArgumentNullException(nameof(fileReaderService));
+		_tacoXmlTreeService = tacoXmlTreeService ?? throw new ArgumentNullException(nameof(tacoXmlTreeService));
+	}
+
+	public void Dispose()
+	{
+		foreach (var a in _openArchives.Values)
+			a.Dispose();
+		_openArchives.Clear();
+	}
+
+	/// <inheritdoc />
 	public async Task<FilePreviewResult> BuildPreviewAsync(string fullPath,
 		CancellationToken cancellationToken = default)
 	{
@@ -45,40 +66,103 @@ public sealed record FilePreviewService(IFileReaderService FileReaderService) : 
 		}
 	}
 
+	/// <summary>
+	///     Expands an archive XML entry node into DTO-driven child nodes.
+	/// </summary>
+	/// <remarks>
+	///     This method keeps the underlying archive open for further exploration.
+	/// </remarks>
+	public async Task<IReadOnlyList<PreviewTreeNodeModel>> ExpandArchiveXmlAsync(PreviewTreeNodeModel archiveXmlNode,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(archiveXmlNode);
+
+		if (!archiveXmlNode.IsArchiveEntryLeaf)
+			return Array.Empty<PreviewTreeNodeModel>();
+
+		if (!string.Equals(Path.GetExtension(archiveXmlNode.ArchiveEntryFullName), ".xml",
+			    StringComparison.OrdinalIgnoreCase))
+			return Array.Empty<PreviewTreeNodeModel>();
+
+		var archive = GetOrOpenArchive(archiveXmlNode.ArchivePath!);
+		var entry = archive.GetEntry(archiveXmlNode.ArchiveEntryFullName!);
+		if (entry is null)
+			return Array.Empty<PreviewTreeNodeModel>();
+
+		await using var stream = entry.Open();
+		var tree = await _tacoXmlTreeService.BuildOverlayTreeAsync(stream, cancellationToken)
+			.ConfigureAwait(false);
+
+		if (tree is null)
+			return Array.Empty<PreviewTreeNodeModel>();
+
+		// We display the children of OverlayData directly under the archive entry.
+		return tree.Children.Select(MapXmlDescriptorToNode).ToList();
+	}
+
+	private PreviewTreeNodeModel MapXmlDescriptorToNode(XmlTreeNodeDescriptor d)
+	{
+		var node = new PreviewTreeNodeModel(
+			d.DisplayName,
+			d.Key,
+			d.Count,
+			d.Children.Count == 0,
+			null,
+			null,
+			PreviewTreeNodeKind.XmlNode,
+			d.Key);
+
+		foreach (var child in d.Children)
+			node.Children.Add(MapXmlDescriptorToNode(child));
+
+		return node;
+	}
+
+	private ZipArchive GetOrOpenArchive(string archivePath)
+	{
+		if (_openArchives.TryGetValue(archivePath, out var existing))
+			return existing;
+
+		var zip = ZipFile.OpenRead(archivePath);
+		_openArchives[archivePath] = zip;
+		return zip;
+	}
+
 	private async Task<string> PreviewJsonAsync(string fullPath, string fileName, CancellationToken ct)
 	{
 		if (string.Equals(fileName, "maps.json", StringComparison.OrdinalIgnoreCase))
 		{
-			var maps = await FileReaderService.ReadMapsJsonAsync(fullPath, ct).ConfigureAwait(false);
+			var maps = await _fileReaderService.ReadMapsJsonAsync(fullPath, ct).ConfigureAwait(false);
 			return $"Maps JSON loaded. Items: {maps.Count.ToString(CultureInfo.InvariantCulture)}";
 		}
 
 		if (string.Equals(fileName, "continents.json", StringComparison.OrdinalIgnoreCase))
 		{
-			var continents = await FileReaderService.ReadContinentsJsonAsync(fullPath, ct).ConfigureAwait(false);
+			var continents = await _fileReaderService.ReadContinentsJsonAsync(fullPath, ct).ConfigureAwait(false);
 			return continents is null ? "Continents JSON loaded. Empty." : "Continents JSON loaded.";
 		}
 
-		var json = await FileReaderService.ReadJsonAsync(fullPath, ct).ConfigureAwait(false);
+		var json = await _fileReaderService.ReadJsonAsync(fullPath, ct).ConfigureAwait(false);
 		_ = json;
 		return "JSON loaded.";
 	}
 
 	private async Task<string> PreviewXmlAsync(string fullPath, CancellationToken ct)
 	{
-		var taco = await FileReaderService.ReadTacoAsync(fullPath, FileType.Xml, ct).ConfigureAwait(false);
+		var taco = await _fileReaderService.ReadTacoAsync(fullPath, FileType.Xml, ct).ConfigureAwait(false);
 		return taco is null ? "XML loaded. Empty." : "XML loaded.";
 	}
 
-	private static IReadOnlyList<PreviewTreeNodeModel> BuildArchiveTree(string archivePath)
+	private IReadOnlyList<PreviewTreeNodeModel> BuildArchiveTree(string archivePath)
 	{
-		var root = new PreviewTreeNodeModel(Path.GetFileName(archivePath), archivePath);
+		var root = new PreviewTreeNodeModel(Path.GetFileName(archivePath), archivePath,
+			kind: PreviewTreeNodeKind.ArchiveFolder);
 		var folders = new Dictionary<string, PreviewTreeNodeModel>(StringComparer.OrdinalIgnoreCase)
 		{
 			[""] = root
 		};
 
-		using var zip = ZipFile.OpenRead(archivePath);
+		var zip = GetOrOpenArchive(archivePath);
 
 		foreach (var entry in zip.Entries)
 		{
@@ -107,14 +191,15 @@ public sealed record FilePreviewService(IFileReaderService FileReaderService) : 
 						null,
 						true,
 						archivePath,
-						currentPath);
+						currentPath,
+						PreviewTreeNodeKind.ArchiveEntry);
 					parent.Children.Add(leaf);
 					continue;
 				}
 
 				if (!folders.TryGetValue(currentPath, out var folderNode))
 				{
-					folderNode = new PreviewTreeNodeModel(part, currentPath);
+					folderNode = new PreviewTreeNodeModel(part, currentPath, kind: PreviewTreeNodeKind.ArchiveFolder);
 					folders[currentPath] = folderNode;
 					parent.Children.Add(folderNode);
 				}

@@ -1,10 +1,3 @@
-using System.Globalization;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
-using KXMapStudio.Core.Models.Json.Json;
-
 namespace KXMapStudio.Libs.Services.GridEditor;
 
 public sealed class GridEditorDocumentService(
@@ -13,12 +6,15 @@ public sealed class GridEditorDocumentService(
 	IJsonService jsonService)
 	: IGridEditorDocumentService
 {
-	private readonly ISaveFileDialogService _saveFileDialogService = saveFileDialogService ??
-		throw new ArgumentNullException(nameof(saveFileDialogService));
 	private readonly IFileReaderService _fileReaderService = fileReaderService ??
-		throw new ArgumentNullException(nameof(fileReaderService));
+	                                                         throw new ArgumentNullException(nameof(fileReaderService));
+
 	private readonly IJsonService _jsonService = jsonService ??
-		throw new ArgumentNullException(nameof(jsonService));
+	                                             throw new ArgumentNullException(nameof(jsonService));
+
+	private readonly ISaveFileDialogService _saveFileDialogService = saveFileDialogService ??
+	                                                                 throw new ArgumentNullException(
+		                                                                 nameof(saveFileDialogService));
 
 	public async Task<(IReadOnlyList<GridEditorRowViewModel> rows, byte[] originalBytes)> LoadAsync(
 		EditorDocumentReference doc,
@@ -103,8 +99,8 @@ public sealed class GridEditorDocumentService(
 		if (bytes.Length == 0)
 			return ([], bytes);
 
-		await using var ms = new MemoryStream(bytes, writable: false);
-		using var reader = new StreamReader(ms, detectEncodingFromByteOrderMarks: true);
+		await using var ms = new MemoryStream(bytes, false);
+		using var reader = new StreamReader(ms, true);
 		var xdoc = await XDocument.LoadAsync(reader, LoadOptions.None, cancellationToken).ConfigureAwait(false);
 
 		var pois = xdoc
@@ -117,7 +113,8 @@ public sealed class GridEditorDocumentService(
 		var rows = new List<GridEditorRowViewModel>();
 		var id = 1;
 
-		foreach (var poi in pois.Elements().Where(e => e.Name.LocalName.Equals("POI", StringComparison.OrdinalIgnoreCase)))
+		foreach (var poi in pois.Elements()
+			         .Where(e => e.Name.LocalName.Equals("POI", StringComparison.OrdinalIgnoreCase)))
 		{
 			var name = (string?)poi.Attribute("Name") ?? string.Empty;
 			var x = ParseDoubleAttribute(poi, "X");
@@ -155,7 +152,6 @@ public sealed class GridEditorDocumentService(
 			var rows = new List<GridEditorRowViewModel>(model.Coordinates.Length);
 			var id = 1;
 			foreach (var c in model.Coordinates)
-			{
 				rows.Add(new GridEditorRowViewModel
 				{
 					Id = id++,
@@ -164,26 +160,23 @@ public sealed class GridEditorDocumentService(
 					Y = c.Y,
 					Z = c.Z
 				});
-			}
 
 			return (rows, bytes);
 		}
 
 		// Archive JSON editing: supported for load + SaveAs (export). Parse minimal schema from bytes.
-		var fallback = System.Text.Json.JsonSerializer.Deserialize<CoordinatesModel[]>(bytes,
-			new System.Text.Json.JsonSerializerOptions
+		var fallback = JsonSerializer.Deserialize<CoordinatesModel[]>(bytes,
+			new JsonSerializerOptions
 			{
 				PropertyNameCaseInsensitive = true,
-				NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+				NumberHandling = JsonNumberHandling.AllowReadingFromString
 			}) ?? Array.Empty<CoordinatesModel>();
 
 		{
 			var rows = new List<GridEditorRowViewModel>(fallback.Length);
 			var id = 1;
 			foreach (var c in fallback)
-			{
 				rows.Add(new GridEditorRowViewModel { Id = id++, Name = c.Name, X = c.X, Y = c.Y, Z = c.Z });
-			}
 			return (rows, bytes);
 		}
 	}
@@ -228,14 +221,12 @@ public sealed class GridEditorDocumentService(
 		var pois = doc.Root!.Element("POIs")!;
 
 		foreach (var r in rows)
-		{
 			pois.Add(new XElement(
 				"POI",
 				new XAttribute("Name", r.Name),
 				new XAttribute("X", r.X.ToString("F4", CultureInfo.InvariantCulture)),
 				new XAttribute("Y", r.Y.ToString("F4", CultureInfo.InvariantCulture)),
 				new XAttribute("Z", r.Z.ToString("F4", CultureInfo.InvariantCulture))));
-		}
 
 		await using var stream = File.Create(filePath);
 		await doc.SaveAsync(stream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
@@ -253,7 +244,7 @@ public sealed class GridEditorDocumentService(
 		var name = Path.GetFileNameWithoutExtension(filePath);
 		var model = new JsonModel(
 			name,
-			Author: null,
+			null,
 			rows.Select(r => new CoordinatesModel(r.Name, r.X, r.Y, r.Z)).ToArray());
 
 		await jsonService.SaveAsync(model, filePath, cancellationToken).ConfigureAwait(false);

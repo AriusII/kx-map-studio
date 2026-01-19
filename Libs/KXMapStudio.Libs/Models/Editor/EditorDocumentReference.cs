@@ -14,6 +14,9 @@ public sealed record EditorDocumentReference(
 	string? ArchiveEntryFullName,
 	string Extension)
 {
+	public bool IsArchiveEntry => Kind == EditorDocumentSourceKind.ArchiveEntry;
+	public bool IsWorkspaceFile => Kind == EditorDocumentSourceKind.WorkspaceFile;
+
 	public static EditorDocumentReference FromWorkspaceFile(string fullPath)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(fullPath);
@@ -42,7 +45,4 @@ public sealed record EditorDocumentReference(
 			normalizedEntry,
 			Path.GetExtension(normalizedEntry));
 	}
-
-	public bool IsArchiveEntry => Kind == EditorDocumentSourceKind.ArchiveEntry;
-	public bool IsWorkspaceFile => Kind == EditorDocumentSourceKind.WorkspaceFile;
 }

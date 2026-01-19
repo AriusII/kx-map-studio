@@ -1,4 +1,4 @@
-﻿﻿namespace KXMapStudio.Core.Extensions;
+﻿namespace KXMapStudio.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -38,7 +38,8 @@ public static class ServiceCollectionExtensions
 				.AddSingleton<IGw2Client, Gw2Client>()
 				.AddSingleton<IJsonService, JsonService>()
 				.AddSingleton<IXmlService, XmlService>()
-				.AddSingleton<IArchiveService, ArchiveService>();
+				.AddSingleton<IArchiveService, ArchiveService>()
+				.AddSingleton<ITacoXmlTreeService, TacoXmlTreeService>();
 		}
 
 		private IServiceCollection AddCoreRepositories()

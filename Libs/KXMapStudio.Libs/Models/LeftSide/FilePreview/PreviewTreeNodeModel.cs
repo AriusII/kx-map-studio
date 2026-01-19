@@ -6,7 +6,9 @@ public sealed partial class PreviewTreeNodeModel(
 	int? count = null,
 	bool isLeaf = false,
 	string? archivePath = null,
-	string? archiveEntryFullName = null)
+	string? archiveEntryFullName = null,
+	PreviewTreeNodeKind kind = PreviewTreeNodeKind.ArchiveFolder,
+	string? xmlKey = null)
 	: ObservableObject
 {
 	[ObservableProperty] private bool _isExpanded;
@@ -17,18 +19,32 @@ public sealed partial class PreviewTreeNodeModel(
 	public bool IsLeaf { get; } = isLeaf;
 
 	/// <summary>
-	/// When set, indicates this node represents an entry inside an archive.
+	///     Gets the logical kind of this node.
+	/// </summary>
+	public PreviewTreeNodeKind Kind { get; } = kind;
+
+	/// <summary>
+	///     When <see cref="Kind" /> is <see cref="PreviewTreeNodeKind.XmlNode" />, contains a stable key identifying the XML
+	///     node.
+	/// </summary>
+	public string? XmlKey { get; } = xmlKey;
+
+	/// <summary>
+	///     When set, indicates this node represents an entry inside an archive.
 	/// </summary>
 	public string? ArchivePath { get; } = archivePath;
 
 	/// <summary>
-	/// The full name of the archive entry (ZIP path using '/').
+	///     The full name of the archive entry (ZIP path using '/').
 	/// </summary>
 	public string? ArchiveEntryFullName { get; } = archiveEntryFullName;
 
-	public bool IsArchiveEntryLeaf => IsLeaf && !string.IsNullOrWhiteSpace(ArchivePath) &&
-	                                 !string.IsNullOrWhiteSpace(ArchiveEntryFullName);
+	public bool IsArchiveEntryLeaf => Kind is PreviewTreeNodeKind.ArchiveEntry
+	                                  && IsLeaf
+	                                  && !string.IsNullOrWhiteSpace(ArchivePath)
+	                                  && !string.IsNullOrWhiteSpace(ArchiveEntryFullName);
 
+	public bool IsXmlNode => Kind is PreviewTreeNodeKind.XmlNode;
 
 	public ObservableCollection<PreviewTreeNodeModel> Children { get; } = [];
 }

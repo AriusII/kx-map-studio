@@ -21,6 +21,7 @@ global using KXMapStudio.Core.Abstractions.Services;
 global using KXMapStudio.Core.Abstractions.Services.Serializations;
 global using KXMapStudio.Core.Models;
 global using KXMapStudio.Core.Models.Json.Json;
+global using KXMapStudio.Core.Models.Xml;
 global using KXMapStudio.Core.Models.Xml.Taco;
 global using KXMapStudio.Core.Types.Enums;
 global using KXMapStudio.Core.Types.Structs;

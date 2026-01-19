@@ -3,8 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="500">
+	<UserControl.Resources>
+		<Style x:Key="GridRowIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignToolButton}">
+			<Setter Property="Width" Value="28" />
+			<Setter Property="Height" Value="28" />
+			<Setter Property="Padding" Value="0" />
+			<Setter Property="Margin" Value="0" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="HorizontalAlignment" Value="Center" />
+		</Style>
+	</UserControl.Resources>
 	<Grid>
 		<DataGrid Margin="8"
 		          ItemsSource="{Binding Rows}"
@@ -18,21 +29,28 @@
 				<DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60" />
 
 				<DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="200" />
-				<DataGridTextColumn Header="X" Binding="{Binding X, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}" Width="110" />
-				<DataGridTextColumn Header="Y" Binding="{Binding Y, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}" Width="110" />
-				<DataGridTextColumn Header="Z" Binding="{Binding Z, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}" Width="110" />
+				<DataGridTextColumn Header="X" Binding="{Binding X, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}"
+				                    Width="110" />
+				<DataGridTextColumn Header="Y" Binding="{Binding Y, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}"
+				                    Width="110" />
+				<DataGridTextColumn Header="Z" Binding="{Binding Z, StringFormat=F4, UpdateSourceTrigger=PropertyChanged}"
+				                    Width="110" />
 
 				<!-- Actions pinned right -->
-				<DataGridTemplateColumn Header="Actions" Width="110">
+				<DataGridTemplateColumn Header="Actions" Width="96">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-								<Button Content="▲" Width="24" Height="24" Margin="0,0,6,0"
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+								<Button Style="{StaticResource GridRowIconButton}" Margin="0,0,6,0"
 								        Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-								        CommandParameter="{Binding}" />
-								<Button Content="▼" Width="24" Height="24"
+								        CommandParameter="{Binding}">
+									<materialDesign:PackIcon Kind="ChevronUp" Width="18" Height="18" />
+								</Button>
+								<Button Style="{StaticResource GridRowIconButton}"
 								        Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-								        CommandParameter="{Binding}" />
+								        CommandParameter="{Binding}">
+									<materialDesign:PackIcon Kind="ChevronDown" Width="18" Height="18" />
+								</Button>
 							</StackPanel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

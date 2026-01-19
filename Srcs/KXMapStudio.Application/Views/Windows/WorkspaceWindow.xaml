@@ -7,6 +7,13 @@
         Style="{StaticResource MaterialDesignWindow}"
         Title="WorkspaceWindow" Height="800" Width="1280">
 
+	<Window.InputBindings>
+		<KeyBinding Key="S" Modifiers="Control" Command="{Binding MainMenu.SaveCommand}" />
+		<KeyBinding Key="D" Modifiers="Control" Command="{Binding MainMenu.SaveAsCommand}" />
+		<KeyBinding Key="Z" Modifiers="Control" Command="{Binding MainMenu.UndoCommand}" />
+		<KeyBinding Key="Y" Modifiers="Control" Command="{Binding MainMenu.RedoCommand}" />
+	</Window.InputBindings>
+
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
