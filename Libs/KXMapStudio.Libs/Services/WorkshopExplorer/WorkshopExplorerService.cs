@@ -5,12 +5,10 @@ namespace KXMapStudio.Libs.Services.WorkshopExplorer;
 /// </summary>
 public sealed class WorkshopExplorerService : IWorkshopExplorerService
 {
-	private readonly IFileExplorerService _coreExplorer;
 	private readonly IWorkshopExplorerNodeService _nodeService;
 
-	public WorkshopExplorerService(IFileExplorerService coreExplorer, IWorkshopExplorerNodeService nodeService)
+	public WorkshopExplorerService(IWorkshopExplorerNodeService nodeService)
 	{
-		_coreExplorer = coreExplorer ?? throw new ArgumentNullException(nameof(coreExplorer));
 		_nodeService = nodeService ?? throw new ArgumentNullException(nameof(nodeService));
 
 		DataFolder = Path.Combine(AppContext.BaseDirectory, Constants.Settings.DataFolder);
@@ -19,10 +17,10 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 
 	public string DataFolder { get; }
 
+
 	public WorkspaceExplorerNodeModel BuildRootNode(bool recursive = true)
 	{
-		var coreRoot = _coreExplorer.BuildTree(recursive);
-		return Map(coreRoot);
+		throw new NotImplementedException();
 	}
 
 	public WorkspaceExplorerNodeModel? FindNodeByPath(WorkspaceExplorerNodeModel nodeModel, string fullPath)

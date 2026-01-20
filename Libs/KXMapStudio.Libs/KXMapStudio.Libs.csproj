@@ -49,5 +49,6 @@
 	
 	<ItemGroup>
 		<Folder Include="Models\LeftSide\"/>
+		<Folder Include="Services\FilePreview\"/>
 	</ItemGroup>
 </Project>

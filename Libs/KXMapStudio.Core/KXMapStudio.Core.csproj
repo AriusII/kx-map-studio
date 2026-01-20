@@ -24,5 +24,9 @@
 			<DependentUpon>Constants.cs</DependentUpon>
 		</Compile>
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Models\Serializations\" />
+	</ItemGroup>
 
 </Project>

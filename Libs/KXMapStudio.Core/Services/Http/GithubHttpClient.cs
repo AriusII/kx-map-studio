@@ -23,7 +23,7 @@ public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 		{
 			var latestRelease = await HttpClient.GetFromJsonAsync<GitHubReleaseModel>(
 				Constants.Settings.GitHubApiUrl,
-				JsonDataRepository.DefaultJsonOptions,
+				JsonRepository.DefaultJsonOptions,
 				cancellationToken);
 
 			if (latestRelease == null || string.IsNullOrEmpty(latestRelease.TagName))

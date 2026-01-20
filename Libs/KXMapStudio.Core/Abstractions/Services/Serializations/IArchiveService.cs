@@ -22,6 +22,6 @@ public interface IArchiveService
 	/// </param>
 	/// <param name="cancellationToken">A token used to cancel the operation.</param>
 	/// <returns>The parsed marker pack, or <see langword="null" /> when missing or invalid.</returns>
-	Task<TacoMarkerPackModel?> LoadMarkerPackAsync(string filePath, string? entryFullName = null,
+	Task<MarkerModel?> LoadMarkerPackAsync(string filePath, string? entryFullName = null,
 		CancellationToken cancellationToken = default);
 }

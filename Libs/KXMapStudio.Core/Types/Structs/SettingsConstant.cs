@@ -46,5 +46,10 @@ public readonly ref partial struct Constants
 		///     Gets the GitHub API URL used to query the latest release.
 		/// </summary>
 		public const string GitHubApiUrl = "https://api.github.com/repos/kxtools/kx-map-studio/releases/latest";
+
+		/// <summary>
+		///     Gets the default buffer size (in bytes) used for stream operations.
+		/// </summary>
+		public const int DefaultBufferSize = 4096;
 	}
 }

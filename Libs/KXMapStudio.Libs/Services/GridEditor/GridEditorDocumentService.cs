@@ -2,13 +2,9 @@ namespace KXMapStudio.Libs.Services.GridEditor;
 
 public sealed class GridEditorDocumentService(
 	ISaveFileDialogService saveFileDialogService,
-	IFileReaderService fileReaderService,
 	IJsonService jsonService)
 	: IGridEditorDocumentService
 {
-	private readonly IFileReaderService _fileReaderService = fileReaderService ??
-	                                                         throw new ArgumentNullException(nameof(fileReaderService));
-
 	private readonly IJsonService _jsonService = jsonService ??
 	                                             throw new ArgumentNullException(nameof(jsonService));
 
@@ -26,7 +22,7 @@ public sealed class GridEditorDocumentService(
 		{
 			".xml" => await LoadXmlAsync(doc, cancellationToken).ConfigureAwait(false),
 			".json" => await LoadJsonAsync(doc, cancellationToken).ConfigureAwait(false),
-			_ => ([], Array.Empty<byte>())
+			_ => ([], [])
 		};
 	}
 
@@ -170,7 +166,7 @@ public sealed class GridEditorDocumentService(
 			{
 				PropertyNameCaseInsensitive = true,
 				NumberHandling = JsonNumberHandling.AllowReadingFromString
-			}) ?? Array.Empty<CoordinatesModel>();
+			}) ?? [];
 
 		{
 			var rows = new List<GridEditorRowViewModel>(fallback.Length);
@@ -253,10 +249,10 @@ public sealed class GridEditorDocumentService(
 	private static async Task<byte[]> ReadArchiveEntryBytesAsync(string archivePath, string entryFullName,
 		CancellationToken cancellationToken)
 	{
-		using var zip = ZipFile.OpenRead(archivePath);
+		await using var zip = await ZipFile.OpenReadAsync(archivePath, cancellationToken);
 		var entry = zip.GetEntry(entryFullName);
 		if (entry is null)
-			return Array.Empty<byte>();
+			return [];
 
 		await using var stream = entry.Open();
 		await using var ms = new MemoryStream();

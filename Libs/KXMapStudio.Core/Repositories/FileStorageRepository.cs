@@ -7,10 +7,8 @@ namespace KXMapStudio.Core.Repositories;
 ///     This repository is intentionally small and focused: higher-level repositories handle format concerns
 ///     (JSON/XML/ZIP).
 /// </remarks>
-public sealed record FileStorageRepository : IFileStorageRepository
+internal sealed record FileStorageRepository : IFileStorageRepository
 {
-	private const int DefaultBufferSize = 4096;
-
 	/// <inheritdoc />
 	public async Task SaveAsync(string path, Stream content, CancellationToken cancellationToken = default)
 	{
@@ -27,7 +25,7 @@ public sealed record FileStorageRepository : IFileStorageRepository
 			Access = FileAccess.Write,
 			Share = FileShare.None,
 			Options = FileOptions.Asynchronous | FileOptions.SequentialScan,
-			BufferSize = DefaultBufferSize
+			BufferSize = Constants.Settings.DefaultBufferSize
 		};
 
 		await using var fileStream = new FileStream(path, options);
@@ -48,7 +46,7 @@ public sealed record FileStorageRepository : IFileStorageRepository
 			Access = FileAccess.Read,
 			Share = FileShare.Read,
 			Options = FileOptions.Asynchronous | FileOptions.SequentialScan,
-			BufferSize = DefaultBufferSize
+			BufferSize = Constants.Settings.DefaultBufferSize
 		};
 
 		return Task.FromResult<Stream?>(new FileStream(path, options));

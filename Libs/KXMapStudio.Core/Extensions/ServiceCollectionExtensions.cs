@@ -33,21 +33,17 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddCoreServices()
 		{
 			return services
-				.AddSingleton<IFileReaderService, FileReaderService>()
-				.AddSingleton<IFileExplorerService, FileExplorerService>()
+				.AddSingleton<IFileIoFacade, FileIoFacade>()
 				.AddSingleton<IGw2Client, Gw2Client>()
 				.AddSingleton<IJsonService, JsonService>()
-				.AddSingleton<IXmlService, XmlService>()
-				.AddSingleton<IArchiveService, ArchiveService>()
-				.AddSingleton<ITacoXmlTreeService, TacoXmlTreeService>();
+				.AddSingleton<IXmlService, XmlService>();
 		}
 
 		private IServiceCollection AddCoreRepositories()
 		{
 			return services
-				.AddSingleton<IJsonDataRepository, JsonDataRepository>()
-				.AddSingleton<IXmlDataRepository, XmlDataRepository>()
-				.AddSingleton<IArchiveDataRepository, ArchiveDataRepository>()
+				.AddSingleton<IJsonDataRepository, JsonRepository>()
+				.AddSingleton<IXmlRepository, XmlRepository>()
 				.AddSingleton<IFileStorageRepository, FileStorageRepository>();
 		}
 	}

@@ -1,4 +1,6 @@
-﻿namespace KXMapStudio.Libs.Extensions;
+﻿using KXMapStudio.Libs.Services.FilePreview;
+
+namespace KXMapStudio.Libs.Extensions;
 
 public static class ServiceCollectionExtension
 {

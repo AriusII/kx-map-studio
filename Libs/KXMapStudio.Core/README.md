@@ -392,6 +392,165 @@ Core is written under strict constraints:
 
 ---
 
+## Repository design for Core file handling
+
+### Overview
+
+Core implements a layered repository architecture for handling `.zip`, `.taco`, `.xml`, and `.json` files with the
+following goals:
+
+- **Single responsibility**: Core owns all low-level file and archive handling
+- **Extensibility**: Adding new formats or archive types should not require breaking changes
+- **Safety**: Read and write operations must not corrupt or alter files unexpectedly
+- **Performance**: Favor high throughput, low allocations, and efficient streaming
+- **Observability**: Code is fully documented and easy to reason about
+
+### Core abstractions
+
+#### Archive handling (`IArchive` and `IArchiveEntry`)
+
+The `IArchive` abstraction unifies ZIP and TACO handling:
+
+```csharp
+public interface IArchive : IAsyncDisposable, IDisposable
+{
+    IEnumerable<IArchiveEntry> Entries { get; }
+    IArchiveEntry? GetEntry(string entryName);
+    Stream OpenEntryRead(IArchiveEntry entry);
+    IEnumerable<IArchiveEntry> GetXmlEntries();
+    IEnumerable<IArchiveEntry> GetJsonEntries();
+}
+```
+
+**Usage:**
+
+- `.zip` and `.taco` share the same implementation via `ZipArchiveAdapter`
+- Archives should be read using streams to avoid loading entire archives into memory
+- When an entry is XML or JSON, use `IXmlDataRepository` or `IJsonDataRepository` to process it
+
+#### XML node counting and traversal
+
+`IXmlDataRepository` provides efficient node counting via forward-only `XmlReader`:
+
+```csharp
+Task<int> CountNodesAsync(Stream xmlStream, string nodeName, CancellationToken cancellationToken);
+Task<int> CountPoisAsync(Stream xmlStream, CancellationToken cancellationToken);
+```
+
+**Performance characteristics:**
+
+- Uses `XmlReader.Create()` with `IgnoreComments` and `IgnoreWhitespace` enabled
+- Does not load the entire document into memory
+- Minimal allocations and efficient for large XML files
+
+#### Generic repository interfaces
+
+`IXmlRepository<TModel>` and `IJsonRepository<TModel>` provide strongly-typed serialization:
+
+```csharp
+public interface IXmlRepository<TModel> where TModel : class
+{
+    Task<TModel?> ReadAsync(Stream xmlStream, CancellationToken cancellationToken);
+    Task WriteAsync(Stream targetStream, TModel model, CancellationToken cancellationToken);
+    Task<int> CountNodesAsync(Stream xmlStream, string nodeName, CancellationToken cancellationToken);
+}
+```
+
+### Configuration options
+
+#### CoreXmlOptions
+
+Configurable XML serialization behavior:
+
+- `Indent`: Whether to indent XML output (default: `true`)
+- `PreserveWhitespace`: Whether to preserve whitespace when loading (default: `false`)
+- `AllowDtdProcessing`: Whether DTD processing is allowed (default: `false` for security)
+- `Encoding`: Encoding for XML output (default: UTF-8 without BOM)
+
+#### CoreJsonOptions
+
+Configurable JSON serialization behavior:
+
+- `WriteIndented`: Whether to write indented JSON (default: `true`)
+- `IgnoreCondition`: Condition for ignoring properties (default: `WhenWritingNull`)
+- `UseRelaxedEscaping`: Whether to use relaxed JSON escaping (default: `true`)
+- `PropertyNamingPolicy`: Property naming policy (default: `null` / PascalCase)
+
+### Read/write guidelines
+
+**General rules:**
+
+- Never modify input streams beyond reading
+- Always respect encoding (UTF-8 by default, unless specified)
+- Use `using` or `await using` to ensure streams and readers are disposed
+- Avoid unnecessary intermediate buffers
+
+**XML:**
+
+- Use `XmlSerializer` or `DataContractSerializer` depending on schema needs
+- Configure `XmlWriterSettings` to indent only when required
+- When writing back, preserve required elements and attributes
+
+**JSON:**
+
+- Use `System.Text.Json` with custom `JsonSerializerOptions`
+- Keep property order stable if the domain depends on it
+- Avoid pretty-printing unless explicitly requested
+
+### Extension points
+
+#### Adding new file formats
+
+1. Add DTOs under `Libs/KXMapStudio.Core/Models/` (appropriate subfolder)
+2. Add mapping logic under `Libs/KXMapStudio.Core/Mappers/`
+3. Add serialization/workflow service under `Libs/KXMapStudio.Core/Services/Serializations/`
+4. If persistence is required, add a repository under `Libs/KXMapStudio.Core/Repositories/` and an interface under
+   `Abstractions/Repositories/`
+5. Register new services/repositories in `AddCoreDependencies()`
+6. Provide async overloads that accept `CancellationToken`
+
+#### Adding new archive types
+
+1. Implement `IArchive` and `IArchiveEntry` for the new format
+2. Update `ArchiveDataRepository` or create a new repository to detect and handle the format (e.g., by file extension or
+   magic bytes)
+3. Register the new archive handler in DI
+
+#### Validation layer (optional)
+
+Future extensions may include:
+
+- XML schema validation (XSD)
+- JSON schema validation
+- Custom validation services under `Services/Validation/`
+- Feature flags to enable/disable validation
+
+#### Diagnostics hooks (optional)
+
+Future extensions may include:
+
+- Events or callbacks for file operations (file opened, archive entry read, node count operations)
+- Integration with logging frameworks (e.g., `ILogger`)
+- Performance metrics collection
+
+### Performance tuning
+
+**General strategies:**
+
+- **Streaming first**: Prefer streaming APIs over DOM-based APIs (`XDocument`, `JsonDocument`) for large files
+- **Minimize allocations**: Use `Span<T>` and `ReadOnlySpan<T>` where appropriate; reuse buffers via `ArrayPool<byte>`
+  or `ArrayPool<char>`
+- **Avoid boxing**: Keep reflection and boxing out of hot paths
+- **Benchmark critical paths**: Use BenchmarkDotNet or similar tools for performance validation
+
+**Advanced techniques (potential future work):**
+
+- Custom XML readers for specific schemas to avoid generic overhead
+- Source generators for JSON/XML serialization metadata
+- Pipelines and async I/O using `ValueTask` where appropriate
+
+---
+
 ## Extending Core safely
 
 When adding features, keep the architecture consistent:

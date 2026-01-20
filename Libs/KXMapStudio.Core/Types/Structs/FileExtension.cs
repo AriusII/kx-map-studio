@@ -33,9 +33,9 @@ public readonly ref struct FileExtension
 	/// </remarks>
 	public static ISet<string> AllowedExtensions { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 	{
-		Zip,
 		Json,
 		Xml,
-		Taco
+		Taco,
+		Zip
 	};
 }

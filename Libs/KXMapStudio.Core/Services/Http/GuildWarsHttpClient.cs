@@ -17,7 +17,7 @@ public sealed record GuildWarsHttpClient(HttpClient HttpClient) : IGuildWarsHttp
 	{
 		var model = await HttpClient.GetFromJsonAsync<ContinentFloorModel>(
 			Constants.GuildWars.ContinentsUrl,
-			JsonDataRepository.DefaultJsonOptions,
+			JsonRepository.DefaultJsonOptions,
 			cancellationToken);
 
 		return model ?? throw new JsonException("Guild Wars 2 continents payload was empty.");
@@ -34,7 +34,7 @@ public sealed record GuildWarsHttpClient(HttpClient HttpClient) : IGuildWarsHttp
 	{
 		var model = await HttpClient.GetFromJsonAsync<IReadOnlyList<MapModel>>(
 			Constants.GuildWars.MapsUrl,
-			JsonDataRepository.DefaultJsonOptions,
+			JsonRepository.DefaultJsonOptions,
 			cancellationToken);
 
 		return model ?? throw new JsonException("Guild Wars 2 maps payload was empty.");
