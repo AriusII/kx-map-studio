@@ -16,7 +16,6 @@ public static class ServiceCollectionExtension
 			return services
 				.AddSingleton<ISnackbarMessageQueue, SnackbarMessageQueue>()
 				.AddSingleton(typeof(IStateManagementService<>), typeof(StateManagementService<>))
-				.AddSingleton<IWorkshopExplorerScanner, WorkshopExplorerScanner>()
 				.AddSingleton<IWorkshopExplorerService, WorkshopExplorerService>()
 				.AddSingleton<IWorkshopExplorerNodeService, WorkshopExplorerNodeService>()
 				.AddSingleton<IFilePreviewService, FilePreviewService>()
