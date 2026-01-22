@@ -53,6 +53,57 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 		_staleTimer.Dispose();
 	}
 
+	[RelayCommand]
+	private void OpenWebsite()
+	{
+		try
+		{
+			Process.Start(new ProcessStartInfo
+			{
+				FileName = Constants.Settings.KxToolsWebsiteUrl,
+				UseShellExecute = true
+			});
+		}
+		catch
+		{
+			// Fail silently - user may not have a browser configured.
+		}
+	}
+
+	[RelayCommand]
+	private void OpenDiscord()
+	{
+		try
+		{
+			Process.Start(new ProcessStartInfo
+			{
+				FileName = Constants.Settings.DiscordInviteUrl,
+				UseShellExecute = true
+			});
+		}
+		catch
+		{
+			// Fail silently - user may not have a browser configured.
+		}
+	}
+
+	[RelayCommand]
+	private void OpenGitHub()
+	{
+		try
+		{
+			Process.Start(new ProcessStartInfo
+			{
+				FileName = Constants.Settings.GitHubRepoUrl,
+				UseShellExecute = true
+			});
+		}
+		catch
+		{
+			// Fail silently - user may not have a browser configured.
+		}
+	}
+
 	private void OnMumbleUpdated(object? sender, MumbleStateModel snapshot)
 	{
 		// Track actual event reception time in case the snapshot timestamp isn't updated for any reason.

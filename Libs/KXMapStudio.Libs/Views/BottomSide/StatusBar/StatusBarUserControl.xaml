@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              d:DesignHeight="26" d:DesignWidth="900">
 
@@ -33,6 +34,15 @@
 							</DataTrigger>
 							<DataTrigger Binding="{Binding IsMumbleConnected}" Value="True">
 								<Setter Property="Fill" Value="{StaticResource Kx.Brush.Status.Success}" />
+								<DataTrigger.EnterActions>
+									<BeginStoryboard>
+										<Storyboard RepeatBehavior="Forever" AutoReverse="True">
+											<DoubleAnimation Storyboard.TargetProperty="Opacity"
+											                 From="1.0" To="0.4"
+											                 Duration="0:0:1.5" />
+										</Storyboard>
+									</BeginStoryboard>
+								</DataTrigger.EnterActions>
 							</DataTrigger>
 						</Style.Triggers>
 					</Style>
@@ -53,8 +63,38 @@
 				<TextBlock Text="{Binding ZText}" />
 			</StackPanel>
 
-			<!-- Spacer/room for future messages (e.g., map name, selection info, etc.) -->
-			<TextBlock Grid.Column="3" VerticalAlignment="Center" Text="" />
+			<!-- Social links: Website, Discord, GitHub -->
+			<StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+				<!-- Website button -->
+				<Button Style="{StaticResource MaterialDesignFlatButton}"
+				        Command="{Binding OpenWebsiteCommand}"
+				        ToolTip="Visit KXTools Website"
+				        Height="24" Width="24"
+				        Padding="0"
+				        Margin="4,0">
+					<materialDesign:PackIcon Kind="Web" Width="16" Height="16" />
+				</Button>
+
+				<!-- Discord button -->
+				<Button Style="{StaticResource MaterialDesignFlatButton}"
+				        Command="{Binding OpenDiscordCommand}"
+				        ToolTip="Join our Discord"
+				        Height="24" Width="24"
+				        Padding="0"
+				        Margin="4,0">
+					<materialDesign:PackIcon Kind="Forum" Width="16" Height="16" />
+				</Button>
+
+				<!-- GitHub button -->
+				<Button Style="{StaticResource MaterialDesignFlatButton}"
+				        Command="{Binding OpenGitHubCommand}"
+				        ToolTip="View on GitHub"
+				        Height="24" Width="24"
+				        Padding="0"
+				        Margin="4,0">
+					<materialDesign:PackIcon Kind="Github" Width="16" Height="16" />
+				</Button>
+			</StackPanel>
 		</Grid>
 	</Border>
 </UserControl>

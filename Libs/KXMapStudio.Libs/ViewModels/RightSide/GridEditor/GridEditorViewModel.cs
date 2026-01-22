@@ -3,22 +3,32 @@ namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel
 {
 	private readonly IGridEditorDocumentService _documentService;
+	private readonly IGlobalHotkeyService _hotkeyService;
+	private readonly IMumbleService _mumbleService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
+	private int _autoMarkerCounter;
 
 	private CancellationTokenSource? _cts;
 	private EditorDocumentReference? _currentDoc;
 
 	[ObservableProperty] private string? _documentTitle;
+	[ObservableProperty] private string _fileExtension = string.Empty;
 	[ObservableProperty] private bool _isDirty;
 	[ObservableProperty] private bool _isLoaded;
+	[ObservableProperty] private string _openedFileLoadTime = string.Empty;
+	[ObservableProperty] private string? _openedFileName;
 	private int _suppressDirty;
 
 	public GridEditorViewModel(
 		IGridEditorDocumentService documentService,
-		IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> state)
+		IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> state,
+		IMumbleService mumbleService,
+		IGlobalHotkeyService hotkeyService)
 	{
 		_documentService = documentService ?? throw new ArgumentNullException(nameof(documentService));
 		_state = state ?? throw new ArgumentNullException(nameof(state));
+		_mumbleService = mumbleService ?? throw new ArgumentNullException(nameof(mumbleService));
+		_hotkeyService = hotkeyService ?? throw new ArgumentNullException(nameof(hotkeyService));
 
 		Rows = [];
 
@@ -29,9 +39,14 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		MoveUpCommand = new RelayCommand<GridEditorRowViewModel?>(MoveUp, CanMoveUp);
 		MoveDownCommand = new RelayCommand<GridEditorRowViewModel?>(MoveDown, CanMoveDown);
 		AddRowCommand = new RelayCommand(AddRow, () => IsLoaded);
+		AddMarkerFromMumbleCommand = new RelayCommand(AddMarkerFromMumble, () => CanAddMarkerFromMumble);
 
 		_state.StateChanged += StateOnStateChanged;
+		_mumbleService.MumbleUpdated += MumbleServiceOnMumbleUpdated;
+		_hotkeyService.AddMarkerFromMumblePressed += (_, _) => AddMarkerFromMumbleCommand.Execute(null);
 	}
+
+	private bool CanAddMarkerFromMumble => IsLoaded && _mumbleService.Current.IsAvailable;
 
 	public ObservableCollection<GridEditorRowViewModel> Rows { get; }
 
@@ -51,6 +66,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	public IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
 	public IRelayCommand<GridEditorRowViewModel?> MoveDownCommand { get; }
 	public IRelayCommand AddRowCommand { get; }
+	public IRelayCommand AddMarkerFromMumbleCommand { get; }
 
 	public async Task LoadAsync(EditorDocumentReference doc, CancellationToken cancellationToken = default)
 	{
@@ -68,14 +84,24 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 			? $"{doc.DisplayName} (in {Path.GetFileName(doc.ArchivePath)}) [Read-Only]"
 			: doc.DisplayName;
 
+		// Set file metadata for UI display
+		OpenedFileName = doc.DisplayName;
+		FileExtension = doc.Extension.ToLowerInvariant();
+
 		IsLoaded = true;
 
 		SetDirty(false);
 		NotifyCommandStateChanged();
 
 		var ct = _cts.Token;
+
+		// Measure load time
+		var sw = Stopwatch.StartNew();
 		var (rows, _) = await _documentService.LoadAsync(doc, ct);
+		sw.Stop();
 		ct.ThrowIfCancellationRequested();
+
+		OpenedFileLoadTime = $"Loaded in {sw.ElapsedMilliseconds} ms";
 
 		ReloadRows(rows);
 
@@ -86,6 +112,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	public void Dispose()
 	{
 		_state.StateChanged -= StateOnStateChanged;
+		_mumbleService.MumbleUpdated -= MumbleServiceOnMumbleUpdated;
 
 		_cts?.Cancel();
 		_cts?.Dispose();
@@ -98,6 +125,12 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private void StateOnStateChanged(object? sender, EventArgs e)
 	{
 		NotifyCommandStateChanged();
+	}
+
+	private void MumbleServiceOnMumbleUpdated(object? sender, MumbleStateModel e)
+	{
+		// Update command state when Mumble availability changes
+		AddMarkerFromMumbleCommand.NotifyCanExecuteChanged();
 	}
 
 	private void ReloadRows(IReadOnlyList<GridEditorRowViewModel> rows)
@@ -224,6 +257,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		MoveUpCommand.NotifyCanExecuteChanged();
 		MoveDownCommand.NotifyCanExecuteChanged();
 		AddRowCommand.NotifyCanExecuteChanged();
+		AddMarkerFromMumbleCommand.NotifyCanExecuteChanged();
 
 		OnPropertyChanged(nameof(CanSave));
 		OnPropertyChanged(nameof(CanSaveAs));
@@ -320,5 +354,42 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		{
 			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
+	}
+
+	private void AddMarkerFromMumble()
+	{
+		if (!CanAddMarkerFromMumble)
+			return;
+
+		var mumbleState = _mumbleService.Current;
+
+		PushUndoSnapshot();
+
+		Interlocked.Exchange(ref _suppressDirty, 1);
+		try
+		{
+			if (Rows.Count == 0)
+				_autoMarkerCounter = 0;
+			_autoMarkerCounter++;
+			var row = new GridEditorRowViewModel
+			{
+				Id = Rows.Count + 1,
+				Name = $"Marker {_autoMarkerCounter}",
+				X = mumbleState.PlayerPosition.X,
+				Y = mumbleState.PlayerPosition.Y,
+				Z = mumbleState.PlayerPosition.Z
+			};
+			HookRow(row);
+			Rows.Add(row);
+		}
+		finally
+		{
+			Interlocked.Exchange(ref _suppressDirty, 0);
+		}
+
+		SetDirty(true);
+
+		Debug.WriteLine(
+			$"[GridEditorViewModel] Added marker from Mumble: {mumbleState.PlayerPosition.X:F4}, {mumbleState.PlayerPosition.Y:F4}, {mumbleState.PlayerPosition.Z:F4}");
 	}
 }

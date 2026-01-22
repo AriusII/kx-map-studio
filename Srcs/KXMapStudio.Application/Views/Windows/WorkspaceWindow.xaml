@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:leftSide="clr-namespace:KXMapStudio.Libs.Views.LeftSide;assembly=KXMapStudio.Libs"
         xmlns:rightSide="clr-namespace:KXMapStudio.Libs.Views.RightSide;assembly=KXMapStudio.Libs"
-        xmlns:topSide="clr-namespace:KXMapStudio.Libs.Views.TopSide.MainMenu;assembly=KXMapStudio.Libs"
         xmlns:bottomSide="clr-namespace:KXMapStudio.Libs.Views.BottomSide.StatusBar;assembly=KXMapStudio.Libs"
         Style="{StaticResource MaterialDesignWindow}"
         Title="KX Map Studio" Height="800" Width="1280">
@@ -26,9 +25,6 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-
-		<!-- Top area -->
-		<topSide:MainMenuUserControl Grid.Row="0" DataContext="{Binding MainMenu}" />
 
 		<!-- Content area (separated from top) -->
 		<Grid Grid.Row="1" Margin="8">

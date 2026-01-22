@@ -3,28 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:workshopExplorer1="clr-namespace:KXMapStudio.Libs.Views.LeftSide.WorkshopExplorer"
-             xmlns:filePreview1="clr-namespace:KXMapStudio.Libs.Views.LeftSide.FilePreview"
+             xmlns:workshopExplorer="clr-namespace:KXMapStudio.Libs.Views.LeftSide.WorkshopExplorer"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 	<Border Style="{StaticResource Kx.PanelSurface}">
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="*" MinHeight="140" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="2*" MinHeight="160" />
-			</Grid.RowDefinitions>
-
-			<workshopExplorer1:WorkspaceExplorerUserControl
-				Grid.Row="0"
-				DataContext="{Binding WorkshopExplorer}" />
-
-			<GridSplitter Grid.Row="1"
-			              Style="{StaticResource Kx.Splitter.Horizontal}" />
-
-			<filePreview1:FilePreviewUserControl
-				Grid.Row="2"
-				DataContext="{Binding FilePreview}" />
-		</Grid>
+		<workshopExplorer:WorkspaceExplorerUserControl DataContext="{Binding WorkshopExplorer}" />
 	</Border>
 </UserControl>

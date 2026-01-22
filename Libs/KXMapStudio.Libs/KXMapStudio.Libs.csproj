@@ -33,9 +33,6 @@
 			<XamlRuntime>Wpf</XamlRuntime>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Update="Views\LeftSide\FilePreview\FilePreviewUserControl.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Update="Views\LeftSide\WorkshopExplorer\WorkspaceExplorerUserControl.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -49,6 +46,5 @@
 	
 	<ItemGroup>
 		<Folder Include="Models\LeftSide\"/>
-		<Folder Include="Services\FilePreview\"/>
 	</ItemGroup>
 </Project>

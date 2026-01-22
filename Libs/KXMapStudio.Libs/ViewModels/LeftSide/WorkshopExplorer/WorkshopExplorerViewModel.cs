@@ -1,33 +1,28 @@
 namespace KXMapStudio.Libs.ViewModels.LeftSide.WorkshopExplorer;
 
+/// <summary>
+///     Workshop Explorer ViewModel - unified file viewer for the Data folder.
+/// </summary>
 public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorkshopExplorerViewModel
 {
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
-	private readonly IWorkshopExplorerNodeService _nodeService;
-	private readonly Lock _refreshLock = new();
+	private readonly Timer _refreshTimer;
 	private readonly FileSystemWatcher _watcher;
 	private readonly IWorkshopExplorerService _workshopExplorerService;
+
 	[ObservableProperty] private bool _isRefreshing;
 	[ObservableProperty] private string? _lastErrorMessage;
 	[ObservableProperty] private DateTimeOffset? _lastRefreshUtc;
-	private string? _pendingSelectedPath;
 
 	private CancellationTokenSource? _refreshCts;
-	private Timer? _refreshTimer;
 
-	[ObservableProperty] private WorkspaceExplorerNodeModel? _selectedNode;
-
-	public WorkshopExplorerViewModel(
-		IWorkshopExplorerService workshopExplorerService,
-		IWorkshopExplorerNodeService nodeService)
+	public WorkshopExplorerViewModel(IWorkshopExplorerService workshopExplorerService)
 	{
 		_workshopExplorerService = workshopExplorerService;
-		_nodeService = nodeService;
 
-		RootNodes = [];
-
-		SelectNodeCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>(OnSelectedItemChanged);
+		RootNodes = new ObservableCollection<WorkshopExplorerNodeModel>();
 		RefreshCommand = new AsyncRelayCommand(RefreshAsync);
+		SelectNodeCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>(OnSelectNode);
 
 		_watcher = new FileSystemWatcher(_workshopExplorerService.DataFolder)
 		{
@@ -36,171 +31,62 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 			NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite
 		};
 
-		_watcher.Created += OnFsChanged;
-		_watcher.Deleted += OnFsChanged;
-		_watcher.Changed += OnFsChanged;
-		_watcher.Renamed += OnFsRenamed;
+		_watcher.Created += OnFileSystemChanged;
+		_watcher.Deleted += OnFileSystemChanged;
+		_watcher.Changed += OnFileSystemChanged;
+		_watcher.Renamed += OnFileSystemRenamed;
 
-		// Initial load.
-		QueueRefresh(0);
+		_refreshTimer = new Timer { AutoReset = false };
+		_refreshTimer.Elapsed += OnRefreshTimerElapsed;
+
+		// Initial load on UI thread
+		_ = Application.Current?.Dispatcher.InvokeAsync(async () => await RefreshAsync());
 	}
 
-	public ObservableCollection<WorkspaceExplorerNodeModel> RootNodes { get; }
-
+	public ObservableCollection<WorkshopExplorerNodeModel> RootNodes { get; }
 	public IRelayCommand RefreshCommand { get; }
 	public IRelayCommand<RoutedPropertyChangedEventArgs<object>> SelectNodeCommand { get; }
 
 	public void Dispose()
 	{
-		_watcher.Created -= OnFsChanged;
-		_watcher.Deleted -= OnFsChanged;
-		_watcher.Changed -= OnFsChanged;
-		_watcher.Renamed -= OnFsRenamed;
+		_watcher.Created -= OnFileSystemChanged;
+		_watcher.Deleted -= OnFileSystemChanged;
+		_watcher.Changed -= OnFileSystemChanged;
+		_watcher.Renamed -= OnFileSystemRenamed;
 		_watcher.Dispose();
 
-		lock (_refreshLock)
-		{
-			_refreshTimer?.Stop();
-			_refreshTimer?.Dispose();
-			_refreshTimer = null;
-		}
+		_refreshTimer.Elapsed -= OnRefreshTimerElapsed;
+		_refreshTimer.Dispose();
 
-		CancelAndDisposeRefreshCts();
+		_refreshCts?.Cancel();
+		_refreshCts?.Dispose();
 	}
 
 	public event EventHandler<EditorDocumentReference>? FileSelected;
 
-	private void CancelAndDisposeRefreshCts()
+	private void OnFileSystemChanged(object sender, FileSystemEventArgs e)
 	{
-		CancellationTokenSource? toDispose;
-		lock (_refreshLock)
-		{
-			toDispose = _refreshCts;
-			_refreshCts = null;
-		}
-
-		if (toDispose is null)
-			return;
-
-		try
-		{
-			toDispose.Cancel();
-		}
-		catch
-		{
-			/* ignore */
-		}
-
-		toDispose.Dispose();
+		if (_workshopExplorerService.IsRelevantChange(e.FullPath))
+			QueueRefresh(250);
 	}
 
-	private void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object>? e)
-	{
-		if (e?.NewValue is not WorkspaceExplorerNodeModel node)
-			return;
-
-		SelectedNode = node;
-	}
-
-	partial void OnSelectedNodeChanged(WorkspaceExplorerNodeModel? value)
-	{
-		_pendingSelectedPath = value?.FullPath;
-
-		// Record expansion state when user expands/collapses nodes (two-way binding updates IsExpanded).
-		if (value is { IsDirectory: true })
-			CaptureExpandedStateFromRoots();
-
-		if (value is null || value.IsDirectory)
-			return;
-
-		if (!_workshopExplorerService.IsAllowedFilePath(value.FullPath))
-			return;
-
-		FileSelected?.Invoke(this, EditorDocumentReference.FromWorkspaceFile(value.FullPath));
-	}
-
-	private void CaptureExpandedStateFromRoots()
-	{
-		_expandedFolderPaths.Clear();
-		foreach (var root in RootNodes)
-			CaptureExpandedStateRecursive(root);
-	}
-
-	private void CaptureExpandedStateRecursive(WorkspaceExplorerNodeModel node)
-	{
-		if (node.IsDirectory && node.IsExpanded)
-			_expandedFolderPaths.Add(node.FullPath);
-
-		foreach (var child in node.Children)
-			CaptureExpandedStateRecursive(child);
-	}
-
-	private void RestoreExpandedStateFromSnapshot(WorkspaceExplorerNodeModel node)
-	{
-		node.IsExpanded = node.IsDirectory && _expandedFolderPaths.Contains(node.FullPath);
-		foreach (var child in node.Children)
-			RestoreExpandedStateFromSnapshot(child);
-	}
-
-	private void OnFsChanged(object sender, FileSystemEventArgs e)
-	{
-		if (!_workshopExplorerService.IsRelevantChange(e.FullPath))
-			return;
-
-		QueueRefresh();
-	}
-
-	private void OnFsRenamed(object sender, RenamedEventArgs e)
+	private void OnFileSystemRenamed(object sender, RenamedEventArgs e)
 	{
 		if (_workshopExplorerService.IsRelevantChange(e.FullPath) ||
 		    _workshopExplorerService.IsRelevantChange(e.OldFullPath))
-			QueueRefresh();
+			QueueRefresh(250);
 	}
 
-	private void QueueRefresh(int debounceMs = 250)
+	private void QueueRefresh(int debounceMs)
 	{
-		// System.Timers.Timer.Interval must be > 0. For an immediate refresh request (startup),
-		// schedule it directly on the dispatcher without going through the timer.
-		if (debounceMs <= 0)
-		{
-			var app = Application.Current;
-			if (app is null)
-				return;
-
-			_ = app.Dispatcher.InvokeAsync(async () =>
-			{
-				try
-				{
-					await RefreshAsync();
-				}
-				catch
-				{
-					// RefreshAsync is defensive; ignore any unexpected failures here.
-				}
-			});
-
-			return;
-		}
-
-		lock (_refreshLock)
-		{
-			_refreshTimer ??= new Timer { AutoReset = false };
-			_refreshTimer.Interval = debounceMs;
-			_refreshTimer.Elapsed -= RefreshTimerOnElapsed;
-			_refreshTimer.Elapsed += RefreshTimerOnElapsed;
-			_refreshTimer.Stop();
-			_refreshTimer.Start();
-		}
+		_refreshTimer.Stop();
+		_refreshTimer.Interval = debounceMs;
+		_refreshTimer.Start();
 	}
 
-	private void RefreshTimerOnElapsed(object? sender, ElapsedEventArgs e)
+	private void OnRefreshTimerElapsed(object? sender, ElapsedEventArgs e)
 	{
-		// The timer is not on the UI thread. Schedule an async refresh back on the UI context.
-		var app = Application.Current;
-		if (app is null)
-			return;
-
-		_ = app.Dispatcher.InvokeAsync(async () =>
+		Application.Current?.Dispatcher.InvokeAsync(async () =>
 		{
 			try
 			{
@@ -208,62 +94,47 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 			}
 			catch
 			{
-				// RefreshAsync is already defensive; this is a final safety net.
+				// RefreshAsync handles errors internally
 			}
 		});
 	}
 
 	private async Task RefreshAsync()
 	{
-		CancellationToken token;
-		lock (_refreshLock)
-		{
-			_pendingSelectedPath ??= SelectedNode?.FullPath;
-		}
+		// Cancel previous refresh if still running
+		_refreshCts?.Cancel();
+		_refreshCts?.Dispose();
+		_refreshCts = new CancellationTokenSource();
 
-		// Snapshot expansion state before rebuilding the tree.
-		CaptureExpandedStateFromRoots();
+		var token = _refreshCts.Token;
 
-		lock (_refreshLock)
-		{
-			// Cancel previous refresh if any (VS Code behavior: last request wins).
-			_refreshCts?.Cancel();
-			_refreshCts?.Dispose();
-			_refreshCts = new CancellationTokenSource();
-			token = _refreshCts.Token;
-		}
+		// Save current expanded state before clearing
+		SaveExpandedState(RootNodes);
 
 		IsRefreshing = true;
 		LastErrorMessage = null;
 
 		try
 		{
-			var root = await Task.Run(() => _workshopExplorerService.BuildRootNode(), token);
+			var scanResult =
+				await _workshopExplorerService.ScanDirectoryAsync(_workshopExplorerService.DataFolder, token);
 
-			// Restore expansion state like VS Code.
-			RestoreExpandedStateFromSnapshot(root);
-			root.IsExpanded = true;
-
+			// Build UI tree
 			RootNodes.Clear();
-			RootNodes.Add(root);
-
-			WorkspaceExplorerNodeModel? toSelect = null;
-			var path = _pendingSelectedPath;
-			if (!string.IsNullOrWhiteSpace(path))
+			foreach (var childScan in scanResult.Children)
 			{
-				toSelect = _workshopExplorerService.FindNodeByPath(root, path);
-				if (toSelect != null)
-					_nodeService.ExpandParents(root, toSelect.FullPath);
+				var childNode = BuildNodeRecursive(childScan);
+				RootNodes.Add(childNode);
 			}
 
-			SelectedNode = toSelect ?? root;
-			_pendingSelectedPath = null;
+			// Restore expanded state
+			RestoreExpandedState(RootNodes);
 
 			LastRefreshUtc = DateTimeOffset.UtcNow;
 		}
 		catch (OperationCanceledException)
 		{
-			// Expected in the "last refresh wins" model.
+			// Expected when refresh is superseded
 		}
 		catch (Exception ex)
 		{
@@ -273,5 +144,59 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		{
 			IsRefreshing = false;
 		}
+	}
+
+	private static WorkshopExplorerNodeModel BuildNodeRecursive(WorkshopExplorerScanNode scanNode)
+	{
+		var node = new WorkshopExplorerNodeModel(scanNode.Name, scanNode.FullPath, scanNode.IsDirectory);
+
+		foreach (var childScan in scanNode.Children)
+		{
+			var childNode = BuildNodeRecursive(childScan);
+			node.Children.Add(childNode);
+		}
+
+		return node;
+	}
+
+	private void SaveExpandedState(IEnumerable<WorkshopExplorerNodeModel> nodes)
+	{
+		foreach (var node in nodes)
+		{
+			if (node is { IsExpanded: true, IsDirectory: true })
+				_expandedFolderPaths.Add(node.FullPath);
+
+			SaveExpandedState(node.Children);
+		}
+	}
+
+	private void RestoreExpandedState(IEnumerable<WorkshopExplorerNodeModel> nodes)
+	{
+		foreach (var node in nodes)
+		{
+			if (node.IsDirectory && _expandedFolderPaths.Contains(node.FullPath))
+				node.IsExpanded = true;
+
+			RestoreExpandedState(node.Children);
+		}
+	}
+
+	private void OnSelectNode(RoutedPropertyChangedEventArgs<object>? e)
+	{
+		if (e?.NewValue is not WorkshopExplorerNodeModel node)
+			return;
+
+		// Only handle file selection (not directories)
+		if (node.IsDirectory)
+			return;
+
+		// Only handle XML and JSON files
+		var ext = node.Extension.ToLowerInvariant();
+		if (ext != FileExtension.Xml && ext != FileExtension.Json)
+			return;
+
+		// Fire event to notify subscribers (LeftSidePanelViewModel will handle loading into FilePreview and GridEditor)
+		var doc = EditorDocumentReference.FromWorkspaceFile(node.FullPath);
+		FileSelected?.Invoke(this, doc);
 	}
 }

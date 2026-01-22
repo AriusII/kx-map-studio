@@ -6,6 +6,10 @@ public interface IGridEditorViewModel : IDisposable
 	bool IsLoaded { get; }
 	bool IsDirty { get; }
 
+	string? OpenedFileName { get; }
+	string OpenedFileLoadTime { get; }
+	string FileExtension { get; }
+
 	bool CanUndo { get; }
 	bool CanRedo { get; }
 
@@ -19,6 +23,7 @@ public interface IGridEditorViewModel : IDisposable
 	IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
 	IRelayCommand<GridEditorRowViewModel?> MoveDownCommand { get; }
 	IRelayCommand AddRowCommand { get; }
+	IRelayCommand AddMarkerFromMumbleCommand { get; }
 
 	ObservableCollection<GridEditorRowViewModel> Rows { get; }
 

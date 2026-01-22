@@ -3,8 +3,9 @@
 public interface IWorkshopExplorerService
 {
 	string DataFolder { get; }
-	WorkspaceExplorerNodeModel BuildRootNode(bool recursive = true);
-	WorkspaceExplorerNodeModel? FindNodeByPath(WorkspaceExplorerNodeModel nodeModel, string fullPath);
 	bool IsRelevantChange(string fullPath);
 	bool IsAllowedFilePath(string fullPath);
+
+	Task<WorkshopExplorerScanNode> ScanDirectoryAsync(string directoryPath,
+		CancellationToken cancellationToken = default);
 }

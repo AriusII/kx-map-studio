@@ -6,4 +6,10 @@ public sealed partial class WorkspaceExplorerUserControl : UserControl
 	{
 		InitializeComponent();
 	}
+
+	private void TreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+	{
+		if (DataContext is IWorkshopExplorerViewModel vm)
+			vm.SelectNodeCommand.Execute(e);
+	}
 }
