@@ -123,23 +123,19 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	{
 		_expandedFolderPaths.Clear();
 		foreach (var root in RootNodes)
-			CaptureExpandedStateRecursive(root);
-	}
-
-	private void CaptureExpandedStateRecursive(WorkspaceExplorerNodeModel node)
-	{
-		if (node.IsDirectory && node.IsExpanded)
-			_expandedFolderPaths.Add(node.FullPath);
-
-		foreach (var child in node.Children)
-			CaptureExpandedStateRecursive(child);
+			_nodeService.TraverseTree(root, node =>
+			{
+				if (node.IsDirectory && node.IsExpanded)
+					_expandedFolderPaths.Add(node.FullPath);
+			});
 	}
 
 	private void RestoreExpandedStateFromSnapshot(WorkspaceExplorerNodeModel node)
 	{
-		node.IsExpanded = node.IsDirectory && _expandedFolderPaths.Contains(node.FullPath);
-		foreach (var child in node.Children)
-			RestoreExpandedStateFromSnapshot(child);
+		_nodeService.TraverseTree(node, n =>
+		{
+			n.IsExpanded = n.IsDirectory && _expandedFolderPaths.Contains(n.FullPath);
+		});
 	}
 
 	private void OnFsChanged(object sender, FileSystemEventArgs e)

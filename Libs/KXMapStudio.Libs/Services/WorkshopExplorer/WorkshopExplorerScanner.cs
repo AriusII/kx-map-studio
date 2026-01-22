@@ -14,8 +14,8 @@ public sealed class WorkshopExplorerScanner : IWorkshopExplorerScanner
 			throw new ArgumentException("Root path is required.", nameof(rootPath));
 		ArgumentNullException.ThrowIfNull(allowedExtensions);
 
-		var rootFullPath = Path.GetFullPath(rootPath);
-		var allowed = new HashSet<string>(allowedExtensions, StringComparer.OrdinalIgnoreCase);
+		var rootFullPath = WorkshopExplorerNodeService.NormalizeFullPath(rootPath);
+		var allowed = new HashSet<string>(allowedExtensions, WorkshopExplorerConstants.PathComparer);
 
 		// Ensure the folder exists; if it doesn't, return an empty root.
 		if (Directory.Exists(rootFullPath))
@@ -78,7 +78,7 @@ public sealed class WorkshopExplorerScanner : IWorkshopExplorerScanner
 			if (a.IsDirectory != b.IsDirectory)
 				return a.IsDirectory ? -1 : 1;
 
-			return StringComparer.OrdinalIgnoreCase.Compare(a.Name, b.Name);
+			return WorkshopExplorerConstants.PathComparer.Compare(a.Name, b.Name);
 		});
 
 		return new WorkshopExplorerScanNode(name, Path.GetFullPath(directoryPath), true, children);

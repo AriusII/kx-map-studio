@@ -5,12 +5,6 @@ namespace KXMapStudio.Libs.Services.WorkshopExplorer;
 /// </summary>
 public sealed class WorkshopExplorerService : IWorkshopExplorerService
 {
-	private static readonly IReadOnlyCollection<string> AllowedWorkshopExtensions =
-	[
-		FileExtension.Xml,
-		FileExtension.Json
-	];
-
 	private readonly IWorkshopExplorerNodeService _nodeService;
 	private readonly IWorkshopExplorerScanner _scanner;
 
@@ -32,12 +26,12 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 		// Kept for backward compatibility with existing synchronous VM code.
 		// Internally we run the scan synchronously (no cancellation on this legacy path).
 		var scan = _scanner
-			.ScanAsync(DataFolder, AllowedWorkshopExtensions, CancellationToken.None)
+			.ScanAsync(DataFolder, WorkshopExplorerConstants.AllowedFileExtensions, CancellationToken.None)
 			.ConfigureAwait(false)
 			.GetAwaiter()
 			.GetResult();
 
-		return MapToUiNode(scan);
+		return _nodeService.MapScanNodeToUiNode(scan);
 	}
 
 	public WorkspaceExplorerNodeModel? FindNodeByPath(WorkspaceExplorerNodeModel nodeModel, string fullPath)
@@ -52,10 +46,10 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 
 		try
 		{
-			var normalized = Path.GetFullPath(fullPath);
-			var dataRoot = Path.GetFullPath(DataFolder);
+			var normalized = WorkshopExplorerNodeService.NormalizeFullPath(fullPath);
+			var dataRoot = WorkshopExplorerNodeService.NormalizeFullPath(DataFolder);
 
-			return normalized.StartsWith(dataRoot, StringComparison.OrdinalIgnoreCase);
+			return WorkshopExplorerNodeService.PathStartsWith(normalized, dataRoot);
 		}
 		catch
 		{
@@ -69,14 +63,6 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 			return false;
 
 		var ext = Path.GetExtension(fullPath);
-		return AllowedWorkshopExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase);
-	}
-
-	private static WorkspaceExplorerNodeModel MapToUiNode(WorkshopExplorerScanNode scanNode)
-	{
-		var ui = new WorkspaceExplorerNodeModel(scanNode.Name, scanNode.FullPath, scanNode.IsDirectory);
-		foreach (var child in scanNode.Children)
-			ui.Children.Add(MapToUiNode(child));
-		return ui;
+		return WorkshopExplorerConstants.AllowedFileExtensions.Contains(ext, WorkshopExplorerConstants.PathComparer);
 	}
 }

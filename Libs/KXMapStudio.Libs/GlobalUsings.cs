@@ -33,6 +33,7 @@ global using KXMapStudio.Libs.Abstractions.ViewModels.LeftSide;
 global using KXMapStudio.Libs.Abstractions.ViewModels.LeftSide.FileExplorer;
 global using KXMapStudio.Libs.Abstractions.ViewModels.LeftSide.WorkshopExplorer;
 global using KXMapStudio.Libs.Abstractions.ViewModels.RightSide.GridEditor;
+global using KXMapStudio.Libs.Constants;
 global using KXMapStudio.Libs.Models.Editor;
 global using KXMapStudio.Libs.Models.LeftSide.FilePreview;
 global using KXMapStudio.Libs.Models.LeftSide.WorkshopExplorer;
