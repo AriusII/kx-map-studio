@@ -119,7 +119,8 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 				if (!allowed.Contains(ext))
 					continue;
 
-				children.Add(new WorkshopExplorerScanNode(Path.GetFileName(file), Path.GetFullPath(file), false, []));
+				// EnumerateFiles already returns full paths
+				children.Add(new WorkshopExplorerScanNode(Path.GetFileName(file), file, false, []));
 			}
 		}
 		catch (UnauthorizedAccessException)

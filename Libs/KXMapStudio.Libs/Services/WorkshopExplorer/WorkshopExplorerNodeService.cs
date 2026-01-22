@@ -4,6 +4,10 @@ namespace KXMapStudio.Libs.Services.WorkshopExplorer;
 ///     Consolidated tree manipulation service for Workshop Explorer.
 ///     Handles node traversal, expansion, selection, and tree building operations.
 /// </summary>
+/// <remarks>
+///     This is a stateless service class (not a record) that provides utility methods for tree operations.
+///     All methods are thread-safe as they operate on immutable inputs or provided nodes.
+/// </remarks>
 public sealed class WorkshopExplorerNodeService : IWorkshopExplorerNodeService
 {
 	/// <summary>
@@ -68,6 +72,10 @@ public sealed class WorkshopExplorerNodeService : IWorkshopExplorerNodeService
 	/// <summary>
 	///     Normalizes a file path to its full absolute path.
 	/// </summary>
+	/// <remarks>
+	///     This is a static utility method that can be used by other Workshop Explorer services
+	///     to ensure consistent path normalization across the module.
+	/// </remarks>
 	public static string NormalizeFullPath(string path)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(path);
