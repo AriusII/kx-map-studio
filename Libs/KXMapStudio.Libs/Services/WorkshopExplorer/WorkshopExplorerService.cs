@@ -5,11 +5,21 @@ namespace KXMapStudio.Libs.Services.WorkshopExplorer;
 /// </summary>
 public sealed class WorkshopExplorerService : IWorkshopExplorerService
 {
-	private readonly IWorkshopExplorerNodeService _nodeService;
+	private static readonly IReadOnlyCollection<string> AllowedWorkshopExtensions =
+	[
+		FileExtension.Xml,
+		FileExtension.Json
+	];
 
-	public WorkshopExplorerService(IWorkshopExplorerNodeService nodeService)
+	private readonly IWorkshopExplorerNodeService _nodeService;
+	private readonly IWorkshopExplorerScanner _scanner;
+
+	public WorkshopExplorerService(
+		IWorkshopExplorerNodeService nodeService,
+		IWorkshopExplorerScanner scanner)
 	{
 		_nodeService = nodeService ?? throw new ArgumentNullException(nameof(nodeService));
+		_scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
 
 		DataFolder = Path.Combine(AppContext.BaseDirectory, Constants.Settings.DataFolder);
 		Directory.CreateDirectory(DataFolder);
@@ -17,10 +27,17 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 
 	public string DataFolder { get; }
 
-
 	public WorkspaceExplorerNodeModel BuildRootNode(bool recursive = true)
 	{
-		throw new NotImplementedException();
+		// Kept for backward compatibility with existing synchronous VM code.
+		// Internally we run the scan synchronously (no cancellation on this legacy path).
+		var scan = _scanner
+			.ScanAsync(DataFolder, AllowedWorkshopExtensions, CancellationToken.None)
+			.ConfigureAwait(false)
+			.GetAwaiter()
+			.GetResult();
+
+		return MapToUiNode(scan);
 	}
 
 	public WorkspaceExplorerNodeModel? FindNodeByPath(WorkspaceExplorerNodeModel nodeModel, string fullPath)
@@ -52,17 +69,14 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 			return false;
 
 		var ext = Path.GetExtension(fullPath);
-		return FileExtension.AllowedExtensions.Contains(ext);
+		return AllowedWorkshopExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase);
 	}
 
-	private static WorkspaceExplorerNodeModel Map(FileSystemEntryNodeModel coreNode)
+	private static WorkspaceExplorerNodeModel MapToUiNode(WorkshopExplorerScanNode scanNode)
 	{
-		var isDir = coreNode.Type is ExplorerEntryType.Root or ExplorerEntryType.Folder;
-		var ui = new WorkspaceExplorerNodeModel(coreNode.Name, coreNode.FullPath, isDir);
-
-		foreach (var child in coreNode.Children)
-			ui.Children.Add(Map(child));
-
+		var ui = new WorkspaceExplorerNodeModel(scanNode.Name, scanNode.FullPath, scanNode.IsDirectory);
+		foreach (var child in scanNode.Children)
+			ui.Children.Add(MapToUiNode(child));
 		return ui;
 	}
 }

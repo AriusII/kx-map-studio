@@ -35,14 +35,16 @@ internal sealed class XmlRepository(IFileStorageRepository fileStorage) : IXmlRe
 		await _fileStorage.SaveAsync(path, memory, cancellationToken).ConfigureAwait(false);
 	}
 
-	public async Task<XDocument> LoadFromArchiveStreamAsync(Stream stream, CancellationToken cancellationToken = default)
+	public async Task<XDocument> LoadFromArchiveStreamAsync(Stream stream,
+		CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(stream);
-		
+
 		return await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken).ConfigureAwait(false);
 	}
 
-	public async Task SaveToArchiveStreamAsync(XDocument document, Stream stream, CancellationToken cancellationToken = default)
+	public async Task SaveToArchiveStreamAsync(XDocument document, Stream stream,
+		CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(document);
 		ArgumentNullException.ThrowIfNull(stream);

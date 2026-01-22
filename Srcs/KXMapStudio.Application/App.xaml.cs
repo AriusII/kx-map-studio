@@ -12,7 +12,7 @@ public sealed partial class App
 					.AddCoreDependencies()
 					.AddLibsDependencies()
 					.AddSingleton<WorkspaceWindow>();
-				
+
 				services.Configure<SettingsOption>(contexts.Configuration.GetSection("Settings"));
 			})
 			.Build();
@@ -25,6 +25,9 @@ public sealed partial class App
 		ForceCulture("en-US");
 		base.OnStartup(e);
 		AppHost.Start();
+
+		// Start MumbleLink polling so the StatusBar stays up-to-date.
+		AppHost.Services.GetRequiredService<IMumbleService>().Start();
 
 		var mainWindow = AppHost.Services.GetRequiredService<WorkspaceWindow>();
 		mainWindow.Show();
@@ -42,6 +45,16 @@ public sealed partial class App
 
 	protected override void OnExit(ExitEventArgs e)
 	{
+		// Stop background polling before shutting down hosting.
+		try
+		{
+			AppHost.Services.GetRequiredService<IMumbleService>().Stop();
+		}
+		catch
+		{
+			// Intentional no-op.
+		}
+
 		AppHost.StopAsync().GetAwaiter().GetResult();
 		AppHost.Dispose();
 

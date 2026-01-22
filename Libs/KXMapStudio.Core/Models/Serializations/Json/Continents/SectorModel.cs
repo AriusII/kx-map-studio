@@ -15,4 +15,5 @@ public sealed record SectorModel(
 	[property: JsonPropertyName("level")] int Level,
 	[property: JsonPropertyName("coord")] double[] Coord,
 	[property: JsonPropertyName("bounds")] double[][] Bounds,
-	[property: JsonPropertyName("chat_link")] string ChatLink);
+	[property: JsonPropertyName("chat_link")]
+	string ChatLink);

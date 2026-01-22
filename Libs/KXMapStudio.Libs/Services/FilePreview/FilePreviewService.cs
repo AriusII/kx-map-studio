@@ -7,7 +7,6 @@ public sealed class FilePreviewService : IFilePreviewService, IDisposable
 	/// <summary>
 	///     Initializes a new instance of the <see cref="FilePreviewService" />.
 	/// </summary>
-
 	public void Dispose()
 	{
 		foreach (var a in _openArchives.Values)

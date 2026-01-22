@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace KXMapStudio.Libs.Models.Grid;
 
 /// <summary>

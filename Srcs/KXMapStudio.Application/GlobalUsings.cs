@@ -3,6 +3,7 @@
 global using System.Globalization;
 global using System.Windows;
 global using KXMapStudio.Application.Views.Windows;
+global using KXMapStudio.Core.Abstractions.Services.Mumble;
 global using KXMapStudio.Core.Extensions;
 global using KXMapStudio.Core.Models.IOptions;
 global using KXMapStudio.Libs.Abstractions.ViewModels;

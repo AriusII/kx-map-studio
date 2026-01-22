@@ -9,5 +9,6 @@
 public sealed record JsonModel(
 	[property: JsonPropertyName("Name")] string Name,
 	[property: JsonPropertyName("Author")] string? Author,
-	[property: JsonPropertyName("Coordinates")] CoordinatesModel[] Coordinates
+	[property: JsonPropertyName("Coordinates")]
+	CoordinatesModel[] Coordinates
 );

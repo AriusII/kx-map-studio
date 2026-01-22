@@ -1,4 +1,4 @@
-namespace KXMapStudio.Core.Services;
+namespace KXMapStudio.Core.Services.Mumble;
 
 /// <summary>
 ///     Provides polling-based access to Guild Wars 2 MumbleLink state via <see cref="IGw2Client" />.
@@ -47,15 +47,15 @@ public sealed record MumbleService : IMumbleService, IDisposable
 	{
 		Stop();
 
-		if (_gw2Client is IDisposable d)
-			try
-			{
-				d.Dispose();
-			}
-			catch
-			{
-				// Intentional no-op.
-			}
+		if (_gw2Client is not IDisposable d) return;
+		try
+		{
+			d.Dispose();
+		}
+		catch
+		{
+			// Intentional no-op.
+		}
 	}
 
 	/// <inheritdoc />
@@ -98,20 +98,33 @@ public sealed record MumbleService : IMumbleService, IDisposable
 			try
 			{
 				_gw2Client.Mumble.Update();
+
+				// Gw2Sharp reports availability, but we also defensively validate key fields
+				// so we don't keep reporting a stale 'connected' state if the game is closed or the link stops.
 				var available = _gw2Client.Mumble.IsAvailable;
+
+				var avatar = available ? _gw2Client.Mumble.AvatarPosition : new Coordinates3();
+				var camera = available ? _gw2Client.Mumble.CameraPosition : new Coordinates3();
+				var mapId = available ? (uint)_gw2Client.Mumble.MapId : 0u;
+				var characterName = available ? _gw2Client.Mumble.CharacterName ?? string.Empty : "Not Available";
+
+				// Additional sanity checks:
+				// - When the link is no longer running, MapId often becomes 0 and character is empty.
+				// - We treat this as unavailable so consumers immediately show 'disconnected'.
+				if (available && mapId == 0u && string.IsNullOrWhiteSpace(characterName))
+					available = false;
 
 				var newState = new MumbleStateModel(
 					available,
-					available ? _gw2Client.Mumble.AvatarPosition : new Coordinates3(),
-					available ? _gw2Client.Mumble.CameraPosition : new Coordinates3(),
-					available ? (uint)_gw2Client.Mumble.MapId : 0u,
-					available ? _gw2Client.Mumble.CharacterName ?? string.Empty : "Not Available",
+					available ? avatar : new Coordinates3(),
+					available ? camera : new Coordinates3(),
+					available ? mapId : 0u,
+					available ? characterName : "Not Available",
 					DateTimeOffset.UtcNow
 				);
 
 				_current = newState;
 				MumbleUpdated?.Invoke(this, newState);
-
 				await Task.Delay(_pollInterval, cancellationToken).ConfigureAwait(false);
 			}
 			catch (TaskCanceledException)
@@ -120,7 +133,20 @@ public sealed record MumbleService : IMumbleService, IDisposable
 			}
 			catch
 			{
-				// Swallow transient errors to keep polling stable.
+				// If polling fails (e.g., GW2 process is gone), publish an Unavailable snapshot
+				// so the UI doesn't stay stuck on old values.
+				var newState = new MumbleStateModel(
+					false,
+					new Coordinates3(),
+					new Coordinates3(),
+					0u,
+					"Not Available",
+					DateTimeOffset.UtcNow
+				);
+
+				_current = newState;
+				MumbleUpdated?.Invoke(this, newState);
+
 				try
 				{
 					await Task.Delay(_pollInterval, cancellationToken).ConfigureAwait(false);

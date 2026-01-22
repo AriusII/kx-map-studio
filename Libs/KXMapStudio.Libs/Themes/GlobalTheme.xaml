@@ -38,41 +38,123 @@
 			<SolidColorBrush x:Key="MaterialDesign.Brush.ScrollBar.Thumb.Background" Color="#4b526d" />
 			<SolidColorBrush x:Key="MaterialDesign.Brush.ScrollBar.Thumb.MouseOver.Background" Color="#6a7391" />
 			<SolidColorBrush x:Key="MaterialDesign.Brush.ScrollBar.Thumb.Pressed.Background" Color="#0062ff" />
+
+			<!-- App design tokens (prefer these in views when possible) -->
+			<SolidColorBrush x:Key="Kx.Brush.AppBackground" Color="#0f111a" />
+			<SolidColorBrush x:Key="Kx.Brush.Surface" Color="#161926" />
+			<SolidColorBrush x:Key="Kx.Brush.Border" Color="#2a2e45" />
+			<SolidColorBrush x:Key="Kx.Brush.Text.Primary" Color="#e1e4f0" />
+			<SolidColorBrush x:Key="Kx.Brush.Text.Secondary" Color="#949db1" />
+
+			<!-- Accent: keep it aligned with configured primary color -->
+			<SolidColorBrush x:Key="Kx.Brush.Accent" Color="#0062ff" />
+
+			<!-- Status colors -->
+			<SolidColorBrush x:Key="Kx.Brush.Status.Error" Color="#CC3333" />
+			<SolidColorBrush x:Key="Kx.Brush.Status.Warning" Color="#F0B429" />
+			<SolidColorBrush x:Key="Kx.Brush.Status.Success" Color="#2EAD4A" />
+
+			<!-- Spacing tokens (XAML-safe) -->
+			<Thickness x:Key="Kx.Padding.PanelHeader">12,8</Thickness>
+			<Thickness x:Key="Kx.Padding.PanelBody">12,8,12,12</Thickness>
 		</ResourceDictionary>
 
 		<!-- Shared Styles -->
 		<ResourceDictionary>
-			<Style x:Key="PanelHeaderTextBlock" TargetType="TextBlock">
+			<!-- Typography -->
+			<Style x:Key="Kx.Text.SectionHeader" TargetType="TextBlock">
 				<Setter Property="FontSize" Value="13" />
-				<Setter Property="FontWeight" Value="Bold" />
-				<Setter Property="Foreground" Value="{StaticResource MaterialDesign.Brush.Foreground}" />
-				<Setter Property="Margin" Value="12,8" />
+				<Setter Property="FontWeight" Value="SemiBold" />
+				<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Text.Primary}" />
+				<Setter Property="Margin" Value="{StaticResource Kx.Padding.PanelHeader}" />
 				<Setter Property="VerticalAlignment" Value="Center" />
 			</Style>
 
-			<Style TargetType="GridSplitter">
-				<Setter Property="Background" Value="Transparent" />
-				<Setter Property="Template">
-					<Setter.Value>
-						<ControlTemplate TargetType="GridSplitter">
-							<Border Background="{TemplateBinding Background}" />
-						</ControlTemplate>
-					</Setter.Value>
-				</Setter>
+			<!-- Backwards-compat: keep existing key used by current views -->
+			<Style x:Key="PanelHeaderTextBlock" TargetType="TextBlock" BasedOn="{StaticResource Kx.Text.SectionHeader}" />
+
+			<!-- Subtle rounding (modern, still low-risk with current layout) -->
+			<CornerRadius x:Key="Kx.CornerRadius.Panel">8</CornerRadius>
+
+			<!-- Shell surfaces -->
+			<Style x:Key="PanelSectionBorder" TargetType="Border">
+				<Setter Property="Background" Value="{StaticResource Kx.Brush.Surface}" />
+				<Setter Property="BorderBrush" Value="{StaticResource Kx.Brush.Border}" />
+				<Setter Property="BorderThickness" Value="0" />
+				<!-- Keep default 0 to avoid layout surprises; panels that want rounding can opt-in -->
+				<Setter Property="CornerRadius" Value="0" />
+			</Style>
+
+			<!-- Panel headers: consistent height + bottom separator line -->
+			<Style x:Key="Kx.PanelHeader" TargetType="Border">
+				<Setter Property="Background" Value="{StaticResource MaterialDesign.Brush.Surface}" />
+				<Setter Property="BorderBrush" Value="{StaticResource MaterialDesign.Brush.Separator}" />
+				<Setter Property="BorderThickness" Value="0,0,0,1" />
+				<Setter Property="Padding" Value="12,8" />
+				<Setter Property="MinHeight" Value="44" />
+				<Setter Property="SnapsToDevicePixels" Value="True" />
+			</Style>
+
+			<!-- Top bar surface (separates Top from content below) -->
+			<Style x:Key="Kx.TopBar" TargetType="Border">
+				<Setter Property="Background" Value="{StaticResource MaterialDesign.Brush.Surface}" />
+				<Setter Property="BorderBrush" Value="{StaticResource MaterialDesign.Brush.Separator}" />
+				<Setter Property="BorderThickness" Value="0,0,0,1" />
+				<Setter Property="Padding" Value="8,6" />
+				<Setter Property="SnapsToDevicePixels" Value="True" />
+				<Setter Property="MinHeight" Value="48" />
+			</Style>
+
+			<!-- Rounded panels: opt-in styles so splitters/borders stay clean -->
+			<Style x:Key="Kx.PanelSurface" TargetType="Border" BasedOn="{StaticResource PanelSectionBorder}">
+				<Setter Property="CornerRadius" Value="{StaticResource Kx.CornerRadius.Panel}" />
+				<Setter Property="BorderThickness" Value="1" />
+				<Setter Property="BorderBrush" Value="{StaticResource MaterialDesign.Brush.Separator}" />
+				<Setter Property="Margin" Value="8" />
+				<Setter Property="Padding" Value="0" />
+				<Setter Property="SnapsToDevicePixels" Value="True" />
+			</Style>
+
+			<!-- Splitters: neutral line, larger hitbox, accent on hover -->
+			<Style x:Key="Kx.Splitter.Vertical" TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
+				<Setter Property="Width" Value="6" />
+				<Setter Property="HorizontalAlignment" Value="Center" />
+				<Setter Property="VerticalAlignment" Value="Stretch" />
+				<Setter Property="ShowsPreview" Value="True" />
+				<Setter Property="Background" Value="{StaticResource MaterialDesign.Brush.Separator}" />
+				<Setter Property="Opacity" Value="0.35" />
 				<Style.Triggers>
 					<Trigger Property="IsMouseOver" Value="True">
-						<Setter Property="Background" Value="{StaticResource MaterialDesign.Brush.Primary}" />
+						<Setter Property="Background" Value="{StaticResource Kx.Brush.Accent}" />
+						<Setter Property="Opacity" Value="0.9" />
+					</Trigger>
+					<Trigger Property="IsDragging" Value="True">
+						<Setter Property="Background" Value="{StaticResource Kx.Brush.Accent}" />
+						<Setter Property="Opacity" Value="0.9" />
 					</Trigger>
 				</Style.Triggers>
 			</Style>
 
-			<Style x:Key="PanelSectionBorder" TargetType="Border">
-				<Setter Property="Background" Value="{StaticResource MaterialDesign.Brush.Surface}" />
-				<Setter Property="BorderBrush" Value="{StaticResource MaterialDesign.Brush.Separator}" />
-				<Setter Property="BorderThickness" Value="0" />
-				<Setter Property="CornerRadius" Value="0" />
+			<Style x:Key="Kx.Splitter.Horizontal" TargetType="GridSplitter" BasedOn="{StaticResource {x:Type GridSplitter}}">
+				<Setter Property="Height" Value="6" />
+				<Setter Property="HorizontalAlignment" Value="Stretch" />
+				<Setter Property="VerticalAlignment" Value="Center" />
+				<Setter Property="ShowsPreview" Value="True" />
+				<Setter Property="Background" Value="{StaticResource MaterialDesign.Brush.Separator}" />
+				<Setter Property="Opacity" Value="0.25" />
+				<Style.Triggers>
+					<Trigger Property="IsMouseOver" Value="True">
+						<Setter Property="Background" Value="{StaticResource Kx.Brush.Accent}" />
+						<Setter Property="Opacity" Value="0.9" />
+					</Trigger>
+					<Trigger Property="IsDragging" Value="True">
+						<Setter Property="Background" Value="{StaticResource Kx.Brush.Accent}" />
+						<Setter Property="Opacity" Value="0.9" />
+					</Trigger>
+				</Style.Triggers>
 			</Style>
 
+			<!-- DataGrid / TreeView defaults -->
 			<Style TargetType="DataGrid" BasedOn="{StaticResource MaterialDesignDataGrid}">
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="Background" Value="Transparent" />
@@ -83,6 +165,28 @@
 			<Style TargetType="TreeView" BasedOn="{StaticResource MaterialDesignTreeView}">
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="Background" Value="Transparent" />
+			</Style>
+
+			<!-- Grid editor row action buttons -->
+			<Style x:Key="GridRowIconButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignToolButton}">
+				<Setter Property="Width" Value="28" />
+				<Setter Property="Height" Value="28" />
+				<Setter Property="Padding" Value="0" />
+				<Setter Property="Margin" Value="0" />
+				<Setter Property="VerticalAlignment" Value="Center" />
+				<Setter Property="HorizontalAlignment" Value="Center" />
+			</Style>
+
+			<!-- Menu: make the legacy Menu look at home in Material dark -->
+			<Style TargetType="Menu">
+				<Setter Property="Background" Value="{StaticResource Kx.Brush.Surface}" />
+				<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Text.Primary}" />
+				<Setter Property="Padding" Value="8,4" />
+			</Style>
+
+			<Style TargetType="MenuItem">
+				<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Text.Primary}" />
+				<Setter Property="Padding" Value="10,6" />
 			</Style>
 		</ResourceDictionary>
 	</ResourceDictionary.MergedDictionaries>

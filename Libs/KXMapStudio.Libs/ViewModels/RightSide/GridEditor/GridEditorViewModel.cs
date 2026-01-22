@@ -1,23 +1,24 @@
 namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 
-public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel, IDisposable
+public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel
 {
 	private readonly IGridEditorDocumentService _documentService;
-	private readonly Stack<IReadOnlyList<GridEditorRowViewModel>> _redo = new();
+	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
 
-	private readonly Stack<IReadOnlyList<GridEditorRowViewModel>> _undo = new();
 	private CancellationTokenSource? _cts;
 	private EditorDocumentReference? _currentDoc;
 
 	[ObservableProperty] private string? _documentTitle;
 	[ObservableProperty] private bool _isDirty;
 	[ObservableProperty] private bool _isLoaded;
-	private byte[] _originalBytes = Array.Empty<byte>();
 	private int _suppressDirty;
 
-	public GridEditorViewModel(IGridEditorDocumentService documentService)
+	public GridEditorViewModel(
+		IGridEditorDocumentService documentService,
+		IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> state)
 	{
 		_documentService = documentService ?? throw new ArgumentNullException(nameof(documentService));
+		_state = state ?? throw new ArgumentNullException(nameof(state));
 
 		Rows = [];
 
@@ -27,12 +28,15 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		RedoCommand = new RelayCommand(Redo, () => CanRedo);
 		MoveUpCommand = new RelayCommand<GridEditorRowViewModel?>(MoveUp, CanMoveUp);
 		MoveDownCommand = new RelayCommand<GridEditorRowViewModel?>(MoveDown, CanMoveDown);
+		AddRowCommand = new RelayCommand(AddRow, () => IsLoaded);
+
+		_state.StateChanged += StateOnStateChanged;
 	}
 
 	public ObservableCollection<GridEditorRowViewModel> Rows { get; }
 
-	public bool CanUndo => _undo.Count > 0;
-	public bool CanRedo => _redo.Count > 0;
+	public bool CanUndo => _state.CanUndo;
+	public bool CanRedo => _state.CanRedo;
 
 	public bool CanSave => IsLoaded && IsDirty && _currentDoc is { IsWorkspaceFile: true }
 	                       && (string.Equals(_currentDoc.Extension, ".xml", StringComparison.OrdinalIgnoreCase)
@@ -46,6 +50,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	public IRelayCommand RedoCommand { get; }
 	public IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
 	public IRelayCommand<GridEditorRowViewModel?> MoveDownCommand { get; }
+	public IRelayCommand AddRowCommand { get; }
 
 	public async Task LoadAsync(EditorDocumentReference doc, CancellationToken cancellationToken = default)
 	{
@@ -55,6 +60,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		_cts?.Dispose();
 		_cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
+		// Reset history when switching documents.
+		_state.Reset();
+
 		_currentDoc = doc;
 		DocumentTitle = doc.IsArchiveEntry
 			? $"{doc.DisplayName} (in {Path.GetFileName(doc.ArchivePath)}) [Read-Only]"
@@ -62,17 +70,13 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		IsLoaded = true;
 
-		_undo.Clear();
-		_redo.Clear();
 		SetDirty(false);
 		NotifyCommandStateChanged();
 
 		var ct = _cts.Token;
-
-		var (rows, originalBytes) = await _documentService.LoadAsync(doc, ct);
+		var (rows, _) = await _documentService.LoadAsync(doc, ct);
 		ct.ThrowIfCancellationRequested();
 
-		_originalBytes = originalBytes;
 		ReloadRows(rows);
 
 		SetDirty(false);
@@ -81,12 +85,19 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 	public void Dispose()
 	{
+		_state.StateChanged -= StateOnStateChanged;
+
 		_cts?.Cancel();
 		_cts?.Dispose();
 		_cts = null;
 
 		foreach (var row in Rows)
 			row.PropertyChanged -= RowOnPropertyChanged;
+	}
+
+	private void StateOnStateChanged(object? sender, EventArgs e)
+	{
+		NotifyCommandStateChanged();
 	}
 
 	private void ReloadRows(IReadOnlyList<GridEditorRowViewModel> rows)
@@ -130,11 +141,15 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		SetDirty(true);
 	}
 
-	private void SnapshotForUndo()
+	private void PushUndoSnapshot()
 	{
-		_undo.Push(Rows.Select(CloneRow).ToList());
-		_redo.Clear();
-		NotifyCommandStateChanged();
+		// Snapshot BEFORE a change.
+		_state.PushSnapshot(SnapshotRows());
+	}
+
+	private IReadOnlyList<GridEditorRowViewModel> SnapshotRows()
+	{
+		return Rows.Select(CloneRow).ToList();
 	}
 
 	private static GridEditorRowViewModel CloneRow(GridEditorRowViewModel r)
@@ -154,11 +169,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (!CanUndo)
 			return;
 
-		_redo.Push(Rows.Select(CloneRow).ToList());
-		var state = _undo.Pop();
+		var current = SnapshotRows();
+		var state = _state.Undo(current);
 		ReloadRows(state);
 		SetDirty(true);
-		NotifyCommandStateChanged();
 	}
 
 	private void Redo()
@@ -166,11 +180,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (!CanRedo)
 			return;
 
-		_undo.Push(Rows.Select(CloneRow).ToList());
-		var state = _redo.Pop();
+		var current = SnapshotRows();
+		var state = _state.Redo(current);
 		ReloadRows(state);
 		SetDirty(true);
-		NotifyCommandStateChanged();
 	}
 
 	private async Task SaveAsync()
@@ -181,7 +194,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (!CanSave)
 			return;
 
-		SnapshotForUndo();
+		// Important: do NOT push an undo snapshot for Save. State history is about edits.
 		await _documentService.SaveAsync(_currentDoc, Rows.ToList(), _cts?.Token ?? CancellationToken.None);
 		SetDirty(false);
 		NotifyCommandStateChanged();
@@ -210,6 +223,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		RedoCommand.NotifyCanExecuteChanged();
 		MoveUpCommand.NotifyCanExecuteChanged();
 		MoveDownCommand.NotifyCanExecuteChanged();
+		AddRowCommand.NotifyCanExecuteChanged();
 
 		OnPropertyChanged(nameof(CanSave));
 		OnPropertyChanged(nameof(CanSaveAs));
@@ -240,7 +254,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (index <= 0)
 			return;
 
-		SnapshotForUndo();
+		PushUndoSnapshot();
 		Rows.Move(index, index - 1);
 		ReindexIds();
 		SetDirty(true);
@@ -257,12 +271,41 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (index < 0 || index >= Rows.Count - 1)
 			return;
 
-		SnapshotForUndo();
+		PushUndoSnapshot();
 		Rows.Move(index, index + 1);
 		ReindexIds();
 		SetDirty(true);
 		MoveUpCommand.NotifyCanExecuteChanged();
 		MoveDownCommand.NotifyCanExecuteChanged();
+	}
+
+	private void AddRow()
+	{
+		if (!IsLoaded)
+			return;
+
+		PushUndoSnapshot();
+
+		Interlocked.Exchange(ref _suppressDirty, 1);
+		try
+		{
+			var row = new GridEditorRowViewModel
+			{
+				Id = Rows.Count + 1,
+				Name = string.Empty,
+				X = 0d,
+				Y = 0d,
+				Z = 0d
+			};
+			HookRow(row);
+			Rows.Add(row);
+		}
+		finally
+		{
+			Interlocked.Exchange(ref _suppressDirty, 0);
+		}
+
+		SetDirty(true);
 	}
 
 	private void ReindexIds()

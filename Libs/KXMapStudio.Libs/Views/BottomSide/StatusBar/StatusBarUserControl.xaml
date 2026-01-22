@@ -1,0 +1,60 @@
+<UserControl x:Class="KXMapStudio.Libs.Views.BottomSide.StatusBar.StatusBarUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="26" d:DesignWidth="900">
+
+
+	<Border Padding="10,6"
+	        Background="{StaticResource MaterialDesign.Brush.Surface}"
+	        BorderBrush="{StaticResource MaterialDesign.Brush.Separator}"
+	        BorderThickness="0,1,0,0">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<!-- Connection dot: Red = disconnected, Yellow = available but stale/connecting, Green = connected -->
+			<Ellipse Grid.Column="0"
+			         Width="10" Height="10"
+			         VerticalAlignment="Center"
+			         Margin="0,0,10,0">
+				<Ellipse.Style>
+					<Style TargetType="Ellipse">
+						<Setter Property="Fill" Value="{StaticResource Kx.Brush.Status.Error}" />
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding IsMumbleAvailable}" Value="True">
+								<Setter Property="Fill" Value="{StaticResource Kx.Brush.Status.Warning}" />
+							</DataTrigger>
+							<DataTrigger Binding="{Binding IsMumbleConnected}" Value="True">
+								<Setter Property="Fill" Value="{StaticResource Kx.Brush.Status.Success}" />
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</Ellipse.Style>
+			</Ellipse>
+
+			<!-- Character + Map -->
+			<StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+				<TextBlock Text="{Binding CharacterName}" FontWeight="SemiBold" />
+				<TextBlock Text="   " />
+				<TextBlock Text="{Binding MapText}" Opacity="0.85" />
+			</StackPanel>
+
+			<!-- Coordinates: separate fields for readability -->
+			<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+				<TextBlock Text="{Binding XText}" Margin="0,0,12,0" />
+				<TextBlock Text="{Binding YText}" Margin="0,0,12,0" />
+				<TextBlock Text="{Binding ZText}" />
+			</StackPanel>
+
+			<!-- Spacer/room for future messages (e.g., map name, selection info, etc.) -->
+			<TextBlock Grid.Column="3" VerticalAlignment="Center" Text="" />
+		</Grid>
+	</Border>
+</UserControl>

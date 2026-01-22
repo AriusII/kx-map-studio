@@ -7,13 +7,6 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-	<UserControl.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/KXMapStudio.Libs;component/Themes/GlobalTheme.xaml" />
-			</ResourceDictionary.MergedDictionaries>
-		</ResourceDictionary>
-	</UserControl.Resources>
 	<Border Style="{StaticResource PanelSectionBorder}" BorderThickness="0,1,1,0">
 		<Grid>
 			<Grid.RowDefinitions>
@@ -22,26 +15,29 @@
 				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 
-			<StackPanel Grid.Row="0" Orientation="Horizontal" Background="{StaticResource MaterialDesign.Brush.Surface}">
-				<materialDesign:PackIcon Kind="FileEyeOutline"
-				                         VerticalAlignment="Center"
-				                         Margin="12,0,0,0"
-				                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
-				<TextBlock Text="FILE PREVIEW" Style="{StaticResource PanelHeaderTextBlock}" />
-			</StackPanel>
+			<Border Grid.Row="0" Style="{StaticResource Kx.PanelHeader}">
+				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+					<materialDesign:PackIcon Kind="FileEyeOutline"
+					                         Width="18" Height="18"
+					                         VerticalAlignment="Center"
+					                         Foreground="{StaticResource Kx.Brush.Accent}" />
+					<TextBlock Text="FILE PREVIEW" Style="{StaticResource PanelHeaderTextBlock}" Margin="10,0,0,0" />
+				</StackPanel>
+			</Border>
 
-			<StackPanel Grid.Row="1" Margin="12,4,12,8">
+			<StackPanel Grid.Row="1" Margin="12,8,12,10">
 				<TextBlock Text="{Binding OpenedFileName, TargetNullValue='No file selected.'}"
 				           FontWeight="SemiBold"
-				           FontSize="13" />
+				           TextTrimming="CharacterEllipsis" />
 				<TextBlock Text="{Binding PreviewStatus}"
-				           Opacity="0.6"
-				           FontSize="11" />
+				           Foreground="{StaticResource Kx.Brush.Text.Secondary}"
+				           FontSize="11"
+				           Margin="0,2,0,0" />
 				<StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-					<materialDesign:PackIcon Kind="ClockOutline" Width="14" Height="14" VerticalAlignment="Center" Opacity="0.6" />
+					<materialDesign:PackIcon Kind="ClockOutline" Width="14" Height="14" VerticalAlignment="Center" Opacity="0.7" />
 					<TextBlock Text="{Binding PreviewLoadTimeText}"
-					           Margin="4,0,0,0"
-					           Opacity="0.6"
+					           Margin="6,0,0,0"
+					           Foreground="{StaticResource Kx.Brush.Text.Secondary}"
 					           FontSize="11" />
 				</StackPanel>
 			</StackPanel>
@@ -49,7 +45,7 @@
 			<TreeView Grid.Row="2"
 			          x:Name="PreviewTreeView"
 			          ItemsSource="{Binding PreviewTreeNodes}"
-			          Margin="4"
+			          Margin="6"
 			          BorderThickness="0"
 			          Background="Transparent">
 				<TreeView.ItemContainerStyle>

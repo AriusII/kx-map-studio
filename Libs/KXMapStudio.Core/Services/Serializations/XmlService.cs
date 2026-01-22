@@ -1,5 +1,3 @@
-using KXMapStudio.Core.Mappers;
-
 namespace KXMapStudio.Core.Services.Serializations;
 
 /// <summary>

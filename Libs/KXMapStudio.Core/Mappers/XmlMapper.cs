@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace KXMapStudio.Core.Mappers;
 
 /// <summary>
@@ -61,13 +59,16 @@ internal static class XmlMapper
 	}
 
 	private static MarkerModel Empty()
-		=> new([], [], []);
+	{
+		return new MarkerModel([], [], []);
+	}
 
 	private static IReadOnlyList<MarkerCategoryModel> ParseCategories(XElement overlayData)
 	{
 		var list = new List<MarkerCategoryModel>();
 
-		foreach (var element in overlayData.Elements().Where(e => e.Name.LocalName.Equals("MarkerCategory", StringComparison.Ordinal)))
+		foreach (var element in overlayData.Elements()
+			         .Where(e => e.Name.LocalName.Equals("MarkerCategory", StringComparison.Ordinal)))
 			list.Add(ParseCategory(element));
 
 		return list.Count == 0 ? Array.Empty<MarkerCategoryModel>() : list;
@@ -110,7 +111,8 @@ internal static class XmlMapper
 	{
 		var list = new List<PoiModel>();
 
-		foreach (var e in overlayData.Descendants().Where(d => d.Name.LocalName.Equals("POI", StringComparison.Ordinal)))
+		foreach (var e in overlayData.Descendants()
+			         .Where(d => d.Name.LocalName.Equals("POI", StringComparison.Ordinal)))
 		{
 			var poi = new PoiModel(
 				(string?)e.Attribute("guid") ?? string.Empty,
@@ -134,7 +136,8 @@ internal static class XmlMapper
 	{
 		var list = new List<TrailModel>();
 
-		foreach (var e in overlayData.Descendants().Where(d => d.Name.LocalName.Equals("Trail", StringComparison.Ordinal)))
+		foreach (var e in overlayData.Descendants()
+			         .Where(d => d.Name.LocalName.Equals("Trail", StringComparison.Ordinal)))
 		{
 			var trail = new TrailModel(
 				(string?)e.Attribute("guid") ?? string.Empty,
@@ -235,18 +238,29 @@ internal static class XmlMapper
 	}
 
 	private static bool ParseBool(string? value)
-		=> !string.IsNullOrWhiteSpace(value) &&
-		   (value.Equals("1", StringComparison.Ordinal) || value.Equals("true", StringComparison.OrdinalIgnoreCase));
+	{
+		return !string.IsNullOrWhiteSpace(value) &&
+		       (value.Equals("1", StringComparison.Ordinal) ||
+		        value.Equals("true", StringComparison.OrdinalIgnoreCase));
+	}
 
 	private static int? ParseInt(string? value)
-		=> int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i) ? i : null;
+	{
+		return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i) ? i : null;
+	}
 
 	private static float? ParseFloat(string? value)
-		=> float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var f) ? f : null;
+	{
+		return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var f) ? f : null;
+	}
 
 	private static int ParseIntStrict(string? value)
-		=> int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i) ? i : 0;
+	{
+		return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i) ? i : 0;
+	}
 
 	private static float ParseFloatStrict(string? value)
-		=> float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var f) ? f : 0f;
+	{
+		return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var f) ? f : 0f;
+	}
 }

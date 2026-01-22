@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
 			return services
 				.AddSingleton<IFileIoFacade, FileIoFacade>()
 				.AddSingleton<IGw2Client, Gw2Client>()
+				.AddSingleton<IMumbleService, MumbleService>()
 				.AddSingleton<IJsonService, JsonService>()
 				.AddSingleton<IXmlService, XmlService>();
 		}

@@ -18,6 +18,7 @@ public interface IGridEditorViewModel : IDisposable
 	IRelayCommand RedoCommand { get; }
 	IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
 	IRelayCommand<GridEditorRowViewModel?> MoveDownCommand { get; }
+	IRelayCommand AddRowCommand { get; }
 
 	ObservableCollection<GridEditorRowViewModel> Rows { get; }
 

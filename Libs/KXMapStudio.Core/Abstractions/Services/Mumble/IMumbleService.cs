@@ -1,4 +1,4 @@
-namespace KXMapStudio.Core.Abstractions.Services;
+namespace KXMapStudio.Core.Abstractions.Services.Mumble;
 
 /// <summary>
 ///     Defines polling-based access to Guild Wars 2 MumbleLink state.

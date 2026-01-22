@@ -8,14 +8,6 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 
-	<UserControl.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/KXMapStudio.Libs;component/Themes/GlobalTheme.xaml" />
-			</ResourceDictionary.MergedDictionaries>
-		</ResourceDictionary>
-	</UserControl.Resources>
-
 	<Border Style="{StaticResource PanelSectionBorder}" BorderThickness="0,0,1,0">
 		<Grid>
 			<Grid.RowDefinitions>
@@ -23,86 +15,40 @@
 				<RowDefinition Height="*" />
 			</Grid.RowDefinitions>
 
-			<Grid Grid.Row="0" Background="{StaticResource MaterialDesign.Brush.Surface}">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="Auto" />
-				</Grid.ColumnDefinitions>
+			<Border Grid.Row="0" Style="{StaticResource Kx.PanelHeader}">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
 
-				<StackPanel Grid.Column="0" Orientation="Horizontal">
-					<materialDesign:PackIcon Kind="FolderSearchOutline"
-					                         VerticalAlignment="Center"
-					                         Margin="12,0,0,0"
-					                         Foreground="{StaticResource MaterialDesign.Brush.Primary}" />
-					<TextBlock Text="WORKSPACE EXPLORER" Style="{StaticResource PanelHeaderTextBlock}" />
-				</StackPanel>
-			</Grid>
+					<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+						<materialDesign:PackIcon Kind="FolderSearchOutline"
+						                         Width="18" Height="18"
+						                         VerticalAlignment="Center"
+						                         Foreground="{StaticResource Kx.Brush.Accent}" />
+						<TextBlock Text="WORKSPACE EXPLORER" Style="{StaticResource PanelHeaderTextBlock}" Margin="10,0,0,0" />
+					</StackPanel>
+
+					<Button Grid.Column="1"
+					        Style="{StaticResource MaterialDesignToolButton}"
+					        ToolTip="Refresh"
+					        Command="{Binding RefreshCommand}"
+					        VerticalAlignment="Center">
+						<materialDesign:PackIcon Kind="Refresh" Width="18" Height="18" />
+					</Button>
+				</Grid>
+			</Border>
 
 			<TreeView Grid.Row="1"
 			          ItemsSource="{Binding RootNodes}"
-			          Margin="4"
+			          Margin="6"
 			          BorderThickness="0"
 			          Background="Transparent">
 
 				<TreeView.ItemTemplate>
 					<HierarchicalDataTemplate ItemsSource="{Binding Children}">
-						<TextBlock Text="{Binding Name}" Margin="4,2">
-							<TextBlock.ContextMenu>
-								<ContextMenu>
-
-									<MenuItem Header="New XML File in Archive"
-									          Command="{Binding DataContext.CreateFileInArchiveCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-									          CommandParameter="{Binding}">
-										<MenuItem.Style>
-											<Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
-												<Setter Property="Visibility" Value="Collapsed" />
-												<Style.Triggers>
-													<DataTrigger Binding="{Binding IsDirectory}" Value="False">
-														<Setter Property="Visibility" Value="Visible" />
-													</DataTrigger>
-												</Style.Triggers>
-											</Style>
-										</MenuItem.Style>
-									</MenuItem>
-
-									<MenuItem Header="New File"
-									          Command="{Binding DataContext.CreateFileInFolderCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-									          CommandParameter="{Binding}">
-										<MenuItem.Style>
-											<Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
-												<Setter Property="Visibility" Value="Collapsed" />
-												<Style.Triggers>
-													<DataTrigger Binding="{Binding IsDirectory}" Value="True">
-														<Setter Property="Visibility" Value="Visible" />
-													</DataTrigger>
-												</Style.Triggers>
-											</Style>
-										</MenuItem.Style>
-									</MenuItem>
-
-									<MenuItem Header="New Folder"
-									          Command="{Binding DataContext.CreateFolderInFolderCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-									          CommandParameter="{Binding}">
-										<MenuItem.Style>
-											<Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
-												<Setter Property="Visibility" Value="Collapsed" />
-												<Style.Triggers>
-													<DataTrigger Binding="{Binding IsDirectory}" Value="True">
-														<Setter Property="Visibility" Value="Visible" />
-													</DataTrigger>
-												</Style.Triggers>
-											</Style>
-										</MenuItem.Style>
-									</MenuItem>
-
-									<Separator />
-
-									<MenuItem Header="Delete"
-									          Command="{Binding DataContext.DeleteNodeCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-									          CommandParameter="{Binding}" />
-								</ContextMenu>
-							</TextBlock.ContextMenu>
-						</TextBlock>
+						<TextBlock Text="{Binding Name}" Margin="4,2" />
 					</HierarchicalDataTemplate>
 				</TreeView.ItemTemplate>
 

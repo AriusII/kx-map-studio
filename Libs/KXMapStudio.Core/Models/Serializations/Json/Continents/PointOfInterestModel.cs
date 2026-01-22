@@ -16,5 +16,6 @@ public sealed record PointOfInterestModel(
 	[property: JsonPropertyName("type")] string Type,
 	[property: JsonPropertyName("floor")] int? Floor,
 	[property: JsonPropertyName("coord")] double[] Coord,
-	[property: JsonPropertyName("chat_link")] string ChatLink,
+	[property: JsonPropertyName("chat_link")]
+	string ChatLink,
 	[property: JsonPropertyName("icon")] string? Icon);

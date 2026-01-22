@@ -1,12 +1,12 @@
 <Solution>
 	<Configurations>
-		<Platform Name="x64" />
+		<Platform Name="x64"/>
 	</Configurations>
 	<Folder Name="/Libs/">
-		<Project Path="Libs/KXMapStudio.Core/KXMapStudio.Core.csproj" />
-		<Project Path="Libs/KXMapStudio.Libs/KXMapStudio.Libs.csproj" />
+		<Project Path="Libs/KXMapStudio.Core/KXMapStudio.Core.csproj"/>
+		<Project Path="Libs/KXMapStudio.Libs/KXMapStudio.Libs.csproj"/>
 	</Folder>
 	<Folder Name="/Srcs/">
-		<Project Path="Srcs/KXMapStudio.Application/KXMapStudio.Application.csproj" />
+		<Project Path="Srcs/KXMapStudio.Application/KXMapStudio.Application.csproj"/>
 	</Folder>
 </Solution>
