@@ -2,15 +2,12 @@
 
 global using System.Net.Http.Json;
 global using System.Reflection;
-global using System.Text;
 global using System.Text.Encodings.Web;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
-global using System.Xml.Linq;
 global using Gw2Sharp;
 global using KXMapStudio.Core.Abstractions.Facades;
 global using KXMapStudio.Core.Abstractions.Http;
-global using KXMapStudio.Core.Abstractions.Repositories;
 global using KXMapStudio.Core.Abstractions.Repositories.FileStorage;
 global using KXMapStudio.Core.Abstractions.Repositories.Serializations;
 global using KXMapStudio.Core.Abstractions.Services.Mumble;
@@ -22,7 +19,6 @@ global using KXMapStudio.Core.Models.Mumble;
 global using KXMapStudio.Core.Models.Serializations.Json;
 global using KXMapStudio.Core.Models.Serializations.Json.Continents;
 global using KXMapStudio.Core.Models.Serializations.Json.Maps;
-global using KXMapStudio.Core.Repositories;
 global using KXMapStudio.Core.Repositories.FileStorage;
 global using KXMapStudio.Core.Repositories.Serializations;
 global using KXMapStudio.Core.Services.Http;

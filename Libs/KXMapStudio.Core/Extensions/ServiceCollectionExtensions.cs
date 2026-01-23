@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddCoreServices()
 		{
 			return services
-				.AddSingleton<IFileIoFacade, FileIoFacade>()
+				.AddSingleton<IFileFacade, FileFacade>()
 				.AddSingleton<IGw2Client, Gw2Client>()
 				.AddSingleton<IMumbleService, MumbleService>()
 				.AddSingleton<IJsonService, JsonService>();
@@ -42,7 +42,7 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddCoreRepositories()
 		{
 			return services
-				.AddSingleton<IJsonDataRepository, JsonRepository>()
+				.AddSingleton<IJsonRepository, JsonRepository>()
 				.AddSingleton<IFileStorageRepository, FileStorageRepository>();
 		}
 	}

@@ -53,19 +53,6 @@ internal sealed record FileStorageRepository : IFileStorageRepository
 	}
 
 	/// <inheritdoc />
-	public async Task WriteTextAsync(string path, string content, CancellationToken cancellationToken = default)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(path);
-		ArgumentNullException.ThrowIfNull(content);
-
-		var directory = Path.GetDirectoryName(path);
-		if (!string.IsNullOrEmpty(directory))
-			Directory.CreateDirectory(directory);
-
-		await File.WriteAllTextAsync(path, content, cancellationToken).ConfigureAwait(false);
-	}
-
-	/// <inheritdoc />
 	public Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(path);

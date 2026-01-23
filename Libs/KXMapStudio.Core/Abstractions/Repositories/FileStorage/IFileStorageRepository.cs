@@ -25,14 +25,6 @@ public interface IFileStorageRepository
 	Task<Stream?> LoadAsync(string path, CancellationToken cancellationToken = default);
 
 	/// <summary>
-	///     Writes text content to the specified file path.
-	/// </summary>
-	/// <param name="path">The destination file path.</param>
-	/// <param name="content">The text content to write.</param>
-	/// <param name="cancellationToken">A token used to cancel the operation.</param>
-	Task WriteTextAsync(string path, string content, CancellationToken cancellationToken = default);
-
-	/// <summary>
 	///     Deletes a file from the file system.
 	/// </summary>
 	/// <param name="path">Full path to the file to delete.</param>

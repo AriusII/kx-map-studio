@@ -6,14 +6,12 @@ public sealed partial class App
 	{
 		AppHost = Host.CreateDefaultBuilder()
 			.ConfigureAppConfiguration(configuration => { configuration.AddJsonFile("appsettings.json"); })
-			.ConfigureServices((contexts, services) =>
+			.ConfigureServices(services =>
 			{
 				services
 					.AddCoreDependencies()
 					.AddLibsDependencies()
 					.AddSingleton<WorkspaceWindow>();
-
-				services.Configure<SettingsOption>(contexts.Configuration.GetSection("Settings"));
 			})
 			.Build();
 	}

@@ -6,21 +6,6 @@
 public readonly ref struct FileExtension
 {
 	/// <summary>
-	///     The <c>.xml</c> file extension.
-	/// </summary>
-	public const string Xml = ".xml";
-
-	/// <summary>
-	///     The <c>.zip</c> file extension.
-	/// </summary>
-	public const string Zip = ".zip";
-
-	/// <summary>
-	///     The <c>.taco</c> file extension.
-	/// </summary>
-	public const string Taco = ".taco";
-
-	/// <summary>
 	///     The <c>.json</c> file extension.
 	/// </summary>
 	public const string Json = ".json";
@@ -33,9 +18,6 @@ public readonly ref struct FileExtension
 	/// </remarks>
 	public static ISet<string> AllowedExtensions { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 	{
-		Json,
-		Xml,
-		Taco,
-		Zip
+		Json
 	};
 }

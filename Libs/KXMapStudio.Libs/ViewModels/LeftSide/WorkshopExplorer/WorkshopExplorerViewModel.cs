@@ -211,7 +211,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 
 		// Only handle XML and JSON files
 		var ext = node.Extension.ToLowerInvariant();
-		if (ext != FileExtension.Xml && ext != FileExtension.Json)
+		if (ext != FileExtension.Json)
 			return;
 
 		// Fire event to notify subscribers (LeftSidePanelViewModel will handle loading into FilePreview and GridEditor)

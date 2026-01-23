@@ -7,7 +7,6 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 {
 	private static readonly IReadOnlyCollection<string> AllowedWorkshopExtensions =
 	[
-		FileExtension.Xml,
 		FileExtension.Json
 	];
 

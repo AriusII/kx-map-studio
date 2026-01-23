@@ -7,7 +7,7 @@
         Style="{StaticResource MaterialDesignWindow}"
         Title="KX Map Studio" Height="800" Width="1280">
 
-	<Window.Resources/>
+	<Window.Resources />
 
 	<Grid>
 		<Grid.RowDefinitions>

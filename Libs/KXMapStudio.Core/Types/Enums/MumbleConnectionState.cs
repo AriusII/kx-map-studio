@@ -3,7 +3,7 @@ namespace KXMapStudio.Core.Types.Enums;
 /// <summary>
 ///     Represents the connection state of the MumbleLink service.
 /// </summary>
-public enum MumbleConnectionState
+public enum MumbleConnectionState : byte
 {
 	/// <summary>
 	///     Not connected - MumbleLink is not available or GW2 is not running.
