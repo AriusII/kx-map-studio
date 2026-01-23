@@ -39,6 +39,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		MoveUpCommand = new RelayCommand<GridEditorRowViewModel?>(MoveUp, CanMoveUp);
 		MoveDownCommand = new RelayCommand<GridEditorRowViewModel?>(MoveDown, CanMoveDown);
 		AddRowCommand = new RelayCommand(AddRow, () => IsLoaded);
+		DeleteRowCommand = new RelayCommand<GridEditorRowViewModel?>(DeleteRow, CanDeleteRow);
 		AddMarkerFromMumbleCommand = new RelayCommand(AddMarkerFromMumble, () => CanAddMarkerFromMumble);
 
 		_state.StateChanged += StateOnStateChanged;
@@ -46,7 +47,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		_hotkeyService.AddMarkerFromMumblePressed += (_, _) => AddMarkerFromMumbleCommand.Execute(null);
 	}
 
-	private bool CanAddMarkerFromMumble => IsLoaded && _mumbleService.Current.IsAvailable;
+	private bool CanAddMarkerFromMumble =>
+		IsLoaded && _mumbleService.Current.ConnectionState == MumbleConnectionState.Connected;
 
 	public ObservableCollection<GridEditorRowViewModel> Rows { get; }
 
@@ -66,7 +68,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	public IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
 	public IRelayCommand<GridEditorRowViewModel?> MoveDownCommand { get; }
 	public IRelayCommand AddRowCommand { get; }
+	public IRelayCommand<GridEditorRowViewModel?> DeleteRowCommand { get; }
 	public IRelayCommand AddMarkerFromMumbleCommand { get; }
+
+	public event EventHandler<GridEditorRowViewModel>? RowAdded;
 
 	public async Task LoadAsync(EditorDocumentReference doc, CancellationToken cancellationToken = default)
 	{
@@ -105,6 +110,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		ReloadRows(rows);
 
+		// Set the original state baseline for intelligent dirty tracking
+		_state.SetOriginalState(SnapshotRows());
+
 		SetDirty(false);
 		NotifyCommandStateChanged();
 	}
@@ -130,7 +138,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private void MumbleServiceOnMumbleUpdated(object? sender, MumbleStateModel e)
 	{
 		// Update command state when Mumble availability changes
-		AddMarkerFromMumbleCommand.NotifyCanExecuteChanged();
+		Application.Current?.Dispatcher.Invoke(() => { AddMarkerFromMumbleCommand.NotifyCanExecuteChanged(); });
 	}
 
 	private void ReloadRows(IReadOnlyList<GridEditorRowViewModel> rows)
@@ -171,7 +179,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (e.PropertyName is nameof(GridEditorRowViewModel.Id))
 			return;
 
-		SetDirty(true);
+		// Smart dirty tracking: check if current state matches original after property change
+		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
+		SetDirty(!isAtOriginal);
 	}
 
 	private void PushUndoSnapshot()
@@ -205,7 +215,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		var current = SnapshotRows();
 		var state = _state.Undo(current);
 		ReloadRows(state);
-		SetDirty(true);
+
+		// Smart dirty tracking: check if we're back to the original state
+		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
+		SetDirty(!isAtOriginal);
 	}
 
 	private void Redo()
@@ -216,7 +229,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		var current = SnapshotRows();
 		var state = _state.Redo(current);
 		ReloadRows(state);
-		SetDirty(true);
+
+		// Smart dirty tracking: check if we're back to the original state
+		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
+		SetDirty(!isAtOriginal);
 	}
 
 	private async Task SaveAsync()
@@ -229,6 +245,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Important: do NOT push an undo snapshot for Save. State history is about edits.
 		await _documentService.SaveAsync(_currentDoc, Rows.ToList(), _cts?.Token ?? CancellationToken.None);
+
+		// Update the original state baseline to the current state (file is now clean)
+		_state.SetOriginalState(SnapshotRows());
+
 		SetDirty(false);
 		NotifyCommandStateChanged();
 	}
@@ -257,6 +277,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		MoveUpCommand.NotifyCanExecuteChanged();
 		MoveDownCommand.NotifyCanExecuteChanged();
 		AddRowCommand.NotifyCanExecuteChanged();
+		DeleteRowCommand.NotifyCanExecuteChanged();
 		AddMarkerFromMumbleCommand.NotifyCanExecuteChanged();
 
 		OnPropertyChanged(nameof(CanSave));
@@ -333,6 +354,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 			};
 			HookRow(row);
 			Rows.Add(row);
+
+			// Notify that a row was added for UI focus
+			RowAdded?.Invoke(this, row);
 		}
 		finally
 		{
@@ -340,6 +364,26 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		}
 
 		SetDirty(true);
+	}
+
+	private bool CanDeleteRow(GridEditorRowViewModel? row)
+	{
+		return IsLoaded && row != null && Rows.Contains(row);
+	}
+
+	private void DeleteRow(GridEditorRowViewModel? row)
+	{
+		if (row is null || !Rows.Contains(row))
+			return;
+
+		PushUndoSnapshot();
+
+		row.PropertyChanged -= RowOnPropertyChanged;
+		Rows.Remove(row);
+
+		ReindexIds();
+		SetDirty(true);
+		NotifyCommandStateChanged();
 	}
 
 	private void ReindexIds()
@@ -381,6 +425,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 			};
 			HookRow(row);
 			Rows.Add(row);
+
+			// Notify that a row was added for UI focus
+			RowAdded?.Invoke(this, row);
 		}
 		finally
 		{
@@ -388,8 +435,5 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		}
 
 		SetDirty(true);
-
-		Debug.WriteLine(
-			$"[GridEditorViewModel] Added marker from Mumble: {mumbleState.PlayerPosition.X:F4}, {mumbleState.PlayerPosition.Y:F4}, {mumbleState.PlayerPosition.Z:F4}");
 	}
 }

@@ -1,6 +1,4 @@
-﻿using KXMapStudio.Libs.Services.Hotkeys;
-
-namespace KXMapStudio.Libs.Extensions;
+﻿namespace KXMapStudio.Libs.Extensions;
 
 public static class ServiceCollectionExtension
 {

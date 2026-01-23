@@ -6,6 +6,7 @@ global using KXMapStudio.Application.Views.Windows;
 global using KXMapStudio.Core.Abstractions.Services.Mumble;
 global using KXMapStudio.Core.Extensions;
 global using KXMapStudio.Core.Models.IOptions;
+global using KXMapStudio.Libs.Abstractions.Services.Hotkeys;
 global using KXMapStudio.Libs.Abstractions.ViewModels;
 global using KXMapStudio.Libs.Extensions;
 global using KXMapStudio.Libs.ViewModels;

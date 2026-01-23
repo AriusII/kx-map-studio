@@ -5,24 +5,39 @@ namespace KXMapStudio.Libs.ViewModels.LeftSide.WorkshopExplorer;
 /// </summary>
 public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorkshopExplorerViewModel
 {
+	// Services
+	private readonly ISaveFileDialogService _dialogService;
+
+	// State
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
+	private readonly IFileStorageRepository _fileStorageRepository;
 	private readonly Timer _refreshTimer;
+
+	// File system monitoring
 	private readonly FileSystemWatcher _watcher;
 	private readonly IWorkshopExplorerService _workshopExplorerService;
 
+	// Observable properties
 	[ObservableProperty] private bool _isRefreshing;
 	[ObservableProperty] private string? _lastErrorMessage;
 	[ObservableProperty] private DateTimeOffset? _lastRefreshUtc;
-
 	private CancellationTokenSource? _refreshCts;
 
-	public WorkshopExplorerViewModel(IWorkshopExplorerService workshopExplorerService)
+
+	public WorkshopExplorerViewModel(
+		IWorkshopExplorerService workshopExplorerService,
+		IFileStorageRepository fileStorageRepository,
+		ISaveFileDialogService dialogService)
 	{
 		_workshopExplorerService = workshopExplorerService;
+		_fileStorageRepository = fileStorageRepository;
+		_dialogService = dialogService;
 
-		RootNodes = new ObservableCollection<WorkshopExplorerNodeModel>();
+		RootNodes = [];
 		RefreshCommand = new AsyncRelayCommand(RefreshAsync);
 		SelectNodeCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>(OnSelectNode);
+		CreateFileCommand = new RelayCommand<WorkshopExplorerNodeModel?>(OnCreateFile, CanCreateFile);
+		DeleteFileCommand = new RelayCommand<WorkshopExplorerNodeModel?>(OnDeleteFile, CanDeleteFile);
 
 		_watcher = new FileSystemWatcher(_workshopExplorerService.DataFolder)
 		{
@@ -46,6 +61,8 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	public ObservableCollection<WorkshopExplorerNodeModel> RootNodes { get; }
 	public IRelayCommand RefreshCommand { get; }
 	public IRelayCommand<RoutedPropertyChangedEventArgs<object>> SelectNodeCommand { get; }
+	public IRelayCommand<WorkshopExplorerNodeModel?> CreateFileCommand { get; }
+	public IRelayCommand<WorkshopExplorerNodeModel?> DeleteFileCommand { get; }
 
 	public void Dispose()
 	{
@@ -198,5 +215,94 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		// Fire event to notify subscribers (LeftSidePanelViewModel will handle loading into FilePreview and GridEditor)
 		var doc = EditorDocumentReference.FromWorkspaceFile(node.FullPath);
 		FileSelected?.Invoke(this, doc);
+	}
+
+	private bool CanCreateFile(WorkshopExplorerNodeModel? node)
+	{
+		// Allow creation at root level (node == null) or in directories
+		return node == null || node.IsDirectory;
+	}
+
+	private async void OnCreateFile(WorkshopExplorerNodeModel? node)
+	{
+		// Determine target folder
+		var targetFolder = GetTargetFolder(node);
+
+		// Show dialog to create either XML or JSON
+		var newFilePath = await _dialogService.ShowCreateFileDialogAsync(targetFolder, "xml");
+
+		if (string.IsNullOrWhiteSpace(newFilePath))
+			return;
+
+		try
+		{
+			await CreateFileBasedOnExtension(newFilePath);
+			// Refresh will be triggered automatically by FileSystemWatcher
+		}
+		catch (Exception ex)
+		{
+			LastErrorMessage = $"Failed to create file: {ex.Message}";
+		}
+	}
+
+	private string GetTargetFolder(WorkshopExplorerNodeModel? node)
+	{
+		if (node == null)
+			return _workshopExplorerService.DataFolder;
+
+		return node.IsDirectory
+			? node.FullPath
+			: Path.GetDirectoryName(node.FullPath) ?? _workshopExplorerService.DataFolder;
+	}
+
+	private async Task CreateFileBasedOnExtension(string filePath)
+	{
+		var ext = Path.GetExtension(filePath).ToLowerInvariant();
+
+		switch (ext)
+		{
+			case ".xml":
+				break;
+			case ".json":
+				break;
+			default:
+				throw new NotSupportedException($"File type '{ext}' is not supported for creation.");
+		}
+	}
+
+	private bool CanDeleteFile(WorkshopExplorerNodeModel? node)
+	{
+		// Only allow deleting files (not directories) that exist
+		return node is { IsDirectory: false } && File.Exists(node.FullPath);
+	}
+
+	private async void OnDeleteFile(WorkshopExplorerNodeModel? node)
+	{
+		if (node == null || !ValidateFileExists(node.FullPath))
+			return;
+
+		var fileName = Path.GetFileName(node.FullPath);
+		if (!await ConfirmFileDeletion(fileName))
+			return;
+
+		try
+		{
+			await _fileStorageRepository.DeleteFileAsync(node.FullPath);
+			// Refresh will be triggered automatically by FileSystemWatcher
+		}
+		catch (Exception ex)
+		{
+			LastErrorMessage = $"Failed to delete file: {ex.Message}";
+		}
+	}
+
+	private static bool ValidateFileExists(string filePath)
+	{
+		return File.Exists(filePath);
+	}
+
+	private async Task<bool> ConfirmFileDeletion(string fileName)
+	{
+		return await _dialogService.ShowDeleteFileConfirmationAsync(fileName);
 	}
 }

@@ -15,9 +15,23 @@ public interface IStateManagementService<TState>
 	bool CanRedo { get; }
 
 	/// <summary>
-	///     Clears undo/redo history.
+	///     Clears undo/redo history and original state.
 	/// </summary>
 	void Reset();
+
+	/// <summary>
+	///     Sets the original state snapshot for dirty tracking comparison.
+	///     This is typically called after loading or saving a file.
+	/// </summary>
+	/// <param name="state">The state to mark as original (clean).</param>
+	void SetOriginalState(TState state);
+
+	/// <summary>
+	///     Checks if the current state matches the original saved state.
+	/// </summary>
+	/// <param name="currentState">The current state to compare.</param>
+	/// <returns>True if the current state equals the original state (file is clean).</returns>
+	bool IsAtOriginalState(TState currentState);
 
 	/// <summary>
 	///     Pushes a snapshot representing the state <em>before</em> a modification.

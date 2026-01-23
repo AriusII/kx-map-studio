@@ -2,55 +2,25 @@ namespace KXMapStudio.Libs.ViewModels.BottomSide.StatusBar;
 
 public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarViewModel, IDisposable
 {
-	private static readonly TimeSpan ConnectionStaleTimeout = TimeSpan.FromMilliseconds(750);
-
 	private readonly IMumbleService _mumbleService;
-	private readonly CancellationTokenSource _staleCts = new();
-	private readonly PeriodicTimer _staleTimer = new(TimeSpan.FromMilliseconds(250));
-	private readonly SynchronizationContext? _uiContext;
 
-	[ObservableProperty] private string _characterName = "";
-
+	[ObservableProperty] private string _characterName = "Not connected";
+	[ObservableProperty] private MumbleConnectionState _connectionState = MumbleConnectionState.Disconnected;
 	[ObservableProperty] private string _coordinatesText = "Pos: N/A";
-
-	[ObservableProperty] private bool _isMumbleAvailable;
-
-	/// <summary>
-	///     True when MumbleLink is available AND the received data is fresh.
-	/// </summary>
-	[ObservableProperty] private bool _isMumbleConnected;
-
-	private DateTimeOffset _lastEventReceivedUtc;
-
 	[ObservableProperty] private string _mapText = "Map: N/A";
-
 	[ObservableProperty] private string _xText = "X: -";
-
 	[ObservableProperty] private string _yText = "Y: -";
-
 	[ObservableProperty] private string _zText = "Z: -";
 
 	public StatusBarViewModel(IMumbleService mumbleService)
 	{
-		_mumbleService = mumbleService ?? throw new ArgumentNullException(nameof(mumbleService));
-		_uiContext = SynchronizationContext.Current;
-
-		// Consider "fresh" only once we actually receive events after app start.
-		_lastEventReceivedUtc = DateTimeOffset.MinValue;
-
-		ApplySnapshot(_mumbleService.Current);
+		_mumbleService = mumbleService;
 		_mumbleService.MumbleUpdated += OnMumbleUpdated;
-
-		_ = MonitorStaleConnectionAsync(_staleCts.Token);
 	}
 
 	public void Dispose()
 	{
 		_mumbleService.MumbleUpdated -= OnMumbleUpdated;
-
-		_staleCts.Cancel();
-		_staleCts.Dispose();
-		_staleTimer.Dispose();
 	}
 
 	[RelayCommand]
@@ -59,14 +29,10 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 		try
 		{
 			Process.Start(new ProcessStartInfo
-			{
-				FileName = Constants.Settings.KxToolsWebsiteUrl,
-				UseShellExecute = true
-			});
+				{ FileName = Constants.Settings.KxToolsWebsiteUrl, UseShellExecute = true });
 		}
 		catch
 		{
-			// Fail silently - user may not have a browser configured.
 		}
 	}
 
@@ -76,14 +42,10 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 		try
 		{
 			Process.Start(new ProcessStartInfo
-			{
-				FileName = Constants.Settings.DiscordInviteUrl,
-				UseShellExecute = true
-			});
+				{ FileName = Constants.Settings.DiscordInviteUrl, UseShellExecute = true });
 		}
 		catch
 		{
-			// Fail silently - user may not have a browser configured.
 		}
 	}
 
@@ -92,105 +54,47 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	{
 		try
 		{
-			Process.Start(new ProcessStartInfo
-			{
-				FileName = Constants.Settings.GitHubRepoUrl,
-				UseShellExecute = true
-			});
+			Process.Start(new ProcessStartInfo { FileName = Constants.Settings.GitHubRepoUrl, UseShellExecute = true });
 		}
 		catch
 		{
-			// Fail silently - user may not have a browser configured.
 		}
 	}
 
-	private void OnMumbleUpdated(object? sender, MumbleStateModel snapshot)
+	private void OnMumbleUpdated(object? sender, MumbleStateModel mumble)
 	{
-		// Track actual event reception time in case the snapshot timestamp isn't updated for any reason.
-		_lastEventReceivedUtc = DateTimeOffset.UtcNow;
-
-		var ctx = _uiContext;
-		if (ctx != null)
+		Application.Current?.Dispatcher.Invoke((Action)(() =>
 		{
-			ctx.Post(_ => ApplySnapshot(snapshot), null);
-			return;
-		}
+			ConnectionState = mumble.ConnectionState;
 
-		ApplySnapshot(snapshot);
-	}
-
-	private void ApplySnapshot(MumbleStateModel snapshot)
-	{
-		IsMumbleAvailable = snapshot.IsAvailable;
-		UpdateConnectionState(snapshot.IsAvailable);
-
-		if (!IsMumbleConnected)
-		{
-			CharacterName = IsMumbleAvailable ? "Connecting..." : "Not connected";
-			MapText = "Map: N/A";
-			CoordinatesText = "Pos: N/A";
-			XText = "X: -";
-			YText = "Y: -";
-			ZText = "Z: -";
-			return;
-		}
-
-		CharacterName = string.IsNullOrWhiteSpace(snapshot.CharacterName) ? "Unknown" : snapshot.CharacterName;
-		MapText = $"Map: {snapshot.CurrentMapId.ToString(CultureInfo.InvariantCulture)}";
-
-		var x = snapshot.PlayerPosition.X;
-		var y = snapshot.PlayerPosition.Y;
-		var z = snapshot.PlayerPosition.Z;
-
-		XText = $"X: {Format(x)}";
-		YText = $"Y: {Format(y)}";
-		ZText = $"Z: {Format(z)}";
-
-		// Keep a compact version for small layouts.
-		CoordinatesText = $"Pos: {Format(x)}, {Format(y)}, {Format(z)}";
-	}
-
-	private async Task MonitorStaleConnectionAsync(CancellationToken cancellationToken)
-	{
-		try
-		{
-			while (await _staleTimer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
+			if (mumble.ConnectionState == MumbleConnectionState.Disconnected)
 			{
-				var expectedConnected = IsMumbleAvailable && IsEventFresh();
-				if (IsMumbleConnected == expectedConnected)
-					continue;
-
-				var ctx = _uiContext;
-				if (ctx != null)
-					ctx.Post(_ => UpdateConnectionState(IsMumbleAvailable), null);
-				else
-					UpdateConnectionState(IsMumbleAvailable);
+				CharacterName = "Not connected";
+				MapText = "Map: N/A";
+				CoordinatesText = "Pos: N/A";
+				XText = "X: -";
+				YText = "Y: -";
+				ZText = "Z: -";
+				return;
 			}
-		}
-		catch (OperationCanceledException)
-		{
-			// Intentional no-op.
-		}
-	}
 
-	private bool IsEventFresh()
-	{
-		if (_lastEventReceivedUtc == DateTimeOffset.MinValue)
-			return false;
+			if (mumble.ConnectionState == MumbleConnectionState.Stale)
+				CharacterName = string.IsNullOrWhiteSpace(mumble.CharacterName)
+					? "Unknown"
+					: $"{mumble.CharacterName} (AFK)";
+			else
+				CharacterName = string.IsNullOrWhiteSpace(mumble.CharacterName) ? "Unknown" : mumble.CharacterName;
 
-		return DateTimeOffset.UtcNow - _lastEventReceivedUtc <= ConnectionStaleTimeout;
-	}
+			MapText = $"Map: {mumble.CurrentMapId}";
 
-	private void UpdateConnectionState(bool isAvailable)
-	{
-		// Hard rule: we must be receiving recent updates.
-		// If the GW2 client/launcher is closed, the polling loop may stop producing meaningful data.
-		// The UI must never keep reporting old values as 'connected'.
-		IsMumbleConnected = isAvailable && IsEventFresh();
-	}
+			var x = mumble.PlayerPosition.X;
+			var y = mumble.PlayerPosition.Y;
+			var z = mumble.PlayerPosition.Z;
 
-	private static string Format(double value)
-	{
-		return value.ToString("0.##", CultureInfo.InvariantCulture);
+			XText = $"X: {x:0.##}";
+			YText = $"Y: {y:0.##}";
+			ZText = $"Z: {z:0.##}";
+			CoordinatesText = $"Pos: {x:0.##}, {y:0.##}, {z:0.##}";
+		}));
 	}
 }

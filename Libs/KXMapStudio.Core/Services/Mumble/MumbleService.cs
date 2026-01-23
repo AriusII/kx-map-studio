@@ -1,160 +1,178 @@
 namespace KXMapStudio.Core.Services.Mumble;
 
-/// <summary>
-///     Provides polling-based access to Guild Wars 2 MumbleLink state via <see cref="IGw2Client" />.
-/// </summary>
-/// <remarks>
-///     This service is intentionally defensive:
-///     <list type="bullet">
-///         <item>
-///             <description>Transient failures are swallowed to keep the polling loop stable.</description>
-///         </item>
-///         <item>
-///             <description>Consumers should handle user-facing error reporting at the application boundary.</description>
-///         </item>
-///     </list>
-/// </remarks>
 public sealed record MumbleService : IMumbleService, IDisposable
 {
+	private const double MovementThreshold = 0.1; // Minimum distance to consider as movement
+	private static readonly TimeSpan StaleTimeout = TimeSpan.FromSeconds(30); // 30s without movement = stale
+	private static readonly TimeSpan DisconnectTimeout = TimeSpan.FromMinutes(2); // 2min stale = disconnect
+
 	private readonly IGw2Client _gw2Client;
-	private readonly TimeSpan _pollInterval;
 	private CancellationTokenSource? _cts;
 
 	private volatile MumbleStateModel _current = new(
+		MumbleConnectionState.Disconnected,
 		false,
-		new Coordinates3(),
-		new Coordinates3(),
+		new Position3D(),
+		new Position3D(),
 		0,
 		"Not Available",
 		DateTimeOffset.MinValue
 	);
 
-	/// <summary>
-	///     Initializes a new instance of the <see cref="MumbleService" /> class.
-	/// </summary>
-	/// <param name="gw2Client">The GW2 client used to access the MumbleLink provider.</param>
-	/// <param name="pollInterval">The polling interval. Defaults to 100 ms.</param>
-	public MumbleService(IGw2Client gw2Client, TimeSpan? pollInterval = null)
+	public MumbleService(IGw2Client gw2Client)
 	{
-		_gw2Client = gw2Client ?? throw new ArgumentNullException(nameof(gw2Client));
-		_pollInterval = pollInterval ?? TimeSpan.FromMilliseconds(100);
+		_gw2Client = gw2Client;
 	}
 
-	/// <summary>
-	///     Stops polling and releases resources.
-	/// </summary>
 	public void Dispose()
 	{
 		Stop();
-
-		if (_gw2Client is not IDisposable d) return;
-		try
-		{
-			d.Dispose();
-		}
-		catch
-		{
-			// Intentional no-op.
-		}
+		_gw2Client.Dispose();
 	}
 
-	/// <inheritdoc />
 	public MumbleStateModel Current => _current;
-
-	/// <inheritdoc />
 	public event EventHandler<MumbleStateModel>? MumbleUpdated;
 
-	/// <inheritdoc />
 	public void Start()
 	{
-		if (_cts != null)
-			return;
+		if (_cts != null) return;
 
 		_cts = new CancellationTokenSource();
-		Task.Run(() => PollLoopAsync(_cts.Token), CancellationToken.None);
+		Task.Run(() => PollLoop(_cts.Token));
 	}
 
-	/// <inheritdoc />
 	public void Stop()
 	{
-		var cts = _cts;
-		if (cts == null)
-			return;
-
-		try
-		{
-			cts.Cancel();
-		}
-		finally
-		{
-			cts.Dispose();
-			_cts = null;
-		}
+		_cts?.Cancel();
+		_cts?.Dispose();
+		_cts = null;
 	}
 
-	private async Task PollLoopAsync(CancellationToken cancellationToken)
+	private async Task PollLoop(CancellationToken ct)
 	{
-		while (!cancellationToken.IsCancellationRequested)
+		var lastState = MumbleConnectionState.Disconnected;
+		var lastPosition = new Position3D();
+		var lastMovementTime = DateTimeOffset.MinValue;
+		var lastAvailableTime = DateTimeOffset.MinValue;
+
+		while (!ct.IsCancellationRequested)
+		{
 			try
 			{
 				_gw2Client.Mumble.Update();
 
-				// Gw2Sharp reports availability, but we also defensively validate key fields
-				// so we don't keep reporting a stale 'connected' state if the game is closed or the link stops.
 				var available = _gw2Client.Mumble.IsAvailable;
+				var mapId = (uint)_gw2Client.Mumble.MapId;
+				var name = _gw2Client.Mumble.CharacterName ?? "";
 
-				var avatar = available ? _gw2Client.Mumble.AvatarPosition : new Coordinates3();
-				var camera = available ? _gw2Client.Mumble.CameraPosition : new Coordinates3();
-				var mapId = available ? (uint)_gw2Client.Mumble.MapId : 0u;
-				var characterName = available ? _gw2Client.Mumble.CharacterName ?? string.Empty : "Not Available";
+				var avatar = _gw2Client.Mumble.AvatarPosition;
+				var camera = _gw2Client.Mumble.CameraPosition;
+				var playerPos = new Position3D(avatar.X, avatar.Y, avatar.Z);
+				var cameraPos = new Position3D(camera.X, camera.Y, camera.Z);
+				var now = DateTimeOffset.UtcNow;
 
-				// Additional sanity checks:
-				// - When the link is no longer running, MapId often becomes 0 and character is empty.
-				// - We treat this as unavailable so consumers immediately show 'disconnected'.
-				if (available && mapId == 0u && string.IsNullOrWhiteSpace(characterName))
-					available = false;
+				// Determine connection state
+				MumbleConnectionState state;
 
-				var newState = new MumbleStateModel(
-					available,
-					available ? avatar : new Coordinates3(),
-					available ? camera : new Coordinates3(),
-					available ? mapId : 0u,
-					available ? characterName : "Not Available",
-					DateTimeOffset.UtcNow
-				);
+				if (!available || mapId == 0 || string.IsNullOrWhiteSpace(name))
+				{
+					// Not available or invalid data
+					state = MumbleConnectionState.Disconnected;
+					lastMovementTime = DateTimeOffset.MinValue;
+					lastAvailableTime = DateTimeOffset.MinValue;
+				}
+				else
+				{
+					// Available - update last available time
+					if (lastAvailableTime == DateTimeOffset.MinValue)
+						lastAvailableTime = now;
 
-				_current = newState;
-				MumbleUpdated?.Invoke(this, newState);
-				await Task.Delay(_pollInterval, cancellationToken).ConfigureAwait(false);
+					// Check for movement
+					var moved = HasMoved(lastPosition, playerPos);
+
+					if (moved)
+					{
+						lastMovementTime = now;
+						lastPosition = playerPos;
+						state = MumbleConnectionState.Connected;
+					}
+					else
+					{
+						// No movement detected
+						if (lastMovementTime == DateTimeOffset.MinValue)
+						{
+							// First time seeing this position, start stale timer
+							lastMovementTime = now;
+							state = MumbleConnectionState.Connected;
+						}
+						else
+						{
+							var timeSinceMovement = now - lastMovementTime;
+
+							if (timeSinceMovement > DisconnectTimeout)
+								// Too long without movement, consider disconnected
+								state = MumbleConnectionState.Disconnected;
+							else if (timeSinceMovement > StaleTimeout)
+								// No movement for a while, mark as stale (AFK, menu, loading)
+								state = MumbleConnectionState.Stale;
+							else
+								// Recently moved, still connected
+								state = MumbleConnectionState.Connected;
+						}
+					}
+				}
+
+				// Log state changes
+				if (state != lastState)
+				{
+					Console.WriteLine($"[Mumble] {lastState} → {state} | Map={mapId}, Name='{name}'");
+					lastState = state;
+				}
+
+				var mumble = new MumbleStateModel(state, available, playerPos, cameraPos, mapId, name, now);
+				_current = mumble;
+				MumbleUpdated?.Invoke(this, mumble);
 			}
-			catch (TaskCanceledException)
+			catch (Exception ex)
 			{
-				break;
-			}
-			catch
-			{
-				// If polling fails (e.g., GW2 process is gone), publish an Unavailable snapshot
-				// so the UI doesn't stay stuck on old values.
-				var newState = new MumbleStateModel(
+				Console.WriteLine($"[Mumble] Error: {ex.GetType().Name} - {ex.Message}");
+
+				var mumble = new MumbleStateModel(
+					MumbleConnectionState.Disconnected,
 					false,
-					new Coordinates3(),
-					new Coordinates3(),
-					0u,
+					new Position3D(),
+					new Position3D(),
+					0,
 					"Not Available",
 					DateTimeOffset.UtcNow
 				);
+				_current = mumble;
+				MumbleUpdated?.Invoke(this, mumble);
 
-				_current = newState;
-				MumbleUpdated?.Invoke(this, newState);
-
-				try
+				if (lastState != MumbleConnectionState.Disconnected)
 				{
-					await Task.Delay(_pollInterval, cancellationToken).ConfigureAwait(false);
-				}
-				catch (TaskCanceledException)
-				{
-					break;
+					Console.WriteLine("[Mumble] Disconnected due to error");
+					lastState = MumbleConnectionState.Disconnected;
 				}
 			}
+
+			try
+			{
+				await Task.Delay(100, ct);
+			}
+			catch
+			{
+				break;
+			}
+		}
+	}
+
+	private static bool HasMoved(Position3D oldPos, Position3D newPos)
+	{
+		var dx = newPos.X - oldPos.X;
+		var dy = newPos.Y - oldPos.Y;
+		var dz = newPos.Z - oldPos.Z;
+		var distance = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+		return distance > MovementThreshold;
 	}
 }

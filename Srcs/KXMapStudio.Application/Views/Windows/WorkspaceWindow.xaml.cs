@@ -1,5 +1,3 @@
-using KXMapStudio.Libs.Abstractions.Services.Hotkeys;
-
 namespace KXMapStudio.Application.Views.Windows;
 
 public sealed partial class WorkspaceWindow : Window

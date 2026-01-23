@@ -9,4 +9,6 @@ public interface IWorkshopExplorerViewModel : IDisposable
 
 	IRelayCommand RefreshCommand { get; }
 	IRelayCommand<RoutedPropertyChangedEventArgs<object>> SelectNodeCommand { get; }
+	IRelayCommand<WorkshopExplorerNodeModel?> CreateFileCommand { get; }
+	IRelayCommand<WorkshopExplorerNodeModel?> DeleteFileCommand { get; }
 }

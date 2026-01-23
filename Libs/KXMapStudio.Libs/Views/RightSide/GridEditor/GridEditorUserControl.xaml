@@ -7,6 +7,10 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="500">
 
+	<UserControl.InputBindings>
+		<KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}" />
+	</UserControl.InputBindings>
+
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
@@ -16,10 +20,7 @@
 
 		<!-- Document Info Header -->
 		<Border Grid.Row="0"
-		        Background="{DynamicResource MaterialDesign.Brush.Surface}"
-		        BorderBrush="{DynamicResource MaterialDesign.Brush.Separator}"
-		        BorderThickness="0,0,0,1"
-		        Padding="12,10"
+		        Style="{StaticResource Kx.PanelHeader}"
 		        Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
 			<Grid>
 				<Grid.ColumnDefinitions>
@@ -30,9 +31,9 @@
 
 				<!-- File Icon and Info -->
 				<materialDesign:PackIcon Grid.Column="0"
-				                         Width="24" Height="24"
+				                         Width="20" Height="20"
 				                         VerticalAlignment="Center"
-				                         Margin="0,0,12,0">
+				                         Margin="0,0,10,0">
 					<materialDesign:PackIcon.Style>
 						<Style TargetType="materialDesign:PackIcon">
 							<Setter Property="Kind" Value="FileDocumentOutline" />
@@ -61,10 +62,10 @@
 						           TextTrimming="CharacterEllipsis" />
 
 						<!-- Dirty indicator -->
-						<materialDesign:PackIcon Kind="CircleSmall"
-						                         Width="16" Height="16"
+						<materialDesign:PackIcon Kind="Circle"
+						                         Width="10" Height="10"
 						                         Foreground="{StaticResource Kx.Brush.Status.Warning}"
-						                         Margin="6,0,0,0"
+						                         Margin="8,0,0,0"
 						                         VerticalAlignment="Center"
 						                         Visibility="{Binding IsDirty, Converter={StaticResource BooleanToVisibilityConverter}}"
 						                         ToolTip="Unsaved changes" />
@@ -86,39 +87,57 @@
 				</StackPanel>
 
 				<!-- Action Toolbar -->
-				<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
-					<Button Style="{StaticResource MaterialDesignToolButton}"
+				<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
 					        ToolTip="Save (Ctrl+S)"
 					        Command="{Binding SaveCommand}"
-					        Margin="4,0">
+					        Width="32" Height="32"
+					        Padding="4"
+					        Margin="2,0">
 						<materialDesign:PackIcon Kind="ContentSave" Width="18" Height="18" />
 					</Button>
-					<Button Style="{StaticResource MaterialDesignToolButton}"
+					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
+					        ToolTip="Save As... (Ctrl+Shift+S)"
+					        Command="{Binding SaveAsCommand}"
+					        Width="32" Height="32"
+					        Padding="4"
+					        Margin="2,0">
+						<materialDesign:PackIcon Kind="ContentSaveEdit" Width="18" Height="18" />
+					</Button>
+					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
 					        ToolTip="Undo (Ctrl+Z)"
 					        Command="{Binding UndoCommand}"
-					        Margin="4,0">
+					        Width="32" Height="32"
+					        Padding="4"
+					        Margin="2,0">
 						<materialDesign:PackIcon Kind="Undo" Width="18" Height="18" />
 					</Button>
-					<Button Style="{StaticResource MaterialDesignToolButton}"
+					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
 					        ToolTip="Redo (Ctrl+Y)"
 					        Command="{Binding RedoCommand}"
-					        Margin="4,0">
+					        Width="32" Height="32"
+					        Padding="4"
+					        Margin="2,0">
 						<materialDesign:PackIcon Kind="Redo" Width="18" Height="18" />
 					</Button>
 					<Border Width="1" Height="20"
 					        Background="{StaticResource MaterialDesign.Brush.Separator}"
-					        Margin="4,0"
-					        Opacity="0.5" />
-					<Button Style="{StaticResource MaterialDesignToolButton}"
+					        Margin="6,0"
+					        Opacity="0.4" />
+					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
 					        ToolTip="Add Row"
 					        Command="{Binding AddRowCommand}"
-					        Margin="4,0">
+					        Width="32" Height="32"
+					        Padding="4"
+					        Margin="2,0">
 						<materialDesign:PackIcon Kind="Plus" Width="18" Height="18" />
 					</Button>
-					<Button Style="{StaticResource MaterialDesignToolButton}"
+					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
 					        ToolTip="Add Marker from Mumble (F9)"
 					        Command="{Binding AddMarkerFromMumbleCommand}"
-					        Margin="4,0">
+					        Width="32" Height="32"
+					        Padding="4"
+					        Margin="2,0">
 						<materialDesign:PackIcon Kind="MapMarkerPlus" Width="18" Height="18" />
 					</Button>
 				</StackPanel>
@@ -126,32 +145,42 @@
 		</Border>
 
 		<!-- Empty State -->
-		<Border Grid.Row="1"
-		        Padding="24"
+		<Border Grid.Row="1" Grid.RowSpan="2"
+		        Padding="32"
 		        Visibility="{Binding IsLoaded, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 				<materialDesign:PackIcon Kind="FileDocumentOutline"
-				                         Width="64" Height="64"
+				                         Width="80" Height="80"
 				                         HorizontalAlignment="Center"
 				                         Foreground="{StaticResource Kx.Brush.Text.Secondary}"
-				                         Opacity="0.3" />
+				                         Opacity="0.2" />
 				<TextBlock Text="Select a file to begin editing"
 				           HorizontalAlignment="Center"
-				           Margin="0,16,0,0"
+				           Margin="0,20,0,0"
 				           Foreground="{StaticResource Kx.Brush.Text.Secondary}"
-				           FontSize="14" />
+				           FontSize="15"
+				           FontWeight="Medium"
+				           Opacity="0.7" />
+				<TextBlock Text="Choose a file from the Workshop Explorer"
+				           HorizontalAlignment="Center"
+				           Margin="0,8,0,0"
+				           Foreground="{StaticResource Kx.Brush.Text.Secondary}"
+				           FontSize="12"
+				           Opacity="0.5" />
 			</StackPanel>
 		</Border>
 
 		<!-- DataGrid -->
 		<DataGrid Grid.Row="2"
-		          Margin="6"
+		          x:Name="MarkersDataGrid"
+		          Margin="8"
 		          ItemsSource="{Binding Rows}"
 		          AutoGenerateColumns="False"
 		          CanUserAddRows="False"
 		          CanUserDeleteRows="False"
 		          IsReadOnly="False"
 		          FrozenColumnCount="1"
+		          PreviewKeyDown="MarkersDataGrid_PreviewKeyDown"
 		          Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
 			<DataGrid.Columns>
 				<!-- ID pinned left, not editable -->
@@ -185,7 +214,7 @@
 									<materialDesign:PackIcon Kind="ChevronDown" Width="18" Height="18" />
 								</Button>
 								<Button Style="{StaticResource GridRowIconButton}" Margin="6,0,0,0"
-								        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+								        Command="{Binding DataContext.DeleteRowCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
 								        CommandParameter="{Binding}">
 									<materialDesign:PackIcon Kind="Delete" Width="18" Height="18" />
 								</Button>

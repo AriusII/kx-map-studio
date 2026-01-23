@@ -7,6 +7,7 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 {
 	private readonly Stack<TState> _redo;
 	private readonly Stack<TState> _undo;
+	private TState? _originalState;
 
 	public StateManagementService(int capacity = 20)
 	{
@@ -22,10 +23,53 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 
 	public event EventHandler? StateChanged;
 
+	/// <summary>
+	///     Sets the original state that will be used as baseline for dirty tracking.
+	/// </summary>
+	public void SetOriginalState(TState state)
+	{
+		_originalState = state;
+	}
+
+	/// <summary>
+	///     Checks if the current state matches the original saved state.
+	/// </summary>
+	public bool IsAtOriginalState(TState currentState)
+	{
+		if (_originalState == null)
+			return false;
+
+		// Deep comparison - works for collections and value types
+		if (_originalState is IReadOnlyList<GridEditorRowViewModel> originalRows
+		    && currentState is IReadOnlyList<GridEditorRowViewModel> currentRows)
+		{
+			if (originalRows.Count != currentRows.Count)
+				return false;
+
+			for (var i = 0; i < originalRows.Count; i++)
+			{
+				var orig = originalRows[i];
+				var curr = currentRows[i];
+
+				if (orig.Name != curr.Name
+				    || Math.Abs(orig.X - curr.X) > 0.0001
+				    || Math.Abs(orig.Y - curr.Y) > 0.0001
+				    || Math.Abs(orig.Z - curr.Z) > 0.0001)
+					return false;
+			}
+
+			return true;
+		}
+
+		// Fallback to reference equality for other types
+		return EqualityComparer<TState>.Default.Equals(_originalState, currentState);
+	}
+
 	public void Reset()
 	{
 		_undo.Clear();
 		_redo.Clear();
+		_originalState = default;
 		StateChanged?.Invoke(this, EventArgs.Empty);
 	}
 

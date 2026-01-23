@@ -4,4 +4,9 @@ public interface ISaveFileDialogService
 {
 	Task<string?> ShowSaveXmlAsync(string? suggestedFileName, CancellationToken cancellationToken = default);
 	Task<string?> ShowSaveJsonAsync(string? suggestedFileName, CancellationToken cancellationToken = default);
+
+	Task<string?> ShowCreateFileDialogAsync(string defaultFolder, string fileType,
+		CancellationToken cancellationToken = default);
+
+	Task<bool> ShowDeleteFileConfirmationAsync(string fileName);
 }

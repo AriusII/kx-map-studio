@@ -31,6 +31,7 @@ global using KXMapStudio.Core.Services;
 global using KXMapStudio.Core.Services.Http;
 global using KXMapStudio.Core.Services.Mumble;
 global using KXMapStudio.Core.Services.Serializations;
+global using KXMapStudio.Core.Types.Enums;
 global using KXMapStudio.Core.Types.Structs;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;

@@ -8,8 +8,7 @@ namespace KXMapStudio.Libs.Abstractions.ViewModels.BottomSide.StatusBar;
 /// </remarks>
 public interface IStatusBarViewModel
 {
-	bool IsMumbleAvailable { get; }
-	bool IsMumbleConnected { get; }
+	MumbleConnectionState ConnectionState { get; }
 	string CharacterName { get; }
 	string MapText { get; }
 	string CoordinatesText { get; }

@@ -23,9 +23,15 @@ public interface IGridEditorViewModel : IDisposable
 	IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
 	IRelayCommand<GridEditorRowViewModel?> MoveDownCommand { get; }
 	IRelayCommand AddRowCommand { get; }
+	IRelayCommand<GridEditorRowViewModel?> DeleteRowCommand { get; }
 	IRelayCommand AddMarkerFromMumbleCommand { get; }
 
 	ObservableCollection<GridEditorRowViewModel> Rows { get; }
 
 	Task LoadAsync(EditorDocumentReference doc, CancellationToken cancellationToken = default);
+
+	/// <summary>
+	///     Event raised when a new row is added to the grid (via Add Row or Add from Mumble).
+	/// </summary>
+	event EventHandler<GridEditorRowViewModel>? RowAdded;
 }

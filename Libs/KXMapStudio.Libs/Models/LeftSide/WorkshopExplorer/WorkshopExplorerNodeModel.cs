@@ -6,6 +6,7 @@ namespace KXMapStudio.Libs.Models.LeftSide.WorkshopExplorer;
 public sealed partial class WorkshopExplorerNodeModel : ObservableObject
 {
 	[ObservableProperty] private bool _isExpanded;
+	[ObservableProperty] private bool _isModified;
 	[ObservableProperty] private bool _isSelected;
 
 	public WorkshopExplorerNodeModel(string name, string fullPath, bool isDirectory)

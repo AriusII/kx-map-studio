@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace KXMapStudio.Libs.Services.Hotkeys;
 
 /// <summary>
