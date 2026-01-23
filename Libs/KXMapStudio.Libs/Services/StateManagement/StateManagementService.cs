@@ -14,12 +14,13 @@ namespace KXMapStudio.Libs.Services.StateManagement;
 ///         (typically set after loading or saving a file).
 ///     </para>
 ///     <para>
-///         For <see cref="GridEditorRowViewModel" /> collections, performs deep value comparison.
-///         For other types, falls back to <see cref="EqualityComparer{T}" />.
+///         Uses injectable <see cref="IStateEqualityComparer{TState}"/> for comparison logic,
+///         making the service truly generic and reusable.
 ///     </para>
 /// </remarks>
 public sealed class StateManagementService<TState> : IStateManagementService<TState>
 {
+	private readonly IStateEqualityComparer<TState> _comparer;
 	private readonly ILogger<StateManagementService<TState>> _logger;
 	private readonly Stack<TState> _redo;
 	private readonly Stack<TState> _undo;
@@ -29,20 +30,29 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 	///     Initializes a new instance of the <see cref="StateManagementService{TState}" /> class.
 	/// </summary>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
+	/// <param name="comparer">
+	///     The equality comparer for state comparison. If <see langword="null"/>,
+	///     uses <see cref="EqualityComparer{T}.Default"/>.
+	/// </param>
 	/// <param name="capacity">The maximum number of undo snapshots to retain (default: 20).</param>
 	/// <exception cref="ArgumentNullException">Thrown when <paramref name="logger" /> is <see langword="null" />.</exception>
-	public StateManagementService(ILogger<StateManagementService<TState>> logger, int capacity = 20)
+	public StateManagementService(
+		ILogger<StateManagementService<TState>> logger,
+		IStateEqualityComparer<TState>? comparer = null,
+		int capacity = 20)
 	{
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_logger = logger;
+		_comparer = comparer ?? new DefaultStateEqualityComparer<TState>();
 		Capacity = capacity <= 0 ? 20 : capacity;
 
 		_undo = new Stack<TState>(Capacity);
 		_redo = new Stack<TState>(Capacity);
 
-		_logger.LogDebug("StateManagementService<{TypeName}> initialized with capacity: {Capacity}",
-			typeof(TState).Name, Capacity);
+		_logger.LogDebug(
+			"StateManagementService<{TypeName}> initialized with capacity: {Capacity}, comparer: {ComparerType}",
+			typeof(TState).Name, Capacity, _comparer.GetType().Name);
 	}
 
 	/// <summary>
@@ -87,8 +97,7 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 	///     <see langword="false" />.
 	/// </returns>
 	/// <remarks>
-	///     For <see cref="IReadOnlyList{T}" /> of <see cref="GridEditorRowViewModel" />, performs deep value comparison.
-	///     For other types, uses <see cref="EqualityComparer{T}.Default" />.
+	///     Uses the configured <see cref="IStateEqualityComparer{TState}"/> for comparison.
 	/// </remarks>
 	public bool IsAtOriginalState(TState currentState)
 	{
@@ -98,39 +107,9 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 			return false;
 		}
 
-		// Deep comparison for GridEditorRowViewModel collections
-		if (_originalState is IReadOnlyList<GridEditorRowViewModel> originalRows
-		    && currentState is IReadOnlyList<GridEditorRowViewModel> currentRows)
-		{
-			if (originalRows.Count != currentRows.Count)
-			{
-				_logger.LogTrace("Row count mismatch: {OriginalCount} vs {CurrentCount}. Not at original state.",
-					originalRows.Count, currentRows.Count);
-				return false;
-			}
-
-			for (var i = 0; i < originalRows.Count; i++)
-			{
-				var orig = originalRows[i];
-				var curr = currentRows[i];
-
-				if (orig.Name != curr.Name
-				    || Math.Abs(orig.X - curr.X) > 0.0001
-				    || Math.Abs(orig.Y - curr.Y) > 0.0001
-				    || Math.Abs(orig.Z - curr.Z) > 0.0001)
-				{
-					_logger.LogTrace("Row {Index} differs from original. Not at original state.", i);
-					return false;
-				}
-			}
-
-			_logger.LogTrace("All rows match original state. At original state.");
-			return true;
-		}
-
-		// Fallback to reference/value equality for other types
-		var isEqual = EqualityComparer<TState>.Default.Equals(_originalState, currentState);
-		_logger.LogTrace("Using default equality comparer. IsAtOriginalState: {IsEqual}", isEqual);
+		var isEqual = _comparer.Equals(_originalState, currentState);
+		_logger.LogTrace("IsAtOriginalState check using {ComparerType}: {IsEqual}",
+			_comparer.GetType().Name, isEqual);
 		return isEqual;
 	}
 
