@@ -21,6 +21,8 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	private readonly IMumbleService _mumbleService;
 	private readonly IDispatcherHelper _dispatcherHelper;
 	private readonly IUpdateCheckerService _updateChecker;
+	private readonly IGw2DataCacheService _gw2DataCache;
+	private readonly INotificationService _notificationService;
 
 	/// <summary>
 	///     Gets or sets the character name displayed in the status bar.
@@ -72,16 +74,22 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 		IMumbleService mumbleService,
 		IDispatcherHelper dispatcherHelper,
 		IUpdateCheckerService updateChecker,
+		IGw2DataCacheService gw2DataCache,
+		INotificationService notificationService,
 		ILogger<StatusBarViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(mumbleService);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(updateChecker);
+		ArgumentNullException.ThrowIfNull(gw2DataCache);
+		ArgumentNullException.ThrowIfNull(notificationService);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_mumbleService = mumbleService;
 		_dispatcherHelper = dispatcherHelper;
 		_updateChecker = updateChecker;
+		_gw2DataCache = gw2DataCache;
+		_notificationService = notificationService;
 		_logger = logger;
 
 		_mumbleService.MumbleUpdated += OnMumbleUpdated;
@@ -168,6 +176,33 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 		}
 
 		OpenUrl(LatestVersionUrl, "latest release");
+	}
+
+	/// <summary>
+	///     Downloads the latest GW2 data files (maps.json and continents.json) from the API.
+	/// </summary>
+	[RelayCommand]
+	private async Task DownloadGw2DataAsync()
+	{
+		_logger.LogInformation("Starting GW2 data download");
+
+		try
+		{
+			// Download both files
+			await _gw2DataCache.DownloadMapsAsync();
+			await _gw2DataCache.DownloadContinentsAsync();
+
+			// Invalidate cache so next access loads the new files
+			_gw2DataCache.InvalidateCache();
+
+			_logger.LogInformation("GW2 data download completed successfully");
+			_notificationService.ShowSuccess("GW2 data files downloaded successfully.");
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Failed to download GW2 data files");
+			_notificationService.ShowWarning("Failed to download GW2 data files. Check your network connection.");
+		}
 	}
 
 	/// <summary>
