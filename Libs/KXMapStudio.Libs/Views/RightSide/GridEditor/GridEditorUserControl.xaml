@@ -178,6 +178,27 @@
 		          FrozenColumnCount="1"
 		          PreviewKeyDown="MarkersDataGrid_PreviewKeyDown"
 		          Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
+			
+			<!-- Context Menu for Row Operations -->
+			<DataGrid.ContextMenu>
+				<ContextMenu>
+					<MenuItem Header="Insert row above"
+					          Command="{Binding InsertRowAboveCommand}"
+					          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+						<MenuItem.Icon>
+							<materialDesign:PackIcon Kind="ArrowUpBold" Width="16" Height="16" />
+						</MenuItem.Icon>
+					</MenuItem>
+					<MenuItem Header="Insert row below"
+					          Command="{Binding InsertRowBelowCommand}"
+					          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+						<MenuItem.Icon>
+							<materialDesign:PackIcon Kind="ArrowDownBold" Width="16" Height="16" />
+						</MenuItem.Icon>
+					</MenuItem>
+				</ContextMenu>
+			</DataGrid.ContextMenu>
+			
 			<DataGrid.Columns>
 				<!-- ID pinned left, not editable -->
 				<DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60" />

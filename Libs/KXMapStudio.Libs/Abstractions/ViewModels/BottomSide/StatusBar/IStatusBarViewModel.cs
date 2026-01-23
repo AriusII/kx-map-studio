@@ -75,4 +75,19 @@ public interface IStatusBarViewModel
 	///     Format: "Z: {value}" with 2 decimal precision, or "Z: -" when disconnected.
 	/// </remarks>
 	string ZText { get; }
+
+	/// <summary>
+	///     Gets a value indicating whether an application update is available.
+	/// </summary>
+	bool IsUpdateAvailable { get; }
+
+	/// <summary>
+	///     Gets the URL of the latest release on GitHub.
+	/// </summary>
+	string? LatestVersionUrl { get; }
+
+	/// <summary>
+	///     Gets the tag name of the latest version (e.g., "v1.2.3").
+	/// </summary>
+	string? LatestVersionTag { get; }
 }

@@ -5,6 +5,7 @@ global using System.Globalization;
 global using System.IO;
 global using System.IO.Compression;
 global using System.Linq;
+global using System.Reflection;
 global using System.Runtime.CompilerServices;
 global using System.Runtime.InteropServices;
 global using System.Text.Json;
@@ -29,8 +30,14 @@ global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
 
 // ─────────────────────────────────────────────────────────────────────
+// Third-party Libraries (MaterialDesignThemes)
+// ─────────────────────────────────────────────────────────────────────
+global using MaterialDesignThemes.Wpf;
+
+// ─────────────────────────────────────────────────────────────────────
 // KXMapStudio.Core (Domain Layer) - Abstractions
 // ─────────────────────────────────────────────────────────────────────
+global using KXMapStudio.Core.Abstractions.Http;
 global using KXMapStudio.Core.Abstractions.Repositories;
 global using KXMapStudio.Core.Abstractions.Services;
 global using KXMapStudio.Core.Abstractions.Services.Mumble;
@@ -40,6 +47,7 @@ global using KXMapStudio.Core.Abstractions.Services.Serializations;
 // KXMapStudio.Core (Domain Layer) - Models & Types
 // ─────────────────────────────────────────────────────────────────────
 global using KXMapStudio.Core.Models;
+global using KXMapStudio.Core.Models.Github;
 global using KXMapStudio.Core.Models.Serializations.Json;
 global using KXMapStudio.Core.Types.Enums;
 global using KXMapStudio.Core.Types.Structs;

@@ -23,4 +23,9 @@ public interface IWorkspaceWindowViewModel
 	///     Gets the status bar ViewModel displaying application state.
 	/// </summary>
 	IStatusBarViewModel StatusBar { get; }
+
+	/// <summary>
+	///     Gets the message queue for displaying snackbar notifications.
+	/// </summary>
+	ISnackbarMessageQueue SnackbarMessageQueue { get; }
 }

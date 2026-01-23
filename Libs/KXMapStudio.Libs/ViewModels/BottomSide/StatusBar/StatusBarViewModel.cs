@@ -20,6 +20,9 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	private readonly ILogger<StatusBarViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
 	private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly IUpdateCheckerService _updateChecker;
+	private readonly IGw2DataCacheService _gw2DataCache;
+	private readonly INotificationService _notificationService;
 
 	/// <summary>
 	///     Gets or sets the character name displayed in the status bar.
@@ -61,23 +64,59 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	/// </summary>
 	/// <param name="mumbleService">The Mumble service providing Guild Wars 2 player state.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
+	/// <param name="updateChecker">The update checker service for version checking.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
-	///     Thrown when <paramref name="mumbleService" />, <paramref name="dispatcherHelper" />, or <paramref name="logger" /> is <see langword="null" />.
+	///     Thrown when <paramref name="mumbleService" />, <paramref name="dispatcherHelper" />,
+	///     <paramref name="updateChecker" />, or <paramref name="logger" /> is <see langword="null" />.
 	/// </exception>
-	public StatusBarViewModel(IMumbleService mumbleService, IDispatcherHelper dispatcherHelper, ILogger<StatusBarViewModel> logger)
+	public StatusBarViewModel(
+		IMumbleService mumbleService,
+		IDispatcherHelper dispatcherHelper,
+		IUpdateCheckerService updateChecker,
+		IGw2DataCacheService gw2DataCache,
+		INotificationService notificationService,
+		ILogger<StatusBarViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(mumbleService);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
+		ArgumentNullException.ThrowIfNull(updateChecker);
+		ArgumentNullException.ThrowIfNull(gw2DataCache);
+		ArgumentNullException.ThrowIfNull(notificationService);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_mumbleService = mumbleService;
 		_dispatcherHelper = dispatcherHelper;
+		_updateChecker = updateChecker;
+		_gw2DataCache = gw2DataCache;
+		_notificationService = notificationService;
 		_logger = logger;
 
 		_mumbleService.MumbleUpdated += OnMumbleUpdated;
+
+		// Subscribe to update checker property changes to forward notifications
+		if (_updateChecker is INotifyPropertyChanged notifyPropertyChanged)
+		{
+			notifyPropertyChanged.PropertyChanged += OnUpdateCheckerPropertyChanged;
+		}
+
 		_logger.LogDebug("StatusBarViewModel initialized and subscribed to MumbleUpdated event.");
 	}
+
+	/// <summary>
+	///     Gets a value indicating whether an application update is available.
+	/// </summary>
+	public bool IsUpdateAvailable => _updateChecker.IsUpdateAvailable;
+
+	/// <summary>
+	///     Gets the URL of the latest release on GitHub.
+	/// </summary>
+	public string? LatestVersionUrl => _updateChecker.LatestVersionUrl;
+
+	/// <summary>
+	///     Gets the tag name of the latest version (e.g., "v1.2.3").
+	/// </summary>
+	public string? LatestVersionTag => _updateChecker.LatestVersionTag;
 
 	/// <summary>
 	///     Disposes resources and unsubscribes from Mumble service events.
@@ -87,6 +126,12 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 		_logger.LogDebug("Disposing StatusBarViewModel.");
 
 		_mumbleService.MumbleUpdated -= OnMumbleUpdated;
+
+		// Unsubscribe from update checker property changes
+		if (_updateChecker is INotifyPropertyChanged notifyPropertyChanged)
+		{
+			notifyPropertyChanged.PropertyChanged -= OnUpdateCheckerPropertyChanged;
+		}
 
 		_logger.LogInformation("StatusBarViewModel disposed successfully.");
 	}
@@ -116,6 +161,48 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	private void OpenGitHub()
 	{
 		OpenUrl(Constants.Settings.GitHubRepoUrl, "GitHub repository");
+	}
+
+	/// <summary>
+	///     Opens the latest release page on GitHub in the default browser.
+	/// </summary>
+	[RelayCommand]
+	private void OpenLatestRelease()
+	{
+		if (string.IsNullOrEmpty(LatestVersionUrl))
+		{
+			_logger.LogWarning("Attempted to open latest release URL, but URL is null or empty.");
+			return;
+		}
+
+		OpenUrl(LatestVersionUrl, "latest release");
+	}
+
+	/// <summary>
+	///     Downloads the latest GW2 data files (maps.json and continents.json) from the API.
+	/// </summary>
+	[RelayCommand]
+	private async Task DownloadGw2DataAsync()
+	{
+		_logger.LogInformation("Starting GW2 data download");
+
+		try
+		{
+			// Download both files
+			await _gw2DataCache.DownloadMapsAsync();
+			await _gw2DataCache.DownloadContinentsAsync();
+
+			// Invalidate cache so next access loads the new files
+			_gw2DataCache.InvalidateCache();
+
+			_logger.LogInformation("GW2 data download completed successfully");
+			_notificationService.ShowSuccess("GW2 data files downloaded successfully.");
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Failed to download GW2 data files");
+			_notificationService.ShowWarning("Failed to download GW2 data files. Check your network connection.");
+		}
 	}
 
 	/// <summary>
@@ -185,6 +272,31 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 			_logger.LogTrace(
 				"Status bar updated: Character={Character}, Map={MapId}, Position=({X:0.##}, {Y:0.##}, {Z:0.##})",
 				CharacterName, mumble.CurrentMapId, x, y, z);
+		});
+	}
+
+	/// <summary>
+	///     Handles property changes from the update checker service to forward notifications to the UI.
+	/// </summary>
+	/// <param name="sender">The event source (typically <see cref="IUpdateCheckerService" />).</param>
+	/// <param name="e">The property change event arguments.</param>
+	private void OnUpdateCheckerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+	{
+		_dispatcherHelper.InvokeOnUIThread(() =>
+		{
+			// Forward property change notifications for update checker properties
+			if (e.PropertyName == nameof(IUpdateCheckerService.IsUpdateAvailable))
+			{
+				OnPropertyChanged(nameof(IsUpdateAvailable));
+			}
+			else if (e.PropertyName == nameof(IUpdateCheckerService.LatestVersionUrl))
+			{
+				OnPropertyChanged(nameof(LatestVersionUrl));
+			}
+			else if (e.PropertyName == nameof(IUpdateCheckerService.LatestVersionTag))
+			{
+				OnPropertyChanged(nameof(LatestVersionTag));
+			}
 		});
 	}
 }

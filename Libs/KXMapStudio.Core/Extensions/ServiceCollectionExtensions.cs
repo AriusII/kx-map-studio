@@ -36,7 +36,8 @@ public static class ServiceCollectionExtensions
 				.AddSingleton<IFileFacade, FileFacade>()
 				.AddSingleton<IGw2Client, Gw2Client>()
 				.AddSingleton<IMumbleService, MumbleService>()
-				.AddSingleton<IJsonService, JsonService>();
+				.AddSingleton<IJsonService, JsonService>()
+				.AddSingleton<IGw2DataCacheService, Gw2DataCacheService>();
 		}
 
 		private IServiceCollection AddCoreRepositories()

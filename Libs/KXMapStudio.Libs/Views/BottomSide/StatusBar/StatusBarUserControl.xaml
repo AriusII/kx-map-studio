@@ -140,6 +140,30 @@
 
 			<!-- Social links: Website, Discord, GitHub -->
 			<StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+				<!-- Update notification (visible only when update is available) -->
+				<Button Style="{StaticResource MaterialDesignRaisedButton}"
+				        Command="{Binding OpenLatestReleaseCommand}"
+				        ToolTip="Click to view the latest release"
+				        Height="28"
+				        Padding="12,4"
+				        Margin="0,0,12,0"
+				        Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+					<StackPanel Orientation="Horizontal">
+						<materialDesign:PackIcon Kind="Update" Width="16" Height="16" Margin="0,0,6,0" />
+						<TextBlock Text="A newer version is ready!" FontSize="12" />
+					</StackPanel>
+				</Button>
+
+				<!-- Download GW2 Data button -->
+				<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
+				        Command="{Binding DownloadGw2DataCommand}"
+				        ToolTip="Download GW2 maps and continents data"
+				        Height="28" Width="28"
+				        Padding="0"
+				        Margin="4,0">
+					<materialDesign:PackIcon Kind="Download" Width="16" Height="16" />
+				</Button>
+
 				<!-- Website button -->
 				<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
 				        Command="{Binding OpenWebsiteCommand}"

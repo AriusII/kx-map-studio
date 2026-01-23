@@ -125,4 +125,28 @@ public sealed class SaveFileDialogService : ISaveFileDialogService
 
 		return Task.FromResult(confirmed);
 	}
+
+	/// <summary>
+	///     Displays a confirmation dialog when attempting to switch files with unsaved changes.
+	/// </summary>
+	/// <param name="fileName">The name of the file with unsaved changes.</param>
+	/// <returns>
+	///     A <see cref="Task{T}" /> representing the operation, containing the user's choice
+	///     (<see cref="UnsavedChangesDialogResult" />).
+	/// </returns>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="fileName" /> is null or whitespace.</exception>
+	public Task<UnsavedChangesDialogResult> ShowUnsavedChangesDialogAsync(string fileName)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+
+		_logger.LogDebug("Displaying unsaved changes dialog for file: {FileName}", fileName);
+
+		var dialog = new UnsavedChangesDialog(fileName);
+		var result = dialog.ShowDialog();
+
+		_logger.LogInformation("User chose '{Result}' for unsaved changes in file: {FileName}",
+			result, fileName);
+
+		return Task.FromResult(result);
+	}
 }

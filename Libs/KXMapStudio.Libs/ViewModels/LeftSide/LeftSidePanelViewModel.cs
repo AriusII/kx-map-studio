@@ -20,28 +20,33 @@ namespace KXMapStudio.Libs.ViewModels.LeftSide;
 public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewModel, IDisposable
 {
 	private readonly ILogger<LeftSidePanelViewModel> _logger;
+	private readonly ISaveFileDialogService _dialogService;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="LeftSidePanelViewModel" /> class.
 	/// </summary>
 	/// <param name="workshopExplorer">The workshop explorer ViewModel managing file tree navigation.</param>
 	/// <param name="gridEditor">The grid editor ViewModel responsible for document editing.</param>
+	/// <param name="dialogService">The dialog service for displaying user confirmations.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when <paramref name="workshopExplorer" />, <paramref name="gridEditor" />,
-	///     or <paramref name="logger" /> is <see langword="null" />.
+	///     <paramref name="dialogService" />, or <paramref name="logger" /> is <see langword="null" />.
 	/// </exception>
 	public LeftSidePanelViewModel(
 		IWorkshopExplorerViewModel workshopExplorer,
 		IGridEditorViewModel gridEditor,
+		ISaveFileDialogService dialogService,
 		ILogger<LeftSidePanelViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(workshopExplorer);
 		ArgumentNullException.ThrowIfNull(gridEditor);
+		ArgumentNullException.ThrowIfNull(dialogService);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		WorkshopExplorer = workshopExplorer;
 		GridEditor = gridEditor;
+		_dialogService = dialogService;
 		_logger = logger;
 
 		// Subscribe to file selection events through the interface abstraction
@@ -95,6 +100,7 @@ public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewMod
 	/// <remarks>
 	///     This is an async void event handler. Exceptions are caught and logged to prevent crashes.
 	///     The grid editor handles cancellation of previous loads internally.
+	///     If the current document has unsaved changes, the user is prompted to save, discard, or cancel.
 	/// </remarks>
 	private async void OnFileSelected(object? sender, EditorDocumentReference doc)
 	{
@@ -102,6 +108,41 @@ public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewMod
 		{
 			_logger.LogInformation("File selected: {DisplayName} (Path: {FilePath}).", doc.DisplayName,
 				doc.FilePath ?? doc.ArchivePath);
+
+			// Check if there are unsaved changes in the current document
+			if (GridEditor.IsLoaded && GridEditor.IsDirty && !string.IsNullOrEmpty(GridEditor.OpenedFileName))
+			{
+				_logger.LogDebug("Current document has unsaved changes. Prompting user for action.");
+
+				var result = await _dialogService.ShowUnsavedChangesDialogAsync(GridEditor.OpenedFileName);
+
+				switch (result)
+				{
+					case UnsavedChangesDialogResult.SaveAndContinue:
+						_logger.LogInformation("User chose to save and continue.");
+						// Execute the save command and wait for it to complete
+						if (GridEditor.SaveCommand.CanExecute(null))
+						{
+							await GridEditor.SaveCommand.ExecuteAsync(null);
+						}
+						else
+						{
+							_logger.LogWarning("Save command cannot be executed. File may be read-only.");
+							// For read-only files or archive entries, proceed without saving
+						}
+						break;
+
+					case UnsavedChangesDialogResult.ContinueWithoutSaving:
+						_logger.LogInformation("User chose to continue without saving.");
+						// Proceed with loading the new file
+						break;
+
+					case UnsavedChangesDialogResult.Cancel:
+						_logger.LogInformation("User canceled file switch.");
+						// Cancel the operation - do not load the new file
+						return;
+				}
+			}
 
 			await GridEditor.LoadAsync(doc);
 
