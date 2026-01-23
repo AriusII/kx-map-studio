@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace KXMapStudio.Libs.ViewModels.LeftSide;
 
 /// <summary>
@@ -7,7 +5,8 @@ namespace KXMapStudio.Libs.ViewModels.LeftSide;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This ViewModel acts as an event mediator between <see cref="IWorkshopExplorerViewModel" /> (file selection source)
+///         This ViewModel acts as an event mediator between <see cref="IWorkshopExplorerViewModel" /> (file selection
+///         source)
 ///         and <see cref="IGridEditorViewModel" /> (document editor target).
 ///     </para>
 ///     <para>
@@ -99,7 +98,8 @@ public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewMod
 	}
 
 	/// <summary>
-	///     Handles file selection events from the workshop explorer and asynchronously loads the document into the grid editor.
+	///     Handles file selection events from the workshop explorer and asynchronously loads the document into the grid
+	///     editor.
 	/// </summary>
 	/// <param name="sender">The event source (typically <see cref="IWorkshopExplorerViewModel" />).</param>
 	/// <param name="doc">The document reference to load.</param>
@@ -111,7 +111,8 @@ public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewMod
 	{
 		try
 		{
-			_logger.LogInformation("File selected: {DisplayName} (Path: {FilePath}).", doc.DisplayName, doc.FilePath ?? doc.ArchivePath);
+			_logger.LogInformation("File selected: {DisplayName} (Path: {FilePath}).", doc.DisplayName,
+				doc.FilePath ?? doc.ArchivePath);
 
 			await GridEditor.LoadAsync(doc);
 

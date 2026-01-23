@@ -82,7 +82,10 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 	///     Checks if the current state matches the original saved state.
 	/// </summary>
 	/// <param name="currentState">The current state to compare.</param>
-	/// <returns><see langword="true" /> if the current state equals the original state (file is clean); otherwise, <see langword="false" />.</returns>
+	/// <returns>
+	///     <see langword="true" /> if the current state equals the original state (file is clean); otherwise,
+	///     <see langword="false" />.
+	/// </returns>
 	/// <remarks>
 	///     For <see cref="IReadOnlyList{T}" /> of <see cref="GridEditorRowViewModel" />, performs deep value comparison.
 	///     For other types, uses <see cref="EqualityComparer{T}.Default" />.

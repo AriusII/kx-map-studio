@@ -12,30 +12,25 @@ public sealed partial class GridEditorRowViewModel : ObservableObject
 	/// <summary>
 	///     Gets or sets the unique identifier (1-based index) of the row.
 	/// </summary>
-	[ObservableProperty]
-	private int _id;
+	[ObservableProperty] private int _id;
 
 	/// <summary>
 	///     Gets or sets the display name or label for the coordinate marker.
 	/// </summary>
-	[ObservableProperty]
-	private string _name = string.Empty;
+	[ObservableProperty] private string _name = string.Empty;
 
 	/// <summary>
 	///     Gets or sets the X coordinate value (horizontal position).
 	/// </summary>
-	[ObservableProperty]
-	private double _x;
+	[ObservableProperty] private double _x;
 
 	/// <summary>
 	///     Gets or sets the Y coordinate value (vertical position).
 	/// </summary>
-	[ObservableProperty]
-	private double _y;
+	[ObservableProperty] private double _y;
 
 	/// <summary>
 	///     Gets or sets the Z coordinate value (elevation/depth).
 	/// </summary>
-	[ObservableProperty]
-	private double _z;
+	[ObservableProperty] private double _z;
 }

@@ -23,44 +23,37 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	/// <summary>
 	///     Gets or sets the character name displayed in the status bar.
 	/// </summary>
-	[ObservableProperty]
-	private string _characterName = "Not connected";
+	[ObservableProperty] private string _characterName = "Not connected";
 
 	/// <summary>
 	///     Gets or sets the current Mumble connection state.
 	/// </summary>
-	[ObservableProperty]
-	private MumbleConnectionState _connectionState = MumbleConnectionState.Disconnected;
+	[ObservableProperty] private MumbleConnectionState _connectionState = MumbleConnectionState.Disconnected;
 
 	/// <summary>
 	///     Gets or sets the formatted coordinates text (e.g., "Pos: 123.45, 67.89, 10.11").
 	/// </summary>
-	[ObservableProperty]
-	private string _coordinatesText = "Pos: N/A";
+	[ObservableProperty] private string _coordinatesText = "Pos: N/A";
 
 	/// <summary>
 	///     Gets or sets the formatted map ID text (e.g., "Map: 1234").
 	/// </summary>
-	[ObservableProperty]
-	private string _mapText = "Map: N/A";
+	[ObservableProperty] private string _mapText = "Map: N/A";
 
 	/// <summary>
 	///     Gets or sets the formatted X coordinate text (e.g., "X: 123.45").
 	/// </summary>
-	[ObservableProperty]
-	private string _xText = "X: -";
+	[ObservableProperty] private string _xText = "X: -";
 
 	/// <summary>
 	///     Gets or sets the formatted Y coordinate text (e.g., "Y: 67.89").
 	/// </summary>
-	[ObservableProperty]
-	private string _yText = "Y: -";
+	[ObservableProperty] private string _yText = "Y: -";
 
 	/// <summary>
 	///     Gets or sets the formatted Z coordinate text (e.g., "Z: 10.11").
 	/// </summary>
-	[ObservableProperty]
-	private string _zText = "Z: -";
+	[ObservableProperty] private string _zText = "Z: -";
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="StatusBarViewModel" /> class.
@@ -184,7 +177,9 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 			// Update character name with AFK indicator if stale
 			CharacterName = mumble.ConnectionState == MumbleConnectionState.Stale
 				? string.IsNullOrWhiteSpace(mumble.CharacterName) ? "Unknown" : $"{mumble.CharacterName} (AFK)"
-				: string.IsNullOrWhiteSpace(mumble.CharacterName) ? "Unknown" : mumble.CharacterName;
+				: string.IsNullOrWhiteSpace(mumble.CharacterName)
+					? "Unknown"
+					: mumble.CharacterName;
 
 			MapText = $"Map: {mumble.CurrentMapId}";
 

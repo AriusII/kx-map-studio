@@ -1,4 +1,4 @@
-﻿﻿namespace KXMapStudio.Libs.Extensions;
+﻿namespace KXMapStudio.Libs.Extensions;
 
 /// <summary>
 ///     Provides extension methods for registering KXMapStudio.Libs dependencies into the DI container.
@@ -10,7 +10,8 @@
 public static class ServiceCollectionExtension
 {
 	/// <summary>
-	///     Registers all KXMapStudio.Libs dependencies (services and ViewModels) into the provided <see cref="IServiceCollection" />.
+	///     Registers all KXMapStudio.Libs dependencies (services and ViewModels) into the provided
+	///     <see cref="IServiceCollection" />.
 	/// </summary>
 	/// <param name="services">The service collection to configure.</param>
 	/// <returns>The same <see cref="IServiceCollection" /> instance for method chaining.</returns>
@@ -19,7 +20,7 @@ public static class ServiceCollectionExtension
 	{
 		public IServiceCollection AddLibsDependencies()
 		{
-			ArgumentNullException.ThrowIfNull(services, nameof(services));
+			ArgumentNullException.ThrowIfNull(services);
 
 			return services
 				.AddServices()

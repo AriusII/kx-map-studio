@@ -12,20 +12,17 @@ public sealed partial class WorkshopExplorerNodeModel : ObservableObject
 	/// <summary>
 	///     Gets or sets a value indicating whether the node is expanded in the tree view.
 	/// </summary>
-	[ObservableProperty]
-	private bool _isExpanded;
+	[ObservableProperty] private bool _isExpanded;
 
 	/// <summary>
 	///     Gets or sets a value indicating whether the node content has been modified.
 	/// </summary>
-	[ObservableProperty]
-	private bool _isModified;
+	[ObservableProperty] private bool _isModified;
 
 	/// <summary>
 	///     Gets or sets a value indicating whether the node is currently selected.
 	/// </summary>
-	[ObservableProperty]
-	private bool _isSelected;
+	[ObservableProperty] private bool _isSelected;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="WorkshopExplorerNodeModel" /> class.

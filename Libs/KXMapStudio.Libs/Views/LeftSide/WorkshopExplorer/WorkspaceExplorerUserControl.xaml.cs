@@ -1,4 +1,4 @@
-﻿﻿namespace KXMapStudio.Libs.Views.LeftSide.WorkshopExplorer;
+﻿namespace KXMapStudio.Libs.Views.LeftSide.WorkshopExplorer;
 
 /// <summary>
 ///     Interaction logic for WorkspaceExplorerUserControl.xaml

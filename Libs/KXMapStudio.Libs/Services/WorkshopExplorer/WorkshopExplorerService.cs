@@ -15,12 +15,12 @@ namespace KXMapStudio.Libs.Services.WorkshopExplorer;
 /// </remarks>
 public sealed class WorkshopExplorerService : IWorkshopExplorerService
 {
-	private readonly ILogger<WorkshopExplorerService> _logger;
-
 	/// <summary>
 	///     Collection of allowed file extensions for workshop files.
 	/// </summary>
 	private static readonly IReadOnlyCollection<string> AllowedWorkshopExtensions = [FileExtension.Json];
+
+	private readonly ILogger<WorkshopExplorerService> _logger;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="WorkshopExplorerService" /> class.
@@ -110,7 +110,10 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 	/// <param name="cancellationToken">A token to cancel the scan operation.</param>
 	/// <returns>A <see cref="Task{T}" /> representing the asynchronous operation, containing the root scan node.</returns>
 	/// <exception cref="ArgumentException">Thrown when <paramref name="directoryPath" /> is null or whitespace.</exception>
-	/// <exception cref="OperationCanceledException">Thrown when the operation is canceled via <paramref name="cancellationToken" />.</exception>
+	/// <exception cref="OperationCanceledException">
+	///     Thrown when the operation is canceled via
+	///     <paramref name="cancellationToken" />.
+	/// </exception>
 	public async Task<WorkshopExplorerScanNode> ScanDirectoryAsync(string directoryPath,
 		CancellationToken cancellationToken = default)
 	{
@@ -170,13 +173,11 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 
 				var extension = file.Extension.ToLowerInvariant();
 				if (AllowedWorkshopExtensions.Contains(extension))
-				{
 					children.Add(new WorkshopExplorerScanNode(
 						file.Name,
 						file.FullName,
-						IsDirectory: false,
-						Children: []));
-				}
+						false,
+						[]));
 			}
 		}
 		catch (UnauthorizedAccessException ex)
@@ -187,7 +188,7 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 		return new WorkshopExplorerScanNode(
 			dirInfo.Name,
 			dirInfo.FullName,
-			IsDirectory: true,
-			Children: children);
+			true,
+			children);
 	}
 }

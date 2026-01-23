@@ -27,47 +27,42 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private readonly ILogger<GridEditorViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
-	
+
 	private int _autoMarkerCounter;
 	private CancellationTokenSource? _cts;
 	private EditorDocumentReference? _currentDoc;
-	private int _suppressDirty;
 
 	/// <summary>
 	///     Gets or sets the document title displayed in the editor header.
 	/// </summary>
-	[ObservableProperty]
-	private string? _documentTitle;
+	[ObservableProperty] private string? _documentTitle;
 
 	/// <summary>
 	///     Gets or sets the file extension of the opened document (e.g., ".json").
 	/// </summary>
-	[ObservableProperty]
-	private string _fileExtension = string.Empty;
+	[ObservableProperty] private string _fileExtension = string.Empty;
 
 	/// <summary>
 	///     Gets or sets a value indicating whether the document has unsaved changes.
 	/// </summary>
-	[ObservableProperty]
-	private bool _isDirty;
+	[ObservableProperty] private bool _isDirty;
 
 	/// <summary>
 	///     Gets or sets a value indicating whether a document is currently loaded.
 	/// </summary>
-	[ObservableProperty]
-	private bool _isLoaded;
+	[ObservableProperty] private bool _isLoaded;
 
 	/// <summary>
 	///     Gets or sets the load time statistics text (e.g., "Loaded in 25 ms").
 	/// </summary>
-	[ObservableProperty]
-	private string _openedFileLoadTime = string.Empty;
+	[ObservableProperty] private string _openedFileLoadTime = string.Empty;
 
 	/// <summary>
 	///     Gets or sets the name of the currently opened file.
 	/// </summary>
-	[ObservableProperty]
-	private string? _openedFileName;
+	[ObservableProperty] private string? _openedFileName;
+
+	private int _suppressDirty;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="GridEditorViewModel" /> class.

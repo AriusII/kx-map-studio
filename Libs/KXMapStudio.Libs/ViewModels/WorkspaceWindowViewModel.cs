@@ -1,4 +1,4 @@
-﻿﻿namespace KXMapStudio.Libs.ViewModels;
+﻿namespace KXMapStudio.Libs.ViewModels;
 
 /// <summary>
 ///     Root ViewModel for the workspace window, coordinating left panel, grid editor, and status bar ViewModels.

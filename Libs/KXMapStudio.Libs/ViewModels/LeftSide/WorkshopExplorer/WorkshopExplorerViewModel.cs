@@ -20,37 +20,35 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 {
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
-	private readonly IFileFacade _fileFacade;
-	private readonly IFileStorageRepository _fileStorageRepository;
-	private readonly ILogger<WorkshopExplorerViewModel> _logger;
-	private readonly IWorkshopExplorerService _workshopExplorerService;
-
-	// File system monitoring
-	private readonly FileSystemWatcher _watcher;
-	private readonly Timer _refreshTimer;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
-	private CancellationTokenSource? _refreshCts;
+	private readonly IFileFacade _fileFacade;
+	private readonly IFileStorageRepository _fileStorageRepository;
+	private readonly ILogger<WorkshopExplorerViewModel> _logger;
+	private readonly Timer _refreshTimer;
+
+	// File system monitoring
+	private readonly FileSystemWatcher _watcher;
+	private readonly IWorkshopExplorerService _workshopExplorerService;
 
 	// Observable properties
 	/// <summary>
 	///     Gets or sets a value indicating whether a refresh operation is in progress.
 	/// </summary>
-	[ObservableProperty]
-	private bool _isRefreshing;
+	[ObservableProperty] private bool _isRefreshing;
 
 	/// <summary>
 	///     Gets or sets the last error message encountered during operations.
 	/// </summary>
-	[ObservableProperty]
-	private string? _lastErrorMessage;
+	[ObservableProperty] private string? _lastErrorMessage;
 
 	/// <summary>
 	///     Gets or sets the UTC timestamp of the last successful refresh.
 	/// </summary>
-	[ObservableProperty]
-	private DateTimeOffset? _lastRefreshUtc;
+	[ObservableProperty] private DateTimeOffset? _lastRefreshUtc;
+
+	private CancellationTokenSource? _refreshCts;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="WorkshopExplorerViewModel" /> class.
@@ -105,7 +103,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_refreshTimer = new Timer { AutoReset = false };
 		_refreshTimer.Elapsed += OnRefreshTimerElapsed;
 
-		_logger.LogInformation("WorkshopExplorerViewModel initialized. Data folder: {DataFolder}", 
+		_logger.LogInformation("WorkshopExplorerViewModel initialized. Data folder: {DataFolder}",
 			_workshopExplorerService.DataFolder);
 
 		// Initial load on UI thread
@@ -138,15 +136,6 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	public IRelayCommand<WorkshopExplorerNodeModel?> DeleteFileCommand { get; }
 
 	/// <summary>
-	///     Occurs when a file is selected in the explorer.
-	/// </summary>
-	/// <remarks>
-	///     This event is raised when a user selects a JSON file in the tree.
-	///     Subscribers (e.g., <see cref="LeftSidePanelViewModel" />) can handle this event to load the file.
-	/// </remarks>
-	public event EventHandler<EditorDocumentReference>? FileSelected;
-
-	/// <summary>
 	///     Disposes resources, unsubscribes from events, and cancels pending refresh operations.
 	/// </summary>
 	public void Dispose()
@@ -167,6 +156,15 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 
 		_logger.LogInformation("WorkshopExplorerViewModel disposed successfully.");
 	}
+
+	/// <summary>
+	///     Occurs when a file is selected in the explorer.
+	/// </summary>
+	/// <remarks>
+	///     This event is raised when a user selects a JSON file in the tree.
+	///     Subscribers (e.g., <see cref="LeftSidePanelViewModel" />) can handle this event to load the file.
+	/// </remarks>
+	public event EventHandler<EditorDocumentReference>? FileSelected;
 
 	/// <summary>
 	///     Handles filesystem change events (Created/Deleted/Changed).
@@ -255,7 +253,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 			var scanResult =
 				await _workshopExplorerService.ScanDirectoryAsync(_workshopExplorerService.DataFolder, token);
 
-			_logger.LogDebug("Scan completed. Building UI tree with {ChildCount} top-level nodes.", 
+			_logger.LogDebug("Scan completed. Building UI tree with {ChildCount} top-level nodes.",
 				scanResult.Children.Count);
 
 			// Build UI tree
@@ -314,10 +312,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	{
 		foreach (var node in nodes)
 		{
-			if (node is { IsExpanded: true, IsDirectory: true })
-			{
-				_expandedFolderPaths.Add(node.FullPath);
-			}
+			if (node is { IsExpanded: true, IsDirectory: true }) _expandedFolderPaths.Add(node.FullPath);
 
 			SaveExpandedState(node.Children);
 		}
@@ -331,10 +326,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	{
 		foreach (var node in nodes)
 		{
-			if (node.IsDirectory && _expandedFolderPaths.Contains(node.FullPath))
-			{
-				node.IsExpanded = true;
-			}
+			if (node.IsDirectory && _expandedFolderPaths.Contains(node.FullPath)) node.IsExpanded = true;
 
 			RestoreExpandedState(node.Children);
 		}
@@ -435,10 +427,10 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		// Create a new JSON file with an empty coordinates array
 		var fileName = Path.GetFileNameWithoutExtension(filePath);
 		await _fileFacade.CreateNewJsonAsync(
-			name: fileName,
-			author: null,
-			coordinates: [],
-			outputFilePath: filePath);
+			fileName,
+			null,
+			[],
+			filePath);
 	}
 
 	/// <summary>

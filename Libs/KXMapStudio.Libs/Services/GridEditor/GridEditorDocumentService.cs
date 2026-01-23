@@ -8,7 +8,8 @@ namespace KXMapStudio.Libs.Services.GridEditor;
 /// <param name="logger">The logger for diagnostic and error tracking.</param>
 /// <remarks>
 ///     <para>
-///         This service handles both workspace files (direct file system access) and archive entries (ZIP/TACO embedded files).
+///         This service handles both workspace files (direct file system access) and archive entries (ZIP/TACO embedded
+///         files).
 ///     </para>
 ///     <para>
 ///         Archive entries support read-only access with "Save As" export functionality.
@@ -24,7 +25,9 @@ public sealed class GridEditorDocumentService(
 	: IGridEditorDocumentService
 {
 	private readonly IJsonService _jsonService = jsonService ?? throw new ArgumentNullException(nameof(jsonService));
-	private readonly ILogger<GridEditorDocumentService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+	private readonly ILogger<GridEditorDocumentService> _logger =
+		logger ?? throw new ArgumentNullException(nameof(logger));
 
 	private readonly ISaveFileDialogService _saveFileDialogService = saveFileDialogService ??
 	                                                                 throw new ArgumentNullException(
@@ -268,7 +271,7 @@ public sealed class GridEditorDocumentService(
 		var name = Path.GetFileNameWithoutExtension(filePath);
 		var model = new JsonModel(
 			name,
-			Author: null,
+			null,
 			rows.Select(r => new CoordinatesModel(r.Name, r.X, r.Y, r.Z)).ToArray());
 
 		await jsonService.SaveAsync(model, filePath, cancellationToken).ConfigureAwait(false);

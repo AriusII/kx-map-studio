@@ -94,7 +94,8 @@ public sealed class SaveFileDialogService : ISaveFileDialogService
 	/// </summary>
 	/// <param name="fileName">The name of the file to delete (displayed in the confirmation message).</param>
 	/// <returns>
-	///     A <see cref="Task{T}" /> representing the operation, containing <see langword="true" /> if the user confirmed deletion;
+	///     A <see cref="Task{T}" /> representing the operation, containing <see langword="true" /> if the user confirmed
+	///     deletion;
 	///     otherwise, <see langword="false" />.
 	/// </returns>
 	/// <exception cref="ArgumentException">Thrown when <paramref name="fileName" /> is null or whitespace.</exception>
