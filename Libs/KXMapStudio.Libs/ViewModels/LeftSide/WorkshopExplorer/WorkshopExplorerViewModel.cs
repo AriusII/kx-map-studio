@@ -18,6 +18,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
 	private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly IGridEditorViewModel _gridEditor;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
@@ -56,6 +57,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <param name="dialogService">The dialog service for file creation and deletion confirmation.</param>
 	/// <param name="fileFacade">The facade for creating new JSON files.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
+	/// <param name="gridEditor">The grid editor ViewModel to check if files are currently open.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -66,6 +68,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ISaveFileDialogService dialogService,
 		IFileFacade fileFacade,
 		IDispatcherHelper dispatcherHelper,
+		IGridEditorViewModel gridEditor,
 		ILogger<WorkshopExplorerViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(workshopExplorerService);
@@ -73,6 +76,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ArgumentNullException.ThrowIfNull(dialogService);
 		ArgumentNullException.ThrowIfNull(fileFacade);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
+		ArgumentNullException.ThrowIfNull(gridEditor);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_workshopExplorerService = workshopExplorerService;
@@ -80,6 +84,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_dialogService = dialogService;
 		_fileFacade = fileFacade;
 		_dispatcherHelper = dispatcherHelper;
+		_gridEditor = gridEditor;
 		_logger = logger;
 
 		RootNodes = [];
@@ -457,6 +462,18 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		var fileName = Path.GetFileName(node.FullPath);
 
 		_logger.LogDebug("Initiating file deletion: {FileName} (Path: {FullPath})", fileName, node.FullPath);
+
+		// Check if the file is currently open in the editor
+		var isFileOpen = _gridEditor.IsLoaded && 
+		                 !string.IsNullOrEmpty(_gridEditor.OpenedFilePath) && 
+		                 string.Equals(_gridEditor.OpenedFilePath, node.FullPath, StringComparison.OrdinalIgnoreCase);
+
+		if (isFileOpen)
+		{
+			_logger.LogWarning("Cannot delete file that is currently open: {FileName}", fileName);
+			LastErrorMessage = $"Cannot delete '{fileName}' because it is currently open. Please close it first.";
+			return;
+		}
 
 		if (!await ConfirmFileDeletion(fileName))
 		{

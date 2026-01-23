@@ -63,6 +63,11 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	/// </summary>
 	[ObservableProperty] private string? _openedFileName;
 
+	/// <summary>
+	///     Gets or sets the full path of the currently opened file.
+	/// </summary>
+	[ObservableProperty] private string? _openedFilePath;
+
 	private int _suppressDirty;
 
 	/// <summary>
@@ -249,6 +254,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Set file metadata for UI display
 		OpenedFileName = doc.DisplayName;
+		OpenedFilePath = doc.FilePath;
 		FileExtension = doc.Extension.ToLowerInvariant();
 
 		IsLoaded = true;
