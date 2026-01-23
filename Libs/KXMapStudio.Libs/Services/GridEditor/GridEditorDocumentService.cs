@@ -44,7 +44,7 @@ public sealed class GridEditorDocumentService(
 	/// </returns>
 	/// <exception cref="ArgumentNullException">Thrown when <paramref name="doc" /> is <see langword="null" />.</exception>
 	/// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
-	public async Task<(IReadOnlyList<GridEditorRowViewModel> rows, byte[] originalBytes)> LoadAsync(
+	public async Task<(IReadOnlyList<GridRowData> rows, byte[] originalBytes)> LoadAsync(
 		EditorDocumentReference doc,
 		CancellationToken cancellationToken = default)
 	{
@@ -79,7 +79,7 @@ public sealed class GridEditorDocumentService(
 	/// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
 	public async Task SaveAsync(
 		EditorDocumentReference doc,
-		IReadOnlyList<GridEditorRowViewModel> rows,
+		IReadOnlyList<GridRowData> rows,
 		CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(doc);
@@ -121,7 +121,7 @@ public sealed class GridEditorDocumentService(
 	/// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
 	public async Task SaveAsAsync(
 		EditorDocumentReference doc,
-		IReadOnlyList<GridEditorRowViewModel> rows,
+		IReadOnlyList<GridRowData> rows,
 		CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(doc);
@@ -163,7 +163,7 @@ public sealed class GridEditorDocumentService(
 	/// <param name="doc">The document reference.</param>
 	/// <param name="cancellationToken">A token to cancel the operation.</param>
 	/// <returns>A tuple containing the loaded rows and original file bytes.</returns>
-	private async Task<(IReadOnlyList<GridEditorRowViewModel> rows, byte[] originalBytes)> LoadJsonAsync(
+	private async Task<(IReadOnlyList<GridRowData> rows, byte[] originalBytes)> LoadJsonAsync(
 		EditorDocumentReference doc,
 		CancellationToken cancellationToken)
 	{
@@ -188,17 +188,9 @@ public sealed class GridEditorDocumentService(
 
 			var model = await _jsonService.LoadAsync(doc.FilePath!, cancellationToken).ConfigureAwait(false);
 
-			var rows = new List<GridEditorRowViewModel>(model.Coordinates.Length);
-			var id = 1;
+			var rows = new List<GridRowData>(model.Coordinates.Length);
 			foreach (var c in model.Coordinates)
-				rows.Add(new GridEditorRowViewModel
-				{
-					Id = id++,
-					Name = c.Name,
-					X = c.X,
-					Y = c.Y,
-					Z = c.Z
-				});
+				rows.Add(new GridRowData(c.Name, c.X, c.Y, c.Z));
 
 			_logger.LogDebug("Parsed {RowCount} coordinates from workspace file.", rows.Count);
 			return (rows, bytes);
@@ -214,10 +206,9 @@ public sealed class GridEditorDocumentService(
 				NumberHandling = JsonNumberHandling.AllowReadingFromString
 			}) ?? [];
 
-		var archiveRows = new List<GridEditorRowViewModel>(fallback.Length);
-		var archiveId = 1;
+		var archiveRows = new List<GridRowData>(fallback.Length);
 		foreach (var c in fallback)
-			archiveRows.Add(new GridEditorRowViewModel { Id = archiveId++, Name = c.Name, X = c.X, Y = c.Y, Z = c.Z });
+			archiveRows.Add(new GridRowData(c.Name, c.X, c.Y, c.Z));
 
 		_logger.LogDebug("Parsed {RowCount} coordinates from archive entry.", archiveRows.Count);
 		return (archiveRows, bytes);
@@ -257,7 +248,7 @@ public sealed class GridEditorDocumentService(
 	/// <param name="logger">The logger instance.</param>
 	/// <param name="cancellationToken">A token to cancel the operation.</param>
 	private static async Task SaveJsonToPathAsync(
-		IReadOnlyList<GridEditorRowViewModel> rows,
+		IReadOnlyList<GridRowData> rows,
 		string filePath,
 		IJsonService jsonService,
 		ILogger logger,
