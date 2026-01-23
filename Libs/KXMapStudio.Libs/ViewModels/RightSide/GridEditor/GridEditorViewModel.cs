@@ -31,6 +31,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private int _autoMarkerCounter;
 	private CancellationTokenSource? _cts;
 	private EditorDocumentReference? _currentDoc;
+	private IReadOnlyList<GridEditorRowViewModel>? _lastKnownState;
 
 	/// <summary>
 	///     Gets or sets the document title displayed in the editor header.
@@ -275,6 +276,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		// Set the original state baseline for intelligent dirty tracking
 		_state.SetOriginalState(SnapshotRows());
 
+		// Initialize last known state for property change tracking
+		_lastKnownState = SnapshotRows();
+
 		SetDirty(false);
 		NotifyCommandStateChanged();
 	}
@@ -375,8 +379,19 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (e.PropertyName is nameof(GridEditorRowViewModel.Id))
 			return;
 
+		// Push the last known state (before this change) to the undo stack
+		// This enables undo/redo for individual cell edits
+		if (_lastKnownState is not null)
+		{
+			_state.PushSnapshot(_lastKnownState);
+			_logger.LogTrace("Pushed last known state before property change: {PropertyName}", e.PropertyName);
+		}
+
+		// Capture current state as the new "last known state"
+		_lastKnownState = SnapshotRows();
+
 		// Smart dirty tracking: check if current state matches original after property change
-		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
+		var isAtOriginal = _state.IsAtOriginalState(_lastKnownState);
 		SetDirty(!isAtOriginal);
 	}
 
@@ -414,8 +429,11 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		var state = _state.Undo(current);
 		ReloadRows(state);
 
+		// Update last known state after undo
+		_lastKnownState = SnapshotRows();
+
 		// Smart dirty tracking: check if we're back to the original state
-		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
+		var isAtOriginal = _state.IsAtOriginalState(_lastKnownState);
 		SetDirty(!isAtOriginal);
 
 		_logger.LogDebug("Undo completed. New row count: {RowCount}, IsAtOriginal: {IsAtOriginal}",
@@ -433,8 +451,11 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		var state = _state.Redo(current);
 		ReloadRows(state);
 
+		// Update last known state after redo
+		_lastKnownState = SnapshotRows();
+
 		// Smart dirty tracking: check if we're back to the original state
-		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
+		var isAtOriginal = _state.IsAtOriginalState(_lastKnownState);
 		SetDirty(!isAtOriginal);
 
 		_logger.LogDebug("Redo completed. New row count: {RowCount}, IsAtOriginal: {IsAtOriginal}",
@@ -461,6 +482,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Update the original state baseline to the current state (file is now clean)
 		_state.SetOriginalState(SnapshotRows());
+
+		// Update last known state after save
+		_lastKnownState = SnapshotRows();
 
 		SetDirty(false);
 		NotifyCommandStateChanged();
@@ -535,6 +559,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		PushUndoSnapshot();
 		Rows.Move(index, index - 1);
 		ReindexIds();
+		_lastKnownState = SnapshotRows();
 		SetDirty(true);
 		MoveUpCommand.NotifyCanExecuteChanged();
 		MoveDownCommand.NotifyCanExecuteChanged();
@@ -552,6 +577,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		PushUndoSnapshot();
 		Rows.Move(index, index + 1);
 		ReindexIds();
+		_lastKnownState = SnapshotRows();
 		SetDirty(true);
 		MoveUpCommand.NotifyCanExecuteChanged();
 		MoveDownCommand.NotifyCanExecuteChanged();
@@ -586,6 +612,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 			_logger.LogInformation("Row added successfully. New row count: {RowCount}", Rows.Count);
 		}
 
+		// Update last known state after structural change
+		_lastKnownState = SnapshotRows();
+
 		SetDirty(true);
 	}
 
@@ -608,6 +637,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		Rows.Remove(row);
 
 		ReindexIds();
+		_lastKnownState = SnapshotRows();
 		SetDirty(true);
 		NotifyCommandStateChanged();
 
@@ -664,6 +694,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 				row.Name, Rows.Count);
 		}
 
+		_lastKnownState = SnapshotRows();
 		SetDirty(true);
 
 		// Show success notification
@@ -706,6 +737,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		}
 
 		ReindexIds();
+		_lastKnownState = SnapshotRows();
 		SetDirty(true);
 		NotifyCommandStateChanged();
 	}
@@ -741,6 +773,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		}
 
 		ReindexIds();
+		_lastKnownState = SnapshotRows();
 		SetDirty(true);
 		NotifyCommandStateChanged();
 	}

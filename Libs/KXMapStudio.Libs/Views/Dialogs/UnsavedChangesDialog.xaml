@@ -20,7 +20,7 @@
 		<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
 			<materialDesign:PackIcon Kind="AlertCircle"
 			                         Width="32" Height="32"
-			                         Foreground="{StaticResource MaterialDesign.Brush.Warning}"
+			                         Foreground="{StaticResource Kx.Brush.Status.Warning}"
 			                         VerticalAlignment="Top"
 			                         Margin="0,0,12,0" />
 			<StackPanel VerticalAlignment="Center" MaxWidth="350">
