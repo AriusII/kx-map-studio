@@ -387,9 +387,24 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Push the last known state (before this change) to the undo stack
 		// This enables undo/redo for individual cell edits
-		// Note: This creates one undo snapshot per property change (per-keystroke granularity).
-		// This is intentional to match the requirement that "each modification should trigger a snapshot".
-		// Future enhancement: Consider debouncing for rapid sequential edits to reduce memory usage.
+		// 
+		// Design Decision: Per-keystroke undo granularity
+		// -----------------------------------------------
+		// This implementation creates one undo snapshot per property change, which means
+		// per-keystroke granularity for text edits. This is intentional based on requirements:
+		// "Toute modification doit déclencher un snapshot" (Every modification must trigger a snapshot)
+		// 
+		// In a data grid context (vs. a text editor), users typically edit individual cells
+		// and move between fields, making per-field-edit granularity more appropriate than
+		// per-character. Each property change represents a complete field edit in this context.
+		// 
+		// The StateManagementService has a capacity limit (default: 20 snapshots) to prevent
+		// excessive memory usage. For most use cases, this provides a good balance.
+		//
+		// Future Enhancement: If performance issues arise with very large datasets or rapid
+		// sequential edits, consider implementing:
+		// - Time-based debouncing (e.g., batch changes within 500ms)
+		// - Edit session tracking (capture state on focus gained, push on focus lost)
 		if (_lastKnownState is not null)
 		{
 			_state.PushSnapshot(_lastKnownState);

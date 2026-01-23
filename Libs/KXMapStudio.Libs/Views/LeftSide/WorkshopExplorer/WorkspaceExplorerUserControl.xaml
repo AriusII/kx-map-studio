@@ -88,29 +88,27 @@
 				<Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
 					<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
 					<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-					<!-- Context Menu for Files -->
-					<Setter Property="ContextMenu">
-						<Setter.Value>
-							<ContextMenu>
-								<MenuItem Header="Delete"
-								          Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-								          CommandParameter="{Binding}">
-									<MenuItem.Icon>
-										<materialDesign:PackIcon Kind="DeleteOutline" />
-									</MenuItem.Icon>
-								</MenuItem>
-							</ContextMenu>
-						</Setter.Value>
-					</Setter>
 					<Style.Triggers>
 						<!-- Visual indicator for modified files -->
 						<DataTrigger Binding="{Binding IsModified}" Value="True">
 							<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Status.Warning}" />
 							<Setter Property="FontStyle" Value="Italic" />
 						</DataTrigger>
-						<!-- Disable context menu for directories -->
-						<DataTrigger Binding="{Binding IsDirectory}" Value="True">
-							<Setter Property="ContextMenu" Value="{x:Null}" />
+						<!-- Context Menu for Files only (not directories) -->
+						<DataTrigger Binding="{Binding IsDirectory}" Value="False">
+							<Setter Property="ContextMenu">
+								<Setter.Value>
+									<ContextMenu>
+										<MenuItem Header="Delete"
+										          Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+										          CommandParameter="{Binding}">
+											<MenuItem.Icon>
+												<materialDesign:PackIcon Kind="DeleteOutline" />
+											</MenuItem.Icon>
+										</MenuItem>
+									</ContextMenu>
+								</Setter.Value>
+							</Setter>
 						</DataTrigger>
 					</Style.Triggers>
 				</Style>
