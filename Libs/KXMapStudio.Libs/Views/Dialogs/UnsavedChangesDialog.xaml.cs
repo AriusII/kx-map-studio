@@ -1,5 +1,3 @@
-using KXMapStudio.Libs.Abstractions.Services.Dialogs;
-
 namespace KXMapStudio.Libs.Views.Dialogs;
 
 /// <summary>

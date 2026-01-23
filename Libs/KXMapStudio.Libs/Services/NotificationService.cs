@@ -1,5 +1,3 @@
-using MaterialDesignThemes.Wpf;
-
 namespace KXMapStudio.Libs.Services;
 
 /// <summary>
