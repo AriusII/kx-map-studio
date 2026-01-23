@@ -184,6 +184,7 @@ public sealed class GlobalHotkeyService : IGlobalHotkeyService
 		}
 
 		_disposed = true;
+		GC.SuppressFinalize(this);
 		_logger.LogInformation("GlobalHotkeyService disposed successfully.");
 	}
 

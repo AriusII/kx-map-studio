@@ -16,9 +16,15 @@ namespace KXMapStudio.Libs.Services.WorkshopExplorer;
 public sealed class WorkshopExplorerService : IWorkshopExplorerService
 {
 	/// <summary>
-	///     Collection of allowed file extensions for workshop files.
+	///     HashSet of allowed file extensions for workshop files (optimized for O(1) lookups).
 	/// </summary>
-	private static readonly IReadOnlyCollection<string> AllowedWorkshopExtensions = [FileExtension.Json];
+	/// <remarks>
+	///     Using HashSet instead of IReadOnlyCollection for better performance with StringComparer.OrdinalIgnoreCase.
+	/// </remarks>
+	private static readonly HashSet<string> AllowedWorkshopExtensions = new(StringComparer.OrdinalIgnoreCase)
+	{
+		FileExtension.Json
+	};
 
 	private readonly ILogger<WorkshopExplorerService> _logger;
 
@@ -171,8 +177,8 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				var extension = file.Extension.ToLowerInvariant();
-				if (AllowedWorkshopExtensions.Contains(extension))
+				// HashSet with OrdinalIgnoreCase comparer handles case-insensitive lookup efficiently
+				if (AllowedWorkshopExtensions.Contains(file.Extension))
 					children.Add(new WorkshopExplorerScanNode(
 						file.Name,
 						file.FullName,

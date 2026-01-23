@@ -97,19 +97,7 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	[RelayCommand]
 	private void OpenWebsite()
 	{
-		try
-		{
-			_logger.LogInformation("Opening KXTools website: {Url}", Constants.Settings.KxToolsWebsiteUrl);
-			Process.Start(new ProcessStartInfo
-			{
-				FileName = Constants.Settings.KxToolsWebsiteUrl,
-				UseShellExecute = true
-			});
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Failed to open KXTools website: {Url}", Constants.Settings.KxToolsWebsiteUrl);
-		}
+		OpenUrl(Constants.Settings.KxToolsWebsiteUrl, "KXTools website");
 	}
 
 	/// <summary>
@@ -118,19 +106,7 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	[RelayCommand]
 	private void OpenDiscord()
 	{
-		try
-		{
-			_logger.LogInformation("Opening Discord invite: {Url}", Constants.Settings.DiscordInviteUrl);
-			Process.Start(new ProcessStartInfo
-			{
-				FileName = Constants.Settings.DiscordInviteUrl,
-				UseShellExecute = true
-			});
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Failed to open Discord invite: {Url}", Constants.Settings.DiscordInviteUrl);
-		}
+		OpenUrl(Constants.Settings.DiscordInviteUrl, "Discord invite");
 	}
 
 	/// <summary>
@@ -139,18 +115,28 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	[RelayCommand]
 	private void OpenGitHub()
 	{
+		OpenUrl(Constants.Settings.GitHubRepoUrl, "GitHub repository");
+	}
+
+	/// <summary>
+	///     Opens a URL in the default browser with error handling and logging.
+	/// </summary>
+	/// <param name="url">The URL to open.</param>
+	/// <param name="description">A human-readable description for logging (e.g., "website", "Discord invite").</param>
+	private void OpenUrl(string url, string description)
+	{
 		try
 		{
-			_logger.LogInformation("Opening GitHub repository: {Url}", Constants.Settings.GitHubRepoUrl);
+			_logger.LogInformation("Opening {Description}: {Url}", description, url);
 			Process.Start(new ProcessStartInfo
 			{
-				FileName = Constants.Settings.GitHubRepoUrl,
+				FileName = url,
 				UseShellExecute = true
 			});
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError(ex, "Failed to open GitHub repository: {Url}", Constants.Settings.GitHubRepoUrl);
+			_logger.LogError(ex, "Failed to open {Description}: {Url}", description, url);
 		}
 	}
 
