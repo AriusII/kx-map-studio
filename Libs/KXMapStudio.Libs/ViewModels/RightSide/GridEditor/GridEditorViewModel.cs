@@ -2,35 +2,102 @@ using KXMapStudio.Core.Models.Mumble;
 
 namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 
+/// <summary>
+///     ViewModel for the grid editor, managing coordinate editing, undo/redo, and Mumble integration.
+/// </summary>
+/// <remarks>
+///     <para>
+///         This ViewModel is the central orchestrator for coordinate grid editing, providing:
+///         <list type="bullet">
+///             <item>Document loading/saving (JSON files and archive entries)</item>
+///             <item>Undo/redo state management with intelligent dirty tracking</item>
+///             <item>Row manipulation commands (Add, Delete, Move Up/Down)</item>
+///             <item>Mumble integration for real-time marker addition via F9 hotkey</item>
+///         </list>
+///     </para>
+///     <para>
+///         Implements <see cref="IDisposable" /> to properly unsubscribe from service events
+///         and dispose cancellation tokens.
+///     </para>
+/// </remarks>
 public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel
 {
 	private readonly IGridEditorDocumentService _documentService;
 	private readonly IGlobalHotkeyService _hotkeyService;
+	private readonly ILogger<GridEditorViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
+	
 	private int _autoMarkerCounter;
-
 	private CancellationTokenSource? _cts;
 	private EditorDocumentReference? _currentDoc;
-
-	[ObservableProperty] private string? _documentTitle;
-	[ObservableProperty] private string _fileExtension = string.Empty;
-	[ObservableProperty] private bool _isDirty;
-	[ObservableProperty] private bool _isLoaded;
-	[ObservableProperty] private string _openedFileLoadTime = string.Empty;
-	[ObservableProperty] private string? _openedFileName;
 	private int _suppressDirty;
 
+	/// <summary>
+	///     Gets or sets the document title displayed in the editor header.
+	/// </summary>
+	[ObservableProperty]
+	private string? _documentTitle;
+
+	/// <summary>
+	///     Gets or sets the file extension of the opened document (e.g., ".json").
+	/// </summary>
+	[ObservableProperty]
+	private string _fileExtension = string.Empty;
+
+	/// <summary>
+	///     Gets or sets a value indicating whether the document has unsaved changes.
+	/// </summary>
+	[ObservableProperty]
+	private bool _isDirty;
+
+	/// <summary>
+	///     Gets or sets a value indicating whether a document is currently loaded.
+	/// </summary>
+	[ObservableProperty]
+	private bool _isLoaded;
+
+	/// <summary>
+	///     Gets or sets the load time statistics text (e.g., "Loaded in 25 ms").
+	/// </summary>
+	[ObservableProperty]
+	private string _openedFileLoadTime = string.Empty;
+
+	/// <summary>
+	///     Gets or sets the name of the currently opened file.
+	/// </summary>
+	[ObservableProperty]
+	private string? _openedFileName;
+
+	/// <summary>
+	///     Initializes a new instance of the <see cref="GridEditorViewModel" /> class.
+	/// </summary>
+	/// <param name="documentService">The document service for loading and saving files.</param>
+	/// <param name="state">The state management service for undo/redo operations.</param>
+	/// <param name="mumbleService">The Mumble service for Guild Wars 2 integration.</param>
+	/// <param name="hotkeyService">The hotkey service for F9 marker addition.</param>
+	/// <param name="logger">The logger for diagnostic and error tracking.</param>
+	/// <exception cref="ArgumentNullException">
+	///     Thrown when any constructor parameter is <see langword="null" />.
+	/// </exception>
 	public GridEditorViewModel(
 		IGridEditorDocumentService documentService,
 		IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> state,
 		IMumbleService mumbleService,
-		IGlobalHotkeyService hotkeyService)
+		IGlobalHotkeyService hotkeyService,
+		ILogger<GridEditorViewModel> logger)
 	{
-		_documentService = documentService ?? throw new ArgumentNullException(nameof(documentService));
-		_state = state ?? throw new ArgumentNullException(nameof(state));
-		_mumbleService = mumbleService ?? throw new ArgumentNullException(nameof(mumbleService));
-		_hotkeyService = hotkeyService ?? throw new ArgumentNullException(nameof(hotkeyService));
+		ArgumentNullException.ThrowIfNull(documentService);
+		ArgumentNullException.ThrowIfNull(state);
+		ArgumentNullException.ThrowIfNull(mumbleService);
+		ArgumentNullException.ThrowIfNull(hotkeyService);
+		ArgumentNullException.ThrowIfNull(logger);
+
+		_documentService = documentService;
+		_state = state;
+		_mumbleService = mumbleService;
+		_hotkeyService = hotkeyService;
+		_logger = logger;
 
 		Rows = [];
 
@@ -47,36 +114,110 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		_state.StateChanged += StateOnStateChanged;
 		_mumbleService.MumbleUpdated += MumbleServiceOnMumbleUpdated;
 		_hotkeyService.AddMarkerFromMumblePressed += (_, _) => AddMarkerFromMumbleCommand.Execute(null);
+
+		_logger.LogInformation("GridEditorViewModel initialized with state capacity: {Capacity}", _state.Capacity);
 	}
 
 	private bool CanAddMarkerFromMumble =>
 		IsLoaded && _mumbleService.Current.ConnectionState == MumbleConnectionState.Connected;
 
+	/// <summary>
+	///     Gets the observable collection of grid rows for UI binding.
+	/// </summary>
 	public ObservableCollection<GridEditorRowViewModel> Rows { get; }
 
+	/// <summary>
+	///     Gets a value indicating whether an undo operation is available.
+	/// </summary>
 	public bool CanUndo => _state.CanUndo;
+
+	/// <summary>
+	///     Gets a value indicating whether a redo operation is available.
+	/// </summary>
 	public bool CanRedo => _state.CanRedo;
 
+	/// <summary>
+	///     Gets a value indicating whether the document can be saved.
+	/// </summary>
+	/// <remarks>
+	///     Save is only enabled for workspace JSON files with unsaved changes.
+	///     Archive entries require "Save As" to export.
+	/// </remarks>
 	public bool CanSave => IsLoaded && IsDirty && _currentDoc is { IsWorkspaceFile: true }
 	                       && string.Equals(_currentDoc.Extension, ".json", StringComparison.OrdinalIgnoreCase);
 
+	/// <summary>
+	///     Gets a value indicating whether the document can be saved to a new location.
+	/// </summary>
 	public bool CanSaveAs => IsLoaded;
 
+	/// <summary>
+	///     Gets the command to save the document to its original location.
+	/// </summary>
 	public IAsyncRelayCommand SaveCommand { get; }
+
+	/// <summary>
+	///     Gets the command to save the document to a new location (Save As).
+	/// </summary>
 	public IAsyncRelayCommand SaveAsCommand { get; }
+
+	/// <summary>
+	///     Gets the command to undo the last edit operation.
+	/// </summary>
 	public IRelayCommand UndoCommand { get; }
+
+	/// <summary>
+	///     Gets the command to redo a previously undone operation.
+	/// </summary>
 	public IRelayCommand RedoCommand { get; }
+
+	/// <summary>
+	///     Gets the command to move a row up in the grid.
+	/// </summary>
 	public IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
+
+	/// <summary>
+	///     Gets the command to move a row down in the grid.
+	/// </summary>
 	public IRelayCommand<GridEditorRowViewModel?> MoveDownCommand { get; }
+
+	/// <summary>
+	///     Gets the command to add a new empty row to the grid.
+	/// </summary>
 	public IRelayCommand AddRowCommand { get; }
+
+	/// <summary>
+	///     Gets the command to delete a selected row from the grid.
+	/// </summary>
 	public IRelayCommand<GridEditorRowViewModel?> DeleteRowCommand { get; }
+
+	/// <summary>
+	///     Gets the command to add a marker from the current Mumble position.
+	/// </summary>
 	public IRelayCommand AddMarkerFromMumbleCommand { get; }
 
+	/// <summary>
+	///     Occurs when a new row is added to the grid (via Add Row or Add from Mumble).
+	/// </summary>
+	/// <remarks>
+	///     Subscribers can use this event to automatically focus the newly added row in the UI.
+	/// </remarks>
 	public event EventHandler<GridEditorRowViewModel>? RowAdded;
 
+	/// <summary>
+	///     Asynchronously loads a document into the grid editor.
+	/// </summary>
+	/// <param name="doc">The document reference to load.</param>
+	/// <param name="cancellationToken">A token to cancel the load operation.</param>
+	/// <returns>A task representing the asynchronous operation.</returns>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="doc" /> is <see langword="null" />.</exception>
+	/// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
 	public async Task LoadAsync(EditorDocumentReference doc, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(doc);
+
+		_logger.LogInformation("Loading document: {DisplayName} (Extension: {Extension}, IsArchive: {IsArchive})",
+			doc.DisplayName, doc.Extension, doc.IsArchiveEntry);
 
 		_cts?.Cancel();
 		_cts?.Dispose();
@@ -109,6 +250,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		OpenedFileLoadTime = $"Loaded in {sw.ElapsedMilliseconds} ms";
 
+		_logger.LogInformation("Document loaded: {DisplayName}. Rows: {RowCount}, Load time: {LoadTimeMs}ms",
+			doc.DisplayName, rows.Count, sw.ElapsedMilliseconds);
+
 		ReloadRows(rows);
 
 		// Set the original state baseline for intelligent dirty tracking
@@ -118,8 +262,13 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		NotifyCommandStateChanged();
 	}
 
+	/// <summary>
+	///     Disposes resources, unsubscribes from events, and cancels pending operations.
+	/// </summary>
 	public void Dispose()
 	{
+		_logger.LogDebug("Disposing GridEditorViewModel.");
+
 		_state.StateChanged -= StateOnStateChanged;
 		_mumbleService.MumbleUpdated -= MumbleServiceOnMumbleUpdated;
 
@@ -129,6 +278,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		foreach (var row in Rows)
 			row.PropertyChanged -= RowOnPropertyChanged;
+
+		_logger.LogInformation("GridEditorViewModel disposed successfully.");
 	}
 
 	private void StateOnStateChanged(object? sender, EventArgs e)
@@ -213,6 +364,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (!CanUndo)
 			return;
 
+		_logger.LogDebug("Performing undo. Current row count: {RowCount}", Rows.Count);
+
 		var current = SnapshotRows();
 		var state = _state.Undo(current);
 		ReloadRows(state);
@@ -220,12 +373,17 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		// Smart dirty tracking: check if we're back to the original state
 		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
 		SetDirty(!isAtOriginal);
+
+		_logger.LogDebug("Undo completed. New row count: {RowCount}, IsAtOriginal: {IsAtOriginal}",
+			Rows.Count, isAtOriginal);
 	}
 
 	private void Redo()
 	{
 		if (!CanRedo)
 			return;
+
+		_logger.LogDebug("Performing redo. Current row count: {RowCount}", Rows.Count);
 
 		var current = SnapshotRows();
 		var state = _state.Redo(current);
@@ -234,6 +392,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		// Smart dirty tracking: check if we're back to the original state
 		var isAtOriginal = _state.IsAtOriginalState(SnapshotRows());
 		SetDirty(!isAtOriginal);
+
+		_logger.LogDebug("Redo completed. New row count: {RowCount}, IsAtOriginal: {IsAtOriginal}",
+			Rows.Count, isAtOriginal);
 	}
 
 	private async Task SaveAsync()
@@ -244,8 +405,12 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (!CanSave)
 			return;
 
+		_logger.LogInformation("Saving document: {DisplayName} ({RowCount} rows)", _currentDoc.DisplayName, Rows.Count);
+
 		// Important: do NOT push an undo snapshot for Save. State history is about edits.
 		await _documentService.SaveAsync(_currentDoc, Rows.ToList(), _cts?.Token ?? CancellationToken.None);
+
+		_logger.LogInformation("Document saved successfully: {DisplayName}", _currentDoc.DisplayName);
 
 		// Update the original state baseline to the current state (file is now clean)
 		_state.SetOriginalState(SnapshotRows());
@@ -259,8 +424,12 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (_currentDoc is null)
 			return;
 
+		_logger.LogInformation("Initiating Save As for document: {DisplayName}", _currentDoc.DisplayName);
+
 		await _documentService.SaveAsAsync(_currentDoc, Rows.ToList(), _cts?.Token ?? CancellationToken.None);
 		NotifyCommandStateChanged();
+
+		_logger.LogDebug("Save As completed for document: {DisplayName}", _currentDoc.DisplayName);
 	}
 
 	private void SetDirty(bool value)
@@ -340,6 +509,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (!IsLoaded)
 			return;
 
+		_logger.LogDebug("Adding new row. Current row count: {RowCount}", Rows.Count);
+
 		PushUndoSnapshot();
 
 		Interlocked.Exchange(ref _suppressDirty, 1);
@@ -358,6 +529,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 			// Notify that a row was added for UI focus
 			RowAdded?.Invoke(this, row);
+
+			_logger.LogInformation("Row added successfully. New row count: {RowCount}", Rows.Count);
 		}
 		finally
 		{
@@ -377,6 +550,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (row is null || !Rows.Contains(row))
 			return;
 
+		_logger.LogDebug("Deleting row: Id={Id}, Name={Name}. Current count: {RowCount}",
+			row.Id, row.Name, Rows.Count);
+
 		PushUndoSnapshot();
 
 		row.PropertyChanged -= RowOnPropertyChanged;
@@ -385,6 +561,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		ReindexIds();
 		SetDirty(true);
 		NotifyCommandStateChanged();
+
+		_logger.LogInformation("Row deleted successfully. New row count: {RowCount}", Rows.Count);
 	}
 
 	private void ReindexIds()
@@ -408,6 +586,13 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		var mumbleState = _mumbleService.Current;
 
+		_logger.LogInformation(
+			"Adding marker from Mumble: Map={MapId}, Position=({X:0.##}, {Y:0.##}, {Z:0.##})",
+			mumbleState.CurrentMapId,
+			mumbleState.PlayerPosition.X,
+			mumbleState.PlayerPosition.Y,
+			mumbleState.PlayerPosition.Z);
+
 		PushUndoSnapshot();
 
 		Interlocked.Exchange(ref _suppressDirty, 1);
@@ -429,6 +614,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 			// Notify that a row was added for UI focus
 			RowAdded?.Invoke(this, row);
+
+			_logger.LogInformation("Marker added from Mumble: Name={Name}, New row count: {RowCount}",
+				row.Name, Rows.Count);
 		}
 		finally
 		{

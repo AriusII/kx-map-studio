@@ -2,75 +2,176 @@ using KXMapStudio.Core.Models.Mumble;
 
 namespace KXMapStudio.Libs.ViewModels.BottomSide.StatusBar;
 
+/// <summary>
+///     ViewModel for the status bar, displaying Mumble connection state, player position, and external links.
+/// </summary>
+/// <remarks>
+///     <para>
+///         This ViewModel subscribes to <see cref="IMumbleService.MumbleUpdated" /> events and updates
+///         UI-bound properties to reflect real-time player state from Guild Wars 2 via Mumble Link.
+///     </para>
+///     <para>
+///         Commands provide quick access to external resources (website, Discord, GitHub).
+///         Implements <see cref="IDisposable" /> to properly unsubscribe from Mumble events on disposal.
+///     </para>
+/// </remarks>
 public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarViewModel, IDisposable
 {
+	private readonly ILogger<StatusBarViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
 
-	[ObservableProperty] private string _characterName = "Not connected";
-	[ObservableProperty] private MumbleConnectionState _connectionState = MumbleConnectionState.Disconnected;
-	[ObservableProperty] private string _coordinatesText = "Pos: N/A";
-	[ObservableProperty] private string _mapText = "Map: N/A";
-	[ObservableProperty] private string _xText = "X: -";
-	[ObservableProperty] private string _yText = "Y: -";
-	[ObservableProperty] private string _zText = "Z: -";
+	/// <summary>
+	///     Gets or sets the character name displayed in the status bar.
+	/// </summary>
+	[ObservableProperty]
+	private string _characterName = "Not connected";
 
-	public StatusBarViewModel(IMumbleService mumbleService)
+	/// <summary>
+	///     Gets or sets the current Mumble connection state.
+	/// </summary>
+	[ObservableProperty]
+	private MumbleConnectionState _connectionState = MumbleConnectionState.Disconnected;
+
+	/// <summary>
+	///     Gets or sets the formatted coordinates text (e.g., "Pos: 123.45, 67.89, 10.11").
+	/// </summary>
+	[ObservableProperty]
+	private string _coordinatesText = "Pos: N/A";
+
+	/// <summary>
+	///     Gets or sets the formatted map ID text (e.g., "Map: 1234").
+	/// </summary>
+	[ObservableProperty]
+	private string _mapText = "Map: N/A";
+
+	/// <summary>
+	///     Gets or sets the formatted X coordinate text (e.g., "X: 123.45").
+	/// </summary>
+	[ObservableProperty]
+	private string _xText = "X: -";
+
+	/// <summary>
+	///     Gets or sets the formatted Y coordinate text (e.g., "Y: 67.89").
+	/// </summary>
+	[ObservableProperty]
+	private string _yText = "Y: -";
+
+	/// <summary>
+	///     Gets or sets the formatted Z coordinate text (e.g., "Z: 10.11").
+	/// </summary>
+	[ObservableProperty]
+	private string _zText = "Z: -";
+
+	/// <summary>
+	///     Initializes a new instance of the <see cref="StatusBarViewModel" /> class.
+	/// </summary>
+	/// <param name="mumbleService">The Mumble service providing Guild Wars 2 player state.</param>
+	/// <param name="logger">The logger for diagnostic and error tracking.</param>
+	/// <exception cref="ArgumentNullException">
+	///     Thrown when <paramref name="mumbleService" /> or <paramref name="logger" /> is <see langword="null" />.
+	/// </exception>
+	public StatusBarViewModel(IMumbleService mumbleService, ILogger<StatusBarViewModel> logger)
 	{
+		ArgumentNullException.ThrowIfNull(mumbleService);
+		ArgumentNullException.ThrowIfNull(logger);
+
 		_mumbleService = mumbleService;
+		_logger = logger;
+
 		_mumbleService.MumbleUpdated += OnMumbleUpdated;
+		_logger.LogDebug("StatusBarViewModel initialized and subscribed to MumbleUpdated event.");
 	}
 
+	/// <summary>
+	///     Disposes resources and unsubscribes from Mumble service events.
+	/// </summary>
 	public void Dispose()
 	{
+		_logger.LogDebug("Disposing StatusBarViewModel.");
+
 		_mumbleService.MumbleUpdated -= OnMumbleUpdated;
+
+		_logger.LogInformation("StatusBarViewModel disposed successfully.");
 	}
 
+	/// <summary>
+	///     Opens the KXTools website in the default browser.
+	/// </summary>
 	[RelayCommand]
 	private void OpenWebsite()
 	{
 		try
 		{
+			_logger.LogInformation("Opening KXTools website: {Url}", Constants.Settings.KxToolsWebsiteUrl);
 			Process.Start(new ProcessStartInfo
-				{ FileName = Constants.Settings.KxToolsWebsiteUrl, UseShellExecute = true });
+			{
+				FileName = Constants.Settings.KxToolsWebsiteUrl,
+				UseShellExecute = true
+			});
 		}
-		catch
+		catch (Exception ex)
 		{
+			_logger.LogError(ex, "Failed to open KXTools website: {Url}", Constants.Settings.KxToolsWebsiteUrl);
 		}
 	}
 
+	/// <summary>
+	///     Opens the Discord invite link in the default browser.
+	/// </summary>
 	[RelayCommand]
 	private void OpenDiscord()
 	{
 		try
 		{
+			_logger.LogInformation("Opening Discord invite: {Url}", Constants.Settings.DiscordInviteUrl);
 			Process.Start(new ProcessStartInfo
-				{ FileName = Constants.Settings.DiscordInviteUrl, UseShellExecute = true });
+			{
+				FileName = Constants.Settings.DiscordInviteUrl,
+				UseShellExecute = true
+			});
 		}
-		catch
+		catch (Exception ex)
 		{
+			_logger.LogError(ex, "Failed to open Discord invite: {Url}", Constants.Settings.DiscordInviteUrl);
 		}
 	}
 
+	/// <summary>
+	///     Opens the GitHub repository in the default browser.
+	/// </summary>
 	[RelayCommand]
 	private void OpenGitHub()
 	{
 		try
 		{
-			Process.Start(new ProcessStartInfo { FileName = Constants.Settings.GitHubRepoUrl, UseShellExecute = true });
+			_logger.LogInformation("Opening GitHub repository: {Url}", Constants.Settings.GitHubRepoUrl);
+			Process.Start(new ProcessStartInfo
+			{
+				FileName = Constants.Settings.GitHubRepoUrl,
+				UseShellExecute = true
+			});
 		}
-		catch
+		catch (Exception ex)
 		{
+			_logger.LogError(ex, "Failed to open GitHub repository: {Url}", Constants.Settings.GitHubRepoUrl);
 		}
 	}
 
+	/// <summary>
+	///     Handles Mumble state updates and synchronizes UI properties on the dispatcher thread.
+	/// </summary>
+	/// <param name="sender">The event source (typically <see cref="IMumbleService" />).</param>
+	/// <param name="mumble">The updated Mumble state containing player position and connection status.</param>
 	private void OnMumbleUpdated(object? sender, MumbleStateModel mumble)
 	{
-		Application.Current?.Dispatcher.Invoke((Action)(() =>
+		Application.Current?.Dispatcher.Invoke(() =>
 		{
 			ConnectionState = mumble.ConnectionState;
 
 			if (mumble.ConnectionState == MumbleConnectionState.Disconnected)
 			{
+				_logger.LogDebug("Mumble disconnected. Resetting status bar UI.");
+
 				CharacterName = "Not connected";
 				MapText = "Map: N/A";
 				CoordinatesText = "Pos: N/A";
@@ -80,12 +181,10 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 				return;
 			}
 
-			if (mumble.ConnectionState == MumbleConnectionState.Stale)
-				CharacterName = string.IsNullOrWhiteSpace(mumble.CharacterName)
-					? "Unknown"
-					: $"{mumble.CharacterName} (AFK)";
-			else
-				CharacterName = string.IsNullOrWhiteSpace(mumble.CharacterName) ? "Unknown" : mumble.CharacterName;
+			// Update character name with AFK indicator if stale
+			CharacterName = mumble.ConnectionState == MumbleConnectionState.Stale
+				? string.IsNullOrWhiteSpace(mumble.CharacterName) ? "Unknown" : $"{mumble.CharacterName} (AFK)"
+				: string.IsNullOrWhiteSpace(mumble.CharacterName) ? "Unknown" : mumble.CharacterName;
 
 			MapText = $"Map: {mumble.CurrentMapId}";
 
@@ -97,6 +196,10 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 			YText = $"Y: {y:0.##}";
 			ZText = $"Z: {z:0.##}";
 			CoordinatesText = $"Pos: {x:0.##}, {y:0.##}, {z:0.##}";
-		}));
+
+			_logger.LogTrace(
+				"Status bar updated: Character={Character}, Map={MapId}, Position=({X:0.##}, {Y:0.##}, {Z:0.##})",
+				CharacterName, mumble.CurrentMapId, x, y, z);
+		});
 	}
 }
