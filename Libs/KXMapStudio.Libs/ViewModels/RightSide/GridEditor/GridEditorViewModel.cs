@@ -387,6 +387,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Push the last known state (before this change) to the undo stack
 		// This enables undo/redo for individual cell edits
+		// Note: This creates one undo snapshot per property change (per-keystroke granularity).
+		// This is intentional to match the requirement that "each modification should trigger a snapshot".
+		// Future enhancement: Consider debouncing for rapid sequential edits to reduce memory usage.
 		if (_lastKnownState is not null)
 		{
 			_state.PushSnapshot(_lastKnownState);

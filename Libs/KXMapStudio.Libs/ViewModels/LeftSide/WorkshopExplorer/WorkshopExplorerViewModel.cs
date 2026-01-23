@@ -464,11 +464,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_logger.LogDebug("Initiating file deletion: {FileName} (Path: {FullPath})", fileName, node.FullPath);
 
 		// Check if the file is currently open in the editor
-		var isFileOpen = _gridEditor.IsLoaded && 
-		                 !string.IsNullOrEmpty(_gridEditor.OpenedFilePath) && 
-		                 string.Equals(_gridEditor.OpenedFilePath, node.FullPath, StringComparison.OrdinalIgnoreCase);
-
-		if (isFileOpen)
+		if (IsFileCurrentlyOpen(node.FullPath))
 		{
 			_logger.LogWarning("Cannot delete file that is currently open: {FileName}", fileName);
 			LastErrorMessage = $"Cannot delete '{fileName}' because it is currently open. Please close it first.";
@@ -503,6 +499,18 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	private static bool ValidateFileExists(string filePath)
 	{
 		return File.Exists(filePath);
+	}
+
+	/// <summary>
+	///     Checks if the specified file is currently open in the grid editor.
+	/// </summary>
+	/// <param name="filePath">The file path to check.</param>
+	/// <returns><see langword="true" /> if the file is currently open; otherwise, <see langword="false" />.</returns>
+	private bool IsFileCurrentlyOpen(string filePath)
+	{
+		return _gridEditor.IsLoaded &&
+		       !string.IsNullOrEmpty(_gridEditor.OpenedFilePath) &&
+		       string.Equals(_gridEditor.OpenedFilePath, filePath, StringComparison.OrdinalIgnoreCase);
 	}
 
 	/// <summary>
