@@ -1,4 +1,4 @@
-namespace KXMapStudio.Core.Repositories;
+namespace KXMapStudio.Core.Repositories.FileStorage;
 
 /// <summary>
 ///     Provides a minimal file system storage implementation for Core repositories.

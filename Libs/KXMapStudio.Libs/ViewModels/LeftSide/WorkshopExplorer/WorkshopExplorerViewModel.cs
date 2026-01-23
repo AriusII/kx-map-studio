@@ -1,3 +1,5 @@
+using KXMapStudio.Core.Abstractions.Repositories.FileStorage;
+
 namespace KXMapStudio.Libs.ViewModels.LeftSide.WorkshopExplorer;
 
 /// <summary>

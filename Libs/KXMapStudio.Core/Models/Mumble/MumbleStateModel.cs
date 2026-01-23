@@ -1,4 +1,4 @@
-namespace KXMapStudio.Core.Models;
+namespace KXMapStudio.Core.Models.Mumble;
 
 /// <summary>
 ///     Represents a snapshot of Guild Wars 2 MumbleLink state.

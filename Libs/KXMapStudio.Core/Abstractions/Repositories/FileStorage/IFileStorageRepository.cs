@@ -1,4 +1,4 @@
-namespace KXMapStudio.Core.Abstractions.Repositories;
+namespace KXMapStudio.Core.Abstractions.Repositories.FileStorage;
 
 /// <summary>
 ///     Defines a minimal file storage boundary used by Core repositories.

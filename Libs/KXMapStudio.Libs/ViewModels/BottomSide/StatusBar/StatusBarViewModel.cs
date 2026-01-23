@@ -1,3 +1,5 @@
+using KXMapStudio.Core.Models.Mumble;
+
 namespace KXMapStudio.Libs.ViewModels.BottomSide.StatusBar;
 
 public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarViewModel, IDisposable

@@ -1,3 +1,5 @@
+using KXMapStudio.Core.Models.Mumble;
+
 namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 
 public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel

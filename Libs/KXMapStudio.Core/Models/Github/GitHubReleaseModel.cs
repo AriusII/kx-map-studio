@@ -1,4 +1,4 @@
-﻿namespace KXMapStudio.Core.Models;
+﻿namespace KXMapStudio.Core.Models.Github;
 
 /// <summary>
 ///     Represents the subset of a GitHub release payload used by KXMapStudio.

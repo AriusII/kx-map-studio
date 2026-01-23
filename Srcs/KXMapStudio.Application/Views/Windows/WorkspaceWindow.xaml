@@ -7,17 +7,7 @@
         Style="{StaticResource MaterialDesignWindow}"
         Title="KX Map Studio" Height="800" Width="1280">
 
-	<Window.Resources>
-		<!-- Notification visuals (modern but subtle). -->
-
-	</Window.Resources>
-
-	<Window.InputBindings>
-		<KeyBinding Key="S" Modifiers="Control" Command="{Binding MainMenu.SaveCommand}" />
-		<KeyBinding Key="D" Modifiers="Control" Command="{Binding MainMenu.SaveAsCommand}" />
-		<KeyBinding Key="Z" Modifiers="Control" Command="{Binding MainMenu.UndoCommand}" />
-		<KeyBinding Key="Y" Modifiers="Control" Command="{Binding MainMenu.RedoCommand}" />
-	</Window.InputBindings>
+	<Window.Resources/>
 
 	<Grid>
 		<Grid.RowDefinitions>
