@@ -94,6 +94,22 @@
 							<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Status.Warning}" />
 							<Setter Property="FontStyle" Value="Italic" />
 						</DataTrigger>
+						<!-- Context Menu for Files only (not directories) -->
+						<DataTrigger Binding="{Binding IsDirectory}" Value="False">
+							<Setter Property="ContextMenu">
+								<Setter.Value>
+									<ContextMenu>
+										<MenuItem Header="Delete"
+										          Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+										          CommandParameter="{Binding}">
+											<MenuItem.Icon>
+												<materialDesign:PackIcon Kind="DeleteOutline" />
+											</MenuItem.Icon>
+										</MenuItem>
+									</ContextMenu>
+								</Setter.Value>
+							</Setter>
+						</DataTrigger>
 					</Style.Triggers>
 				</Style>
 			</TreeView.Resources>

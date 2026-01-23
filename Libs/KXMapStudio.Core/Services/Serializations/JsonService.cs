@@ -208,6 +208,56 @@ public sealed record JsonService(
 		return result;
 	}
 
+	/// <summary>
+	///     Saves Guild Wars 2 maps data to the specified file.
+	/// </summary>
+	/// <param name="path">The output file path. Must not be <see langword="null" /> or whitespace.</param>
+	/// <param name="maps">The maps data to save. Must not be <see langword="null" />.</param>
+	/// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+	/// <returns>A <see cref="Task" /> that represents the asynchronous save operation.</returns>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="path" /> is <see langword="null" /> or whitespace.</exception>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="maps" /> is <see langword="null" />.</exception>
+	public async Task SaveGuildWarsMapsAsync(
+		string path,
+		IReadOnlyList<MapModel> maps,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(path);
+		ArgumentNullException.ThrowIfNull(maps);
+
+		Logger.LogInformation("Saving Guild Wars 2 maps data to: {Path} (Count: {Count})", path, maps.Count);
+
+		await JsonRepository.SaveAsync(maps, path, cancellationToken).ConfigureAwait(false);
+
+		Logger.LogInformation("Successfully saved {Count} Guild Wars 2 maps to: {Path}", maps.Count, path);
+	}
+
+	/// <summary>
+	///     Saves Guild Wars 2 continent floor data to the specified file.
+	/// </summary>
+	/// <param name="path">The output file path. Must not be <see langword="null" /> or whitespace.</param>
+	/// <param name="continentFloor">The continent floor data to save. Must not be <see langword="null" />.</param>
+	/// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+	/// <returns>A <see cref="Task" /> that represents the asynchronous save operation.</returns>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="path" /> is <see langword="null" /> or whitespace.</exception>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="continentFloor" /> is <see langword="null" />.</exception>
+	public async Task SaveGuildWarsContinentFloorAsync(
+		string path,
+		ContinentFloorModel continentFloor,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(path);
+		ArgumentNullException.ThrowIfNull(continentFloor);
+
+		Logger.LogInformation(
+			"Saving Guild Wars 2 continent floor data to: {Path} (Floor ID: {FloorId}, Regions: {RegionCount})",
+			path, continentFloor.Id, continentFloor.Regions.Count);
+
+		await JsonRepository.SaveAsync(continentFloor, path, cancellationToken).ConfigureAwait(false);
+
+		Logger.LogInformation("Successfully saved Guild Wars 2 continent floor data to: {Path}", path);
+	}
+
 	// ====== Binary Operations ======
 
 	/// <summary>

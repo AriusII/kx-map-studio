@@ -7,6 +7,7 @@ public interface IGridEditorViewModel : IDisposable
 	bool IsDirty { get; }
 
 	string? OpenedFileName { get; }
+	string? OpenedFilePath { get; }
 	string OpenedFileLoadTime { get; }
 	string FileExtension { get; }
 

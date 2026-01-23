@@ -142,7 +142,7 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 		var maps = await _httpClient.GetMapsAsync(cancellationToken);
 
 		var mapsPath = Path.Combine(_dataDirectory, Constants.Settings.MapsPath);
-		//await _jsonService.SaveGuildWarsMapsAsync(mapsPath, maps, cancellationToken);
+		await _jsonService.SaveGuildWarsMapsAsync(mapsPath, maps, cancellationToken);
 
 		_logger.LogInformation("Maps data saved to: {MapsPath}", mapsPath);
 	}
@@ -157,7 +157,7 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 		var continents = await _httpClient.GetContinentsAsync(cancellationToken);
 
 		var continentsPath = Path.Combine(_dataDirectory, Constants.Settings.ContinentsPath);
-		//await _jsonService.SaveGuildWarsContinentFloorAsync(continentsPath, continents, cancellationToken);
+		await _jsonService.SaveGuildWarsContinentFloorAsync(continentsPath, continents, cancellationToken);
 
 		_logger.LogInformation("Continents data saved to: {ContinentsPath}", continentsPath);
 	}

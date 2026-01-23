@@ -103,6 +103,34 @@ public interface IJsonService
 		string path,
 		CancellationToken cancellationToken = default);
 
+	/// <summary>
+	///     Saves Guild Wars 2 maps data to the specified file.
+	/// </summary>
+	/// <param name="path">The output file path. Must not be <see langword="null" /> or whitespace.</param>
+	/// <param name="maps">The maps data to save. Must not be <see langword="null" />.</param>
+	/// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+	/// <returns>A <see cref="Task" /> that represents the asynchronous save operation.</returns>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="path" /> is <see langword="null" /> or whitespace.</exception>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="maps" /> is <see langword="null" />.</exception>
+	Task SaveGuildWarsMapsAsync(
+		string path,
+		IReadOnlyList<MapModel> maps,
+		CancellationToken cancellationToken = default);
+
+	/// <summary>
+	///     Saves Guild Wars 2 continent floor data to the specified file.
+	/// </summary>
+	/// <param name="path">The output file path. Must not be <see langword="null" /> or whitespace.</param>
+	/// <param name="continentFloor">The continent floor data to save. Must not be <see langword="null" />.</param>
+	/// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+	/// <returns>A <see cref="Task" /> that represents the asynchronous save operation.</returns>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="path" /> is <see langword="null" /> or whitespace.</exception>
+	/// <exception cref="ArgumentNullException">Thrown when <paramref name="continentFloor" /> is <see langword="null" />.</exception>
+	Task SaveGuildWarsContinentFloorAsync(
+		string path,
+		ContinentFloorModel continentFloor,
+		CancellationToken cancellationToken = default);
+
 	// ====== Binary Operations ======
 
 	/// <summary>
