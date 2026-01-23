@@ -39,10 +39,6 @@
 							<Setter Property="Kind" Value="FileDocumentOutline" />
 							<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Text.Secondary}" />
 							<Style.Triggers>
-								<DataTrigger Binding="{Binding FileExtension}" Value=".xml">
-									<Setter Property="Kind" Value="FileXmlBox" />
-									<Setter Property="Foreground" Value="#FF9800" />
-								</DataTrigger>
 								<DataTrigger Binding="{Binding FileExtension}" Value=".json">
 									<Setter Property="Kind" Value="CodeJson" />
 									<Setter Property="Foreground" Value="#4CAF50" />

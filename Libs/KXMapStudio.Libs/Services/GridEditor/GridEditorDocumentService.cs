@@ -20,7 +20,6 @@ public sealed class GridEditorDocumentService(
 
 		return doc.Extension.ToLowerInvariant() switch
 		{
-			".xml" => await LoadXmlAsync(doc, cancellationToken).ConfigureAwait(false),
 			".json" => await LoadJsonAsync(doc, cancellationToken).ConfigureAwait(false),
 			_ => ([], [])
 		};
@@ -41,9 +40,6 @@ public sealed class GridEditorDocumentService(
 
 		switch (doc.Extension.ToLowerInvariant())
 		{
-			case ".xml":
-				await SaveXmlToPathAsync(rows, doc.FilePath!, cancellationToken).ConfigureAwait(false);
-				break;
 			case ".json":
 				await SaveJsonToPathAsync(rows, doc.FilePath!, _jsonService, cancellationToken).ConfigureAwait(false);
 				break;
@@ -62,16 +58,6 @@ public sealed class GridEditorDocumentService(
 
 		switch (doc.Extension.ToLowerInvariant())
 		{
-			case ".xml":
-			{
-				var targetPath = await _saveFileDialogService.ShowSaveXmlAsync(doc.DisplayName, cancellationToken)
-					.ConfigureAwait(false);
-				if (string.IsNullOrWhiteSpace(targetPath))
-					return;
-
-				await SaveXmlToPathAsync(rows, targetPath, cancellationToken).ConfigureAwait(false);
-				break;
-			}
 			case ".json":
 			{
 				var targetPath = await _saveFileDialogService.ShowSaveJsonAsync(doc.DisplayName, cancellationToken)
@@ -87,48 +73,6 @@ public sealed class GridEditorDocumentService(
 		}
 	}
 
-	private async Task<(IReadOnlyList<GridEditorRowViewModel> rows, byte[] originalBytes)> LoadXmlAsync(
-		EditorDocumentReference doc,
-		CancellationToken cancellationToken)
-	{
-		var bytes = await LoadBytesAsync(doc, cancellationToken).ConfigureAwait(false);
-		if (bytes.Length == 0)
-			return ([], bytes);
-
-		await using var ms = new MemoryStream(bytes, false);
-		using var reader = new StreamReader(ms, true);
-		var xdoc = await XDocument.LoadAsync(reader, LoadOptions.None, cancellationToken).ConfigureAwait(false);
-
-		var pois = xdoc
-			.Descendants()
-			.FirstOrDefault(e => e.Name.LocalName.Equals("POIs", StringComparison.OrdinalIgnoreCase));
-
-		if (pois is null)
-			return ([], bytes);
-
-		var rows = new List<GridEditorRowViewModel>();
-		var id = 1;
-
-		foreach (var poi in pois.Elements()
-			         .Where(e => e.Name.LocalName.Equals("POI", StringComparison.OrdinalIgnoreCase)))
-		{
-			var name = (string?)poi.Attribute("Name") ?? string.Empty;
-			var x = ParseDoubleAttribute(poi, "X");
-			var y = ParseDoubleAttribute(poi, "Y");
-			var z = ParseDoubleAttribute(poi, "Z");
-
-			rows.Add(new GridEditorRowViewModel
-			{
-				Id = id++,
-				Name = name,
-				X = x,
-				Y = y,
-				Z = z
-			});
-		}
-
-		return (rows, bytes);
-	}
 
 	private async Task<(IReadOnlyList<GridEditorRowViewModel> rows, byte[] originalBytes)> LoadJsonAsync(
 		EditorDocumentReference doc,
@@ -191,42 +135,6 @@ public sealed class GridEditorDocumentService(
 			.ConfigureAwait(false);
 	}
 
-	private static double ParseDoubleAttribute(XElement element, string attributeName)
-	{
-		var raw = (string?)element.Attribute(attributeName);
-		if (string.IsNullOrWhiteSpace(raw))
-			return 0d;
-
-		return double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
-			? value
-			: 0d;
-	}
-
-	private static async Task SaveXmlToPathAsync(
-		IReadOnlyList<GridEditorRowViewModel> rows,
-		string filePath,
-		CancellationToken cancellationToken)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
-
-		// TacO structure: <OverlayData><POIs><POI .../></POIs></OverlayData>
-		var doc = new XDocument(
-			new XDeclaration("1.0", "utf-8", null),
-			new XElement("OverlayData", new XElement("POIs")));
-
-		var pois = doc.Root!.Element("POIs")!;
-
-		foreach (var r in rows)
-			pois.Add(new XElement(
-				"POI",
-				new XAttribute("Name", r.Name),
-				new XAttribute("X", r.X.ToString("F4", CultureInfo.InvariantCulture)),
-				new XAttribute("Y", r.Y.ToString("F4", CultureInfo.InvariantCulture)),
-				new XAttribute("Z", r.Z.ToString("F4", CultureInfo.InvariantCulture))));
-
-		await using var stream = File.Create(filePath);
-		await doc.SaveAsync(stream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
-	}
 
 	private static async Task SaveJsonToPathAsync(
 		IReadOnlyList<GridEditorRowViewModel> rows,

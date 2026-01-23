@@ -2,20 +2,6 @@ namespace KXMapStudio.Libs.Services.Dialogs;
 
 public sealed class SaveFileDialogService : ISaveFileDialogService
 {
-	public Task<string?> ShowSaveXmlAsync(string? suggestedFileName, CancellationToken cancellationToken = default)
-	{
-		_ = cancellationToken;
-
-		var dialog = new SaveFileDialog
-		{
-			Title = "Save XML As",
-			Filter = "XML files (*.xml)|*.xml",
-			FileName = string.IsNullOrWhiteSpace(suggestedFileName) ? "document.xml" : suggestedFileName
-		};
-
-		return Task.FromResult(dialog.ShowDialog() == true ? dialog.FileName : null);
-	}
-
 	public Task<string?> ShowSaveJsonAsync(string? suggestedFileName, CancellationToken cancellationToken = default)
 	{
 		_ = cancellationToken;
@@ -30,18 +16,15 @@ public sealed class SaveFileDialogService : ISaveFileDialogService
 		return Task.FromResult(dialog.ShowDialog() == true ? dialog.FileName : null);
 	}
 
-	public Task<string?> ShowCreateFileDialogAsync(string defaultFolder, string fileType,
-		CancellationToken cancellationToken = default)
+	public Task<string?> ShowCreateJsonFileDialogAsync(string defaultFolder, CancellationToken cancellationToken = default)
 	{
 		_ = cancellationToken;
 
-		var isXml = string.Equals(fileType, "xml", StringComparison.OrdinalIgnoreCase);
-		var extension = isXml ? ".xml" : ".json";
 		var dialog = new SaveFileDialog
 		{
-			Title = $"Create New {fileType.ToUpperInvariant()} File",
-			Filter = isXml ? "XML files (*.xml)|*.xml" : "JSON files (*.json)|*.json",
-			FileName = $"new_file{extension}",
+			Title = "Create New JSON File",
+			Filter = "JSON files (*.json)|*.json",
+			FileName = "new_file.json",
 			InitialDirectory = Directory.Exists(defaultFolder) ? defaultFolder : null
 		};
 

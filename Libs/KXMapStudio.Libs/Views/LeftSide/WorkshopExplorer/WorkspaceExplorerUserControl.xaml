@@ -48,7 +48,7 @@
 				<StackPanel Grid.Column="2" Orientation="Horizontal">
 					<Button
 						Style="{StaticResource MaterialDesignToolForegroundButton}"
-						ToolTip="Create New File..."
+						ToolTip="Create New JSON File..."
 						Command="{Binding CreateFileCommand}"
 						CommandParameter="{x:Null}"
 						Width="32" Height="32"
@@ -88,60 +88,7 @@
 				<Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
 					<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
 					<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-					<Setter Property="ContextMenu">
-						<Setter.Value>
-							<ContextMenu>
-								<!-- Directory Context Menu -->
-								<MenuItem Header="New XML File..."
-								          Command="{Binding DataContext.CreateFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-								          CommandParameter="{Binding}">
-									<MenuItem.Icon>
-										<materialDesign:PackIcon Kind="FileXmlBox" />
-									</MenuItem.Icon>
-								</MenuItem>
-								<MenuItem Header="New JSON File..."
-								          Command="{Binding DataContext.CreateFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-								          CommandParameter="{Binding}">
-									<MenuItem.Icon>
-										<materialDesign:PackIcon Kind="CodeJson" />
-									</MenuItem.Icon>
-								</MenuItem>
-								<Separator />
-								<!-- File Context Menu -->
-								<MenuItem Header="Delete File..."
-								          Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-								          CommandParameter="{Binding}">
-									<MenuItem.Icon>
-										<materialDesign:PackIcon Kind="DeleteOutline" Foreground="{StaticResource Kx.Brush.Status.Danger}" />
-									</MenuItem.Icon>
-								</MenuItem>
-							</ContextMenu>
-						</Setter.Value>
-					</Setter>
 					<Style.Triggers>
-						<!-- Only show delete for files -->
-						<DataTrigger Binding="{Binding IsDirectory}" Value="True">
-							<Setter Property="ContextMenu">
-								<Setter.Value>
-									<ContextMenu>
-										<MenuItem Header="New XML File..."
-										          Command="{Binding DataContext.CreateFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-										          CommandParameter="{Binding}">
-											<MenuItem.Icon>
-												<materialDesign:PackIcon Kind="FileXmlBox" />
-											</MenuItem.Icon>
-										</MenuItem>
-										<MenuItem Header="New JSON File..."
-										          Command="{Binding DataContext.CreateFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-										          CommandParameter="{Binding}">
-											<MenuItem.Icon>
-												<materialDesign:PackIcon Kind="CodeJson" />
-											</MenuItem.Icon>
-										</MenuItem>
-									</ContextMenu>
-								</Setter.Value>
-							</Setter>
-						</DataTrigger>
 						<!-- Visual indicator for modified files -->
 						<DataTrigger Binding="{Binding IsModified}" Value="True">
 							<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Status.Warning}" />
@@ -169,11 +116,6 @@
 										<DataTrigger Binding="{Binding IsDirectory}" Value="True">
 											<Setter Property="Kind" Value="Folder" />
 											<Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
-										</DataTrigger>
-										<!-- XML File Icon -->
-										<DataTrigger Binding="{Binding Extension}" Value=".xml">
-											<Setter Property="Kind" Value="FileXmlBox" />
-											<Setter Property="Foreground" Value="#FF9800" />
 										</DataTrigger>
 										<!-- JSON File Icon -->
 										<DataTrigger Binding="{Binding Extension}" Value=".json">

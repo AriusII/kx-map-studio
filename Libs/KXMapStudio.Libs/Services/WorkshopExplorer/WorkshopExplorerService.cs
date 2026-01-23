@@ -70,7 +70,7 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 
 				var subDirNode = ScanDirectoryRecursive(subDir.FullName, cancellationToken);
 
-				// Only include directories that have XML/JSON files (or subdirectories with such files)
+				// Only include directories that have JSON files (or subdirectories with such files)
 				if (subDirNode.Children.Count > 0)
 					children.Add(subDirNode);
 			}
@@ -80,7 +80,7 @@ public sealed class WorkshopExplorerService : IWorkshopExplorerService
 			// Skip directories we can't access
 		}
 
-		// Scan files (only XML and JSON)
+		// Scan files (only JSON)
 		try
 		{
 			foreach (var file in dirInfo.EnumerateFiles().OrderBy(f => f.Name, StringComparer.OrdinalIgnoreCase))

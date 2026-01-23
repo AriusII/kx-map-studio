@@ -1,4 +1,4 @@
-﻿// Global using directives
+﻿﻿// Global using directives
 
 global using System.Collections.ObjectModel;
 global using System.ComponentModel;
@@ -18,7 +18,6 @@ global using System.Windows.Data;
 global using System.Windows.Input;
 global using System.Windows.Interop;
 global using System.Windows.Threading;
-global using System.Xml.Linq;
 global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
 global using KXMapStudio.Core.Abstractions.Repositories;

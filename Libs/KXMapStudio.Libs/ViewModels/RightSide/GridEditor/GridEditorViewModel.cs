@@ -58,8 +58,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	public bool CanRedo => _state.CanRedo;
 
 	public bool CanSave => IsLoaded && IsDirty && _currentDoc is { IsWorkspaceFile: true }
-	                       && (string.Equals(_currentDoc.Extension, ".xml", StringComparison.OrdinalIgnoreCase)
-	                           || string.Equals(_currentDoc.Extension, ".json", StringComparison.OrdinalIgnoreCase));
+	                       && string.Equals(_currentDoc.Extension, ".json", StringComparison.OrdinalIgnoreCase);
 
 	public bool CanSaveAs => IsLoaded;
 

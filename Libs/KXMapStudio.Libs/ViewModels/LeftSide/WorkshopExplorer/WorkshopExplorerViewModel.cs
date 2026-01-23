@@ -1,3 +1,4 @@
+using KXMapStudio.Core.Abstractions.Facades;
 using KXMapStudio.Core.Abstractions.Repositories.FileStorage;
 
 namespace KXMapStudio.Libs.ViewModels.LeftSide.WorkshopExplorer;
@@ -12,6 +13,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 
 	// State
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
+	private readonly IFileFacade _fileFacade;
 	private readonly IFileStorageRepository _fileStorageRepository;
 	private readonly Timer _refreshTimer;
 
@@ -29,11 +31,14 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	public WorkshopExplorerViewModel(
 		IWorkshopExplorerService workshopExplorerService,
 		IFileStorageRepository fileStorageRepository,
-		ISaveFileDialogService dialogService)
+		ISaveFileDialogService dialogService,
+		IFileFacade fileFacade)
 	{
 		_workshopExplorerService = workshopExplorerService;
 		_fileStorageRepository = fileStorageRepository;
 		_dialogService = dialogService;
+		System.ArgumentNullException.ThrowIfNull(fileFacade);
+		_fileFacade = fileFacade;
 
 		RootNodes = [];
 		RefreshCommand = new AsyncRelayCommand(RefreshAsync);
@@ -209,12 +214,12 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		if (node.IsDirectory)
 			return;
 
-		// Only handle XML and JSON files
+		// Only handle JSON files
 		var ext = node.Extension.ToLowerInvariant();
 		if (ext != FileExtension.Json)
 			return;
 
-		// Fire event to notify subscribers (LeftSidePanelViewModel will handle loading into FilePreview and GridEditor)
+		// Fire event to notify subscribers (LeftSidePanelViewModel will handle loading into GridEditor)
 		var doc = EditorDocumentReference.FromWorkspaceFile(node.FullPath);
 		FileSelected?.Invoke(this, doc);
 	}
@@ -230,15 +235,15 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		// Determine target folder
 		var targetFolder = GetTargetFolder(node);
 
-		// Show dialog to create either XML or JSON
-		var newFilePath = await _dialogService.ShowCreateFileDialogAsync(targetFolder, "xml");
+		// Show dialog to create JSON file
+		var newFilePath = await _dialogService.ShowCreateJsonFileDialogAsync(targetFolder);
 
 		if (string.IsNullOrWhiteSpace(newFilePath))
 			return;
 
 		try
 		{
-			await CreateFileBasedOnExtension(newFilePath);
+			await CreateJsonFileAsync(newFilePath);
 			// Refresh will be triggered automatically by FileSystemWatcher
 		}
 		catch (Exception ex)
@@ -257,19 +262,15 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 			: Path.GetDirectoryName(node.FullPath) ?? _workshopExplorerService.DataFolder;
 	}
 
-	private async Task CreateFileBasedOnExtension(string filePath)
+	private async Task CreateJsonFileAsync(string filePath)
 	{
-		var ext = Path.GetExtension(filePath).ToLowerInvariant();
-
-		switch (ext)
-		{
-			case ".xml":
-				break;
-			case ".json":
-				break;
-			default:
-				throw new NotSupportedException($"File type '{ext}' is not supported for creation.");
-		}
+		// Create a new JSON file with an empty coordinates array
+		var fileName = Path.GetFileNameWithoutExtension(filePath);
+		await _fileFacade.CreateNewJsonAsync(
+			name: fileName,
+			author: null,
+			coordinates: [],
+			outputFilePath: filePath);
 	}
 
 	private bool CanDeleteFile(WorkshopExplorerNodeModel? node)

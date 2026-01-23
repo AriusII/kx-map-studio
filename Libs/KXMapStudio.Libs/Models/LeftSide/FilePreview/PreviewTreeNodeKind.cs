@@ -9,8 +9,5 @@ public enum PreviewTreeNodeKind
 	ArchiveFolder,
 
 	/// <summary>Represents a file entry inside an archive.</summary>
-	ArchiveEntry,
-
-	/// <summary>Represents a virtual node created from a parsed XML document (DTO-driven).</summary>
-	XmlNode
+	ArchiveEntry
 }
