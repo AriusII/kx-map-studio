@@ -53,14 +53,12 @@ public sealed class GridEditorRowEqualityComparer : IStateEqualityComparer<IRead
 			var leftRow = left[i];
 			var rightRow = right[i];
 
-			if (leftRow.Name != rightRow.Name
-			    || Math.Abs(leftRow.X - rightRow.X) > Tolerance
-			    || Math.Abs(leftRow.Y - rightRow.Y) > Tolerance
-			    || Math.Abs(leftRow.Z - rightRow.Z) > Tolerance)
-			{
-				_logger.LogTrace("Row {Index} differs. Not equal.", i);
-				return false;
-			}
+			if (leftRow.Name == rightRow.Name
+			    && !(Math.Abs(leftRow.X - rightRow.X) > Tolerance)
+			    && !(Math.Abs(leftRow.Y - rightRow.Y) > Tolerance)
+			    && !(Math.Abs(leftRow.Z - rightRow.Z) > Tolerance)) continue;
+			_logger.LogTrace("Row {Index} differs. Not equal.", i);
+			return false;
 		}
 
 		_logger.LogTrace("All rows match. Collections are equal.");

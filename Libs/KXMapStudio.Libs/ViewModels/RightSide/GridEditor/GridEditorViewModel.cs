@@ -31,7 +31,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private int _autoMarkerCounter;
 	private CancellationTokenSource? _cts;
 	private EditorDocumentReference? _currentDoc;
-	private IReadOnlyList<GridEditorRowViewModel>? _lastKnownState;
 
 	/// <summary>
 	///     Gets or sets the document title displayed in the editor header.
@@ -52,6 +51,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	///     Gets or sets a value indicating whether a document is currently loaded.
 	/// </summary>
 	[ObservableProperty] private bool _isLoaded;
+
+	private IReadOnlyList<GridEditorRowViewModel>? _lastKnownState;
 
 	/// <summary>
 	///     Gets or sets the load time statistics text (e.g., "Loaded in 25 ms").

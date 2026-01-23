@@ -114,7 +114,7 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 			_cachedContinents = await _jsonService.LoadGuildWarsContinentFloorAsync(continentsPath, cancellationToken);
 			_logger.LogInformation("Loaded continents data from cache");
 
-			return _cachedContinents;
+			return _cachedContinents!;
 		}
 		finally
 		{

@@ -28,8 +28,7 @@ public sealed partial class App
 		AppHost.Services.GetRequiredService<IMumbleService>().Start();
 
 		// Check for application updates asynchronously (non-blocking)
-		var updateChecker = AppHost.Services.GetRequiredService<IUpdateCheckerService>();
-		_ = updateChecker.CheckForUpdatesAsync();
+		AppHost.Services.GetRequiredService<IUpdateCheckerService>().CheckForUpdatesAsync();
 
 		var mainWindow = AppHost.Services.GetRequiredService<WorkspaceWindow>();
 		mainWindow.Show();
