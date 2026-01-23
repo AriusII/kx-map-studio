@@ -4,14 +4,19 @@ namespace KXMapStudio.Libs.Models.LeftSide.WorkshopExplorer;
 ///     Represents a UI-bindable tree node for the Workshop Explorer.
 /// </summary>
 /// <remarks>
-///     This model supports hierarchical display of files and directories with observable properties
-///     for UI state (expanded, selected, modified).
+///     <para>
+///         This model supports hierarchical display of files and directories with observable properties
+///         for UI state (expanded, selected, modified).
+///     </para>
+///     <para>
+///         Uses CommunityToolkit.Mvvm source generators for efficient property change notifications.
+///     </para>
 /// </remarks>
 public sealed partial class WorkshopExplorerNodeModel : ObservableObject
 {
 	/// <summary>
 	///     Gets or sets a value indicating whether the node is expanded in the tree view.
-	/// </summary>
+	///     </summary>
 	[ObservableProperty] private bool _isExpanded;
 
 	/// <summary>

@@ -33,7 +33,9 @@ public sealed class SaveFileDialogService : ISaveFileDialogService
 	/// </returns>
 	public Task<string?> ShowSaveJsonAsync(string? suggestedFileName, CancellationToken cancellationToken = default)
 	{
-		_ = cancellationToken; // Future API compatibility
+		// Note: CancellationToken currently unused (dialogs are synchronous).
+		// Reserved for future async dialog support when WPF provides native async APIs.
+		_ = cancellationToken;
 
 		_logger.LogDebug("Displaying Save JSON dialog with suggested filename: {SuggestedFileName}",
 			suggestedFileName ?? "document.json");
@@ -67,7 +69,9 @@ public sealed class SaveFileDialogService : ISaveFileDialogService
 	public Task<string?> ShowCreateJsonFileDialogAsync(string defaultFolder,
 		CancellationToken cancellationToken = default)
 	{
-		_ = cancellationToken; // Future API compatibility
+		// Note: CancellationToken currently unused (dialogs are synchronous).
+		// Reserved for future async dialog support when WPF provides native async APIs.
+		_ = cancellationToken;
 
 		_logger.LogDebug("Displaying Create JSON File dialog in folder: {DefaultFolder}", defaultFolder);
 

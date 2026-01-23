@@ -27,6 +27,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private readonly ILogger<GridEditorViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
+	private readonly IDispatcherHelper _dispatcherHelper;
 
 	private int _autoMarkerCounter;
 	private CancellationTokenSource? _cts;
@@ -71,6 +72,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	/// <param name="state">The state management service for undo/redo operations.</param>
 	/// <param name="mumbleService">The Mumble service for Guild Wars 2 integration.</param>
 	/// <param name="hotkeyService">The hotkey service for F9 marker addition.</param>
+	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -80,18 +82,21 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> state,
 		IMumbleService mumbleService,
 		IGlobalHotkeyService hotkeyService,
+		IDispatcherHelper dispatcherHelper,
 		ILogger<GridEditorViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(documentService);
 		ArgumentNullException.ThrowIfNull(state);
 		ArgumentNullException.ThrowIfNull(mumbleService);
 		ArgumentNullException.ThrowIfNull(hotkeyService);
+		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_documentService = documentService;
 		_state = state;
 		_mumbleService = mumbleService;
 		_hotkeyService = hotkeyService;
+		_dispatcherHelper = dispatcherHelper;
 		_logger = logger;
 
 		Rows = [];
@@ -239,16 +244,18 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Measure load time
 		var sw = Stopwatch.StartNew();
-		var (rows, _) = await _documentService.LoadAsync(doc, ct);
+		var (rowData, _) = await _documentService.LoadAsync(doc, ct);
 		sw.Stop();
 		ct.ThrowIfCancellationRequested();
 
 		OpenedFileLoadTime = $"Loaded in {sw.ElapsedMilliseconds} ms";
 
 		_logger.LogInformation("Document loaded: {DisplayName}. Rows: {RowCount}, Load time: {LoadTimeMs}ms",
-			doc.DisplayName, rows.Count, sw.ElapsedMilliseconds);
+			doc.DisplayName, rowData.Count, sw.ElapsedMilliseconds);
 
-		ReloadRows(rows);
+		// Convert data models to ViewModels
+		var rowViewModels = ConvertDataToViewModels(rowData);
+		ReloadRows(rowViewModels);
 
 		// Set the original state baseline for intelligent dirty tracking
 		_state.SetOriginalState(SnapshotRows());
@@ -285,13 +292,46 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private void MumbleServiceOnMumbleUpdated(object? sender, MumbleStateModel e)
 	{
 		// Update command state when Mumble availability changes
-		Application.Current?.Dispatcher.Invoke(() => { AddMarkerFromMumbleCommand.NotifyCanExecuteChanged(); });
+		_dispatcherHelper.InvokeOnUIThread(() => AddMarkerFromMumbleCommand.NotifyCanExecuteChanged());
+	}
+
+	/// <summary>
+	///     Converts data models to ViewModels with sequential IDs.
+	/// </summary>
+	/// <param name="rowData">The data models to convert.</param>
+	/// <returns>A list of ViewModels ready for UI binding.</returns>
+	private static IReadOnlyList<GridEditorRowViewModel> ConvertDataToViewModels(IReadOnlyList<GridRowData> rowData)
+	{
+		var viewModels = new List<GridEditorRowViewModel>(rowData.Count);
+		var id = 1;
+		foreach (var data in rowData)
+		{
+			viewModels.Add(new GridEditorRowViewModel
+			{
+				Id = id++,
+				Name = data.Name,
+				X = data.X,
+				Y = data.Y,
+				Z = data.Z
+			});
+		}
+		return viewModels;
+	}
+
+	/// <summary>
+	///     Converts ViewModels to data models for service layer operations.
+	/// </summary>
+	/// <param name="viewModels">The ViewModels to convert.</param>
+	/// <returns>A list of data models.</returns>
+	private static IReadOnlyList<GridRowData> ConvertViewModelsToData(IReadOnlyList<GridEditorRowViewModel> viewModels)
+	{
+		return viewModels.Select(vm => new GridRowData(vm.Name, vm.X, vm.Y, vm.Z)).ToList();
 	}
 
 	private void ReloadRows(IReadOnlyList<GridEditorRowViewModel> rows)
 	{
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1), 
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			Rows.Clear();
 
@@ -302,10 +342,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 				HookRow(r);
 				Rows.Add(r);
 			}
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 	}
 
@@ -402,8 +438,11 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		_logger.LogInformation("Saving document: {DisplayName} ({RowCount} rows)", _currentDoc.DisplayName, Rows.Count);
 
+		// Convert ViewModels to data models for service layer
+		var rowData = ConvertViewModelsToData(Rows.ToList());
+		
 		// Important: do NOT push an undo snapshot for Save. State history is about edits.
-		await _documentService.SaveAsync(_currentDoc, Rows.ToList(), _cts?.Token ?? CancellationToken.None);
+		await _documentService.SaveAsync(_currentDoc, rowData, _cts?.Token ?? CancellationToken.None);
 
 		_logger.LogInformation("Document saved successfully: {DisplayName}", _currentDoc.DisplayName);
 
@@ -421,7 +460,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		_logger.LogInformation("Initiating Save As for document: {DisplayName}", _currentDoc.DisplayName);
 
-		await _documentService.SaveAsAsync(_currentDoc, Rows.ToList(), _cts?.Token ?? CancellationToken.None);
+		// Convert ViewModels to data models for service layer
+		var rowData = ConvertViewModelsToData(Rows.ToList());
+		
+		await _documentService.SaveAsAsync(_currentDoc, rowData, _cts?.Token ?? CancellationToken.None);
 		NotifyCommandStateChanged();
 
 		_logger.LogDebug("Save As completed for document: {DisplayName}", _currentDoc.DisplayName);
@@ -508,8 +550,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		PushUndoSnapshot();
 
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			var row = new GridEditorRowViewModel
 			{
@@ -526,10 +568,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 			RowAdded?.Invoke(this, row);
 
 			_logger.LogInformation("Row added successfully. New row count: {RowCount}", Rows.Count);
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 
 		SetDirty(true);
@@ -562,15 +600,11 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 	private void ReindexIds()
 	{
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			for (var i = 0; i < Rows.Count; i++)
 				Rows[i].Id = i + 1;
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 	}
 
@@ -590,8 +624,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		PushUndoSnapshot();
 
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			if (Rows.Count == 0)
 				_autoMarkerCounter = 0;
@@ -612,10 +646,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 			_logger.LogInformation("Marker added from Mumble: Name={Name}, New row count: {RowCount}",
 				row.Name, Rows.Count);
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 
 		SetDirty(true);

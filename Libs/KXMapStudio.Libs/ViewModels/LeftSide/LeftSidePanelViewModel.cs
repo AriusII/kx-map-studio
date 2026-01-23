@@ -44,17 +44,9 @@ public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewMod
 		GridEditor = gridEditor;
 		_logger = logger;
 
-		// Subscribe to file selection events if the concrete type supports it
-		if (WorkshopExplorer is WorkshopExplorerViewModel explorerVm)
-		{
-			explorerVm.FileSelected += OnFileSelected;
-			_logger.LogDebug("Subscribed to FileSelected event from WorkshopExplorerViewModel.");
-		}
-		else
-		{
-			_logger.LogWarning(
-				"WorkshopExplorer does not support FileSelected event. File selection integration is unavailable.");
-		}
+		// Subscribe to file selection events through the interface abstraction
+		WorkshopExplorer.FileSelected += OnFileSelected;
+		_logger.LogDebug("Subscribed to FileSelected event from IWorkshopExplorerViewModel.");
 	}
 
 	/// <summary>
@@ -75,11 +67,8 @@ public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewMod
 		_logger.LogDebug("Disposing LeftSidePanelViewModel.");
 
 		// Unsubscribe from events to prevent memory leaks
-		if (WorkshopExplorer is WorkshopExplorerViewModel explorerVm)
-		{
-			explorerVm.FileSelected -= OnFileSelected;
-			_logger.LogDebug("Unsubscribed from FileSelected event.");
-		}
+		WorkshopExplorer.FileSelected -= OnFileSelected;
+		_logger.LogDebug("Unsubscribed from FileSelected event.");
 
 		// Dispose child ViewModels if they implement IDisposable
 		if (WorkshopExplorer is IDisposable disposableExplorer)
