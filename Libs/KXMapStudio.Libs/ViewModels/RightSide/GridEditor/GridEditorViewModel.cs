@@ -27,6 +27,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private readonly ILogger<GridEditorViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
+	private readonly IDispatcherHelper _dispatcherHelper;
 
 	private int _autoMarkerCounter;
 	private CancellationTokenSource? _cts;
@@ -71,6 +72,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	/// <param name="state">The state management service for undo/redo operations.</param>
 	/// <param name="mumbleService">The Mumble service for Guild Wars 2 integration.</param>
 	/// <param name="hotkeyService">The hotkey service for F9 marker addition.</param>
+	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -80,18 +82,21 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> state,
 		IMumbleService mumbleService,
 		IGlobalHotkeyService hotkeyService,
+		IDispatcherHelper dispatcherHelper,
 		ILogger<GridEditorViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(documentService);
 		ArgumentNullException.ThrowIfNull(state);
 		ArgumentNullException.ThrowIfNull(mumbleService);
 		ArgumentNullException.ThrowIfNull(hotkeyService);
+		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_documentService = documentService;
 		_state = state;
 		_mumbleService = mumbleService;
 		_hotkeyService = hotkeyService;
+		_dispatcherHelper = dispatcherHelper;
 		_logger = logger;
 
 		Rows = [];
@@ -287,7 +292,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private void MumbleServiceOnMumbleUpdated(object? sender, MumbleStateModel e)
 	{
 		// Update command state when Mumble availability changes
-		Application.Current?.Dispatcher.Invoke(() => { AddMarkerFromMumbleCommand.NotifyCanExecuteChanged(); });
+		_dispatcherHelper.InvokeOnUIThread(() => AddMarkerFromMumbleCommand.NotifyCanExecuteChanged());
 	}
 
 	/// <summary>
@@ -325,8 +330,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 	private void ReloadRows(IReadOnlyList<GridEditorRowViewModel> rows)
 	{
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1), 
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			Rows.Clear();
 
@@ -337,10 +342,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 				HookRow(r);
 				Rows.Add(r);
 			}
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 	}
 
@@ -549,8 +550,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		PushUndoSnapshot();
 
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			var row = new GridEditorRowViewModel
 			{
@@ -567,10 +568,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 			RowAdded?.Invoke(this, row);
 
 			_logger.LogInformation("Row added successfully. New row count: {RowCount}", Rows.Count);
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 
 		SetDirty(true);
@@ -603,15 +600,11 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 	private void ReindexIds()
 	{
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			for (var i = 0; i < Rows.Count; i++)
 				Rows[i].Id = i + 1;
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 	}
 
@@ -631,8 +624,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		PushUndoSnapshot();
 
-		Interlocked.Exchange(ref _suppressDirty, 1);
-		try
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			if (Rows.Count == 0)
 				_autoMarkerCounter = 0;
@@ -653,10 +646,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 			_logger.LogInformation("Marker added from Mumble: Name={Name}, New row count: {RowCount}",
 				row.Name, Rows.Count);
-		}
-		finally
-		{
-			Interlocked.Exchange(ref _suppressDirty, 0);
 		}
 
 		SetDirty(true);

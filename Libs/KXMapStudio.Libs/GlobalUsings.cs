@@ -47,6 +47,7 @@ global using KXMapStudio.Core.Types.Structs;
 // ─────────────────────────────────────────────────────────────────────
 // KXMapStudio.Libs (Presentation Layer) - Abstractions
 // ─────────────────────────────────────────────────────────────────────
+global using KXMapStudio.Libs.Abstractions.Services;
 global using KXMapStudio.Libs.Abstractions.Services.Dialogs;
 global using KXMapStudio.Libs.Abstractions.Services.GridEditor;
 global using KXMapStudio.Libs.Abstractions.Services.Hotkeys;
