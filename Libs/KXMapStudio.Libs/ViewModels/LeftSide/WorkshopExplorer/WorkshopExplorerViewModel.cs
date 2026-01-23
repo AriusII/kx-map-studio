@@ -18,7 +18,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
 	private readonly IDispatcherHelper _dispatcherHelper;
-	private readonly IGridEditorViewModel _gridEditor;
+	private readonly IOpenDocumentTracker _openDocumentTracker;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
@@ -57,7 +57,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <param name="dialogService">The dialog service for file creation and deletion confirmation.</param>
 	/// <param name="fileFacade">The facade for creating new JSON files.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
-	/// <param name="gridEditor">The grid editor ViewModel to check if files are currently open.</param>
+	/// <param name="openDocumentTracker">The service for tracking which file is currently open.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -68,7 +68,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ISaveFileDialogService dialogService,
 		IFileFacade fileFacade,
 		IDispatcherHelper dispatcherHelper,
-		IGridEditorViewModel gridEditor,
+		IOpenDocumentTracker openDocumentTracker,
 		ILogger<WorkshopExplorerViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(workshopExplorerService);
@@ -76,7 +76,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ArgumentNullException.ThrowIfNull(dialogService);
 		ArgumentNullException.ThrowIfNull(fileFacade);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
-		ArgumentNullException.ThrowIfNull(gridEditor);
+		ArgumentNullException.ThrowIfNull(openDocumentTracker);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_workshopExplorerService = workshopExplorerService;
@@ -84,7 +84,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_dialogService = dialogService;
 		_fileFacade = fileFacade;
 		_dispatcherHelper = dispatcherHelper;
-		_gridEditor = gridEditor;
+		_openDocumentTracker = openDocumentTracker;
 		_logger = logger;
 
 		RootNodes = [];
@@ -502,15 +502,13 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	}
 
 	/// <summary>
-	///     Checks if the specified file is currently open in the grid editor.
+	///     Checks if the specified file is currently open in the editor.
 	/// </summary>
 	/// <param name="filePath">The file path to check.</param>
 	/// <returns><see langword="true" /> if the file is currently open; otherwise, <see langword="false" />.</returns>
 	private bool IsFileCurrentlyOpen(string filePath)
 	{
-		return _gridEditor.IsLoaded &&
-		       !string.IsNullOrEmpty(_gridEditor.OpenedFilePath) &&
-		       string.Equals(_gridEditor.OpenedFilePath, filePath, StringComparison.OrdinalIgnoreCase);
+		return _openDocumentTracker.IsFileOpen(filePath);
 	}
 
 	/// <summary>

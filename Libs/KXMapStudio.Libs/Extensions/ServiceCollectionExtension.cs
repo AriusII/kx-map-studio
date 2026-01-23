@@ -44,7 +44,8 @@ public static class ServiceCollectionExtension
 				.AddSingleton<IGlobalHotkeyService, GlobalHotkeyService>()
 				.AddSingleton<ISnackbarMessageQueue>(_ => new SnackbarMessageQueue(TimeSpan.FromSeconds(3)))
 				.AddSingleton<INotificationService, NotificationService>()
-				.AddSingleton<IUpdateCheckerService, UpdateCheckerService>();
+				.AddSingleton<IUpdateCheckerService, UpdateCheckerService>()
+				.AddSingleton<IOpenDocumentTracker, OpenDocumentTracker>();
 		}
 
 		/// <summary>
