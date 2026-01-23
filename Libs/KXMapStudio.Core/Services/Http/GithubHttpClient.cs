@@ -21,12 +21,8 @@ public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 	{
 		try
 		{
-			var latestRelease = await HttpClient.GetFromJsonAsync<GitHubReleaseModel>(
-				Constants.Settings.GitHubApiUrl,
-				JsonRepository.DefaultJsonOptions,
-				cancellationToken);
-
-			if (latestRelease == null || string.IsNullOrEmpty(latestRelease.TagName))
+			var latestRelease = await GetLatestReleaseAsync(cancellationToken);
+			if (latestRelease == null)
 				return false;
 
 			var latestVersionString = latestRelease.TagName.TrimStart('v');
@@ -42,6 +38,34 @@ public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 		catch
 		{
 			return false;
+		}
+	}
+
+	/// <summary>
+	///     Gets the latest release information from GitHub.
+	/// </summary>
+	/// <param name="cancellationToken">A token used to cancel the operation.</param>
+	/// <returns>
+	///     The latest release information, or <see langword="null"/> if the request fails or no release is available.
+	/// </returns>
+	/// <remarks>
+	///     This method is intentionally defensive: any failure (network, invalid payload) returns
+	///     <see langword="null"/> to avoid blocking the application startup or UI.
+	/// </remarks>
+	public async Task<GitHubReleaseModel?> GetLatestReleaseAsync(CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			var latestRelease = await HttpClient.GetFromJsonAsync<GitHubReleaseModel>(
+				Constants.Settings.GitHubApiUrl,
+				JsonRepository.DefaultJsonOptions,
+				cancellationToken);
+
+			return latestRelease;
+		}
+		catch
+		{
+			return null;
 		}
 	}
 }

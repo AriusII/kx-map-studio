@@ -60,4 +60,41 @@ public interface ISaveFileDialogService
 	///     The dialog displays a warning icon and emphasizes that the action cannot be undone.
 	/// </remarks>
 	Task<bool> ShowDeleteFileConfirmationAsync(string fileName);
+
+	/// <summary>
+	///     Displays a confirmation dialog when attempting to switch files with unsaved changes.
+	/// </summary>
+	/// <param name="fileName">
+	///     The name of the file with unsaved changes.
+	/// </param>
+	/// <returns>
+	///     A task containing the user's choice:
+	///     <list type="bullet">
+	///         <item><see cref="UnsavedChangesDialogResult.SaveAndContinue"/>: Save changes and proceed.</item>
+	///         <item><see cref="UnsavedChangesDialogResult.ContinueWithoutSaving"/>: Discard changes and proceed.</item>
+	///         <item><see cref="UnsavedChangesDialogResult.Cancel"/>: Cancel the operation.</item>
+	///     </list>
+	/// </returns>
+	Task<UnsavedChangesDialogResult> ShowUnsavedChangesDialogAsync(string fileName);
+}
+
+/// <summary>
+///     Represents the user's choice in the unsaved changes dialog.
+/// </summary>
+public enum UnsavedChangesDialogResult
+{
+	/// <summary>
+	///     Save the current document and continue with the operation.
+	/// </summary>
+	SaveAndContinue,
+
+	/// <summary>
+	///     Continue with the operation without saving changes (discard changes).
+	/// </summary>
+	ContinueWithoutSaving,
+
+	/// <summary>
+	///     Cancel the operation and stay on the current document.
+	/// </summary>
+	Cancel
 }

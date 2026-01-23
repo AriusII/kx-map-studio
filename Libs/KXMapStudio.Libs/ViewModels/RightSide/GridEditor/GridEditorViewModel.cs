@@ -28,6 +28,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private readonly IMumbleService _mumbleService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
 	private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly INotificationService _notificationService;
 
 	private int _autoMarkerCounter;
 	private CancellationTokenSource? _cts;
@@ -73,6 +74,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	/// <param name="mumbleService">The Mumble service for Guild Wars 2 integration.</param>
 	/// <param name="hotkeyService">The hotkey service for F9 marker addition.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
+	/// <param name="notificationService">The notification service for displaying user feedback.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -83,6 +85,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		IMumbleService mumbleService,
 		IGlobalHotkeyService hotkeyService,
 		IDispatcherHelper dispatcherHelper,
+		INotificationService notificationService,
 		ILogger<GridEditorViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(documentService);
@@ -90,6 +93,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		ArgumentNullException.ThrowIfNull(mumbleService);
 		ArgumentNullException.ThrowIfNull(hotkeyService);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
+		ArgumentNullException.ThrowIfNull(notificationService);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_documentService = documentService;
@@ -97,6 +101,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		_mumbleService = mumbleService;
 		_hotkeyService = hotkeyService;
 		_dispatcherHelper = dispatcherHelper;
+		_notificationService = notificationService;
 		_logger = logger;
 
 		Rows = [];
@@ -451,6 +456,9 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		SetDirty(false);
 		NotifyCommandStateChanged();
+
+		// Show success notification
+		_notificationService.ShowSuccess("File successfully saved.");
 	}
 
 	private async Task SaveAsAsync()
@@ -649,5 +657,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		}
 
 		SetDirty(true);
+
+		// Show success notification
+		_notificationService.ShowSuccess("Marker successfully added to the list.");
 	}
 }

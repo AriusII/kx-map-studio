@@ -6,6 +6,7 @@
 /// <param name="leftPanel">The left panel ViewModel managing file exploration and preview.</param>
 /// <param name="gridEditor">The grid editor ViewModel managing coordinate editing.</param>
 /// <param name="statusBar">The status bar ViewModel displaying Mumble state and application status.</param>
+/// <param name="snackbarMessageQueue">The message queue for displaying snackbar notifications.</param>
 /// <remarks>
 ///     This ViewModel acts as the composition root for the main workspace UI,
 ///     aggregating child ViewModels without additional orchestration logic.
@@ -13,12 +14,13 @@
 /// </remarks>
 /// <exception cref="ArgumentNullException">
 ///     Thrown when any of the constructor parameters (<paramref name="leftPanel" />,
-///     <paramref name="gridEditor" />, or <paramref name="statusBar" />) is <see langword="null" />.
+///     <paramref name="gridEditor" />, <paramref name="statusBar" />, or <paramref name="snackbarMessageQueue" />) is <see langword="null" />.
 /// </exception>
 public sealed class WorkspaceWindowViewModel(
 	ILeftPanelViewModel leftPanel,
 	IGridEditorViewModel gridEditor,
-	IStatusBarViewModel statusBar)
+	IStatusBarViewModel statusBar,
+	ISnackbarMessageQueue snackbarMessageQueue)
 	: ObservableObject, IWorkspaceWindowViewModel
 {
 	/// <summary>
@@ -35,4 +37,9 @@ public sealed class WorkspaceWindowViewModel(
 	///     Gets the status bar ViewModel displaying Mumble connection state and player information.
 	/// </summary>
 	public IStatusBarViewModel StatusBar { get; } = statusBar ?? throw new ArgumentNullException(nameof(statusBar));
+
+	/// <summary>
+	///     Gets the message queue for displaying snackbar notifications.
+	/// </summary>
+	public ISnackbarMessageQueue SnackbarMessageQueue { get; } = snackbarMessageQueue ?? throw new ArgumentNullException(nameof(snackbarMessageQueue));
 }

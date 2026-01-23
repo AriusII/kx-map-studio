@@ -27,6 +27,10 @@ public sealed partial class App
 		// Start MumbleLink polling so the StatusBar stays up-to-date.
 		AppHost.Services.GetRequiredService<IMumbleService>().Start();
 
+		// Check for application updates asynchronously (non-blocking)
+		var updateChecker = AppHost.Services.GetRequiredService<IUpdateCheckerService>();
+		_ = updateChecker.CheckForUpdatesAsync();
+
 		var mainWindow = AppHost.Services.GetRequiredService<WorkspaceWindow>();
 		mainWindow.Show();
 	}
