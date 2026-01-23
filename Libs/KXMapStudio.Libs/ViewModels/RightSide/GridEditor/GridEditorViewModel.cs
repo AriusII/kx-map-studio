@@ -115,6 +115,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		AddRowCommand = new RelayCommand(AddRow, () => IsLoaded);
 		DeleteRowCommand = new RelayCommand<GridEditorRowViewModel?>(DeleteRow, CanDeleteRow);
 		AddMarkerFromMumbleCommand = new RelayCommand(AddMarkerFromMumble, () => CanAddMarkerFromMumble);
+		InsertRowAboveCommand = new RelayCommand<GridEditorRowViewModel?>(InsertRowAbove, CanInsertRow);
+		InsertRowBelowCommand = new RelayCommand<GridEditorRowViewModel?>(InsertRowBelow, CanInsertRow);
 
 		_state.StateChanged += StateOnStateChanged;
 		_mumbleService.MumbleUpdated += MumbleServiceOnMumbleUpdated;
@@ -200,6 +202,16 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	///     Gets the command to add a marker from the current Mumble position.
 	/// </summary>
 	public IRelayCommand AddMarkerFromMumbleCommand { get; }
+
+	/// <summary>
+	///     Gets the command to insert a new row above the selected row.
+	/// </summary>
+	public IRelayCommand<GridEditorRowViewModel?> InsertRowAboveCommand { get; }
+
+	/// <summary>
+	///     Gets the command to insert a new row below the selected row.
+	/// </summary>
+	public IRelayCommand<GridEditorRowViewModel?> InsertRowBelowCommand { get; }
 
 	/// <summary>
 	///     Occurs when a new row is added to the grid (via Add Row or Add from Mumble).
@@ -660,5 +672,80 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Show success notification
 		_notificationService.ShowSuccess("Marker successfully added to the list.");
+	}
+
+	private bool CanInsertRow(GridEditorRowViewModel? row)
+	{
+		return IsLoaded && row != null && Rows.Contains(row);
+	}
+
+	private void InsertRowAbove(GridEditorRowViewModel? targetRow)
+	{
+		if (targetRow is null || !Rows.Contains(targetRow))
+			return;
+
+		var index = Rows.IndexOf(targetRow);
+		if (index < 0)
+			return;
+
+		_logger.LogDebug("Inserting new row above index {Index}. Current count: {RowCount}", index, Rows.Count);
+
+		PushUndoSnapshot();
+
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+		{
+			var newRow = new GridEditorRowViewModel
+			{
+				Id = index + 1, // Temporary, will be reindexed
+				Name = string.Empty,
+				X = 0d,
+				Y = 0d,
+				Z = 0d
+			};
+			HookRow(newRow);
+			Rows.Insert(index, newRow);
+
+			_logger.LogInformation("Row inserted above index {Index}. New row count: {RowCount}", index, Rows.Count);
+		}
+
+		ReindexIds();
+		SetDirty(true);
+		NotifyCommandStateChanged();
+	}
+
+	private void InsertRowBelow(GridEditorRowViewModel? targetRow)
+	{
+		if (targetRow is null || !Rows.Contains(targetRow))
+			return;
+
+		var index = Rows.IndexOf(targetRow);
+		if (index < 0)
+			return;
+
+		_logger.LogDebug("Inserting new row below index {Index}. Current count: {RowCount}", index, Rows.Count);
+
+		PushUndoSnapshot();
+
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+		{
+			var newRow = new GridEditorRowViewModel
+			{
+				Id = index + 2, // Temporary, will be reindexed
+				Name = string.Empty,
+				X = 0d,
+				Y = 0d,
+				Z = 0d
+			};
+			HookRow(newRow);
+			Rows.Insert(index + 1, newRow);
+
+			_logger.LogInformation("Row inserted below index {Index}. New row count: {RowCount}", index, Rows.Count);
+		}
+
+		ReindexIds();
+		SetDirty(true);
+		NotifyCommandStateChanged();
 	}
 }

@@ -25,6 +25,8 @@ public interface IGridEditorViewModel : IDisposable
 	IRelayCommand AddRowCommand { get; }
 	IRelayCommand<GridEditorRowViewModel?> DeleteRowCommand { get; }
 	IRelayCommand AddMarkerFromMumbleCommand { get; }
+	IRelayCommand<GridEditorRowViewModel?> InsertRowAboveCommand { get; }
+	IRelayCommand<GridEditorRowViewModel?> InsertRowBelowCommand { get; }
 
 	ObservableCollection<GridEditorRowViewModel> Rows { get; }
 
