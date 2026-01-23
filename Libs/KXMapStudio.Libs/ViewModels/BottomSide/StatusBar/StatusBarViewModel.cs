@@ -19,6 +19,7 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 {
 	private readonly ILogger<StatusBarViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
+	private readonly IDispatcherHelper _dispatcherHelper;
 
 	/// <summary>
 	///     Gets or sets the character name displayed in the status bar.
@@ -59,16 +60,19 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	///     Initializes a new instance of the <see cref="StatusBarViewModel" /> class.
 	/// </summary>
 	/// <param name="mumbleService">The Mumble service providing Guild Wars 2 player state.</param>
+	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
-	///     Thrown when <paramref name="mumbleService" /> or <paramref name="logger" /> is <see langword="null" />.
+	///     Thrown when <paramref name="mumbleService" />, <paramref name="dispatcherHelper" />, or <paramref name="logger" /> is <see langword="null" />.
 	/// </exception>
-	public StatusBarViewModel(IMumbleService mumbleService, ILogger<StatusBarViewModel> logger)
+	public StatusBarViewModel(IMumbleService mumbleService, IDispatcherHelper dispatcherHelper, ILogger<StatusBarViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(mumbleService);
+		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_mumbleService = mumbleService;
+		_dispatcherHelper = dispatcherHelper;
 		_logger = logger;
 
 		_mumbleService.MumbleUpdated += OnMumbleUpdated;
@@ -157,7 +161,7 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	/// <param name="mumble">The updated Mumble state containing player position and connection status.</param>
 	private void OnMumbleUpdated(object? sender, MumbleStateModel mumble)
 	{
-		Application.Current?.Dispatcher.Invoke(() =>
+		_dispatcherHelper.InvokeOnUIThread(() =>
 		{
 			ConnectionState = mumble.ConnectionState;
 

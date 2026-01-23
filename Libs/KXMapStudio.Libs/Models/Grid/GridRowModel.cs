@@ -3,58 +3,35 @@ namespace KXMapStudio.Libs.Models.Grid;
 /// <summary>
 ///     Represents a mutable grid row with property change notifications.
 /// </summary>
-public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowModel>
+/// <remarks>
+///     Uses CommunityToolkit.Mvvm source generators for efficient property change notifications.
+/// </remarks>
+public sealed partial class GridRowModel : ObservableObject, IEquatable<GridRowModel>
 {
-	private int _id;
-	private string _name = string.Empty;
-	private double _x;
-	private double _y;
-	private double _z;
-
 	/// <summary>
 	///     Gets or sets the row identifier.
 	/// </summary>
-	public int Id
-	{
-		get => _id;
-		set => SetField(ref _id, value);
-	}
+	[ObservableProperty] private int _id;
 
 	/// <summary>
 	///     Gets or sets the row display name.
 	/// </summary>
-	public string Name
-	{
-		get => _name;
-		set => SetField(ref _name, value);
-	}
+	[ObservableProperty] private string _name = string.Empty;
 
 	/// <summary>
 	///     Gets or sets the X coordinate.
 	/// </summary>
-	public double X
-	{
-		get => _x;
-		set => SetField(ref _x, value);
-	}
+	[ObservableProperty] private double _x;
 
 	/// <summary>
 	///     Gets or sets the Y coordinate.
 	/// </summary>
-	public double Y
-	{
-		get => _y;
-		set => SetField(ref _y, value);
-	}
+	[ObservableProperty] private double _y;
 
 	/// <summary>
 	///     Gets or sets the Z coordinate.
 	/// </summary>
-	public double Z
-	{
-		get => _z;
-		set => SetField(ref _z, value);
-	}
+	[ObservableProperty] private double _z;
 
 	public bool Equals(GridRowModel? other)
 	{
@@ -62,11 +39,6 @@ public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowMod
 		if (ReferenceEquals(this, other)) return true;
 		return Id == other.Id && Name == other.Name && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 	}
-
-	/// <summary>
-	///     Occurs when a property value changes.
-	/// </summary>
-	public event PropertyChangedEventHandler? PropertyChanged;
 
 	/// <summary>
 	///     Creates a <see cref="GridRowModel" /> instance from a DTO.
@@ -121,14 +93,5 @@ public sealed class GridRowModel : INotifyPropertyChanged, IEquatable<GridRowMod
 	public override int GetHashCode()
 	{
 		return HashCode.Combine(Id, Name, X, Y, Z);
-	}
-
-	private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-	{
-		if (EqualityComparer<T>.Default.Equals(field, value))
-			return;
-
-		field = value;
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }

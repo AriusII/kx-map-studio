@@ -20,6 +20,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 {
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
+	private readonly IDispatcherHelper _dispatcherHelper;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
@@ -57,6 +58,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <param name="fileStorageRepository">The repository for file deletion operations.</param>
 	/// <param name="dialogService">The dialog service for file creation and deletion confirmation.</param>
 	/// <param name="fileFacade">The facade for creating new JSON files.</param>
+	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -66,18 +68,21 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		IFileStorageRepository fileStorageRepository,
 		ISaveFileDialogService dialogService,
 		IFileFacade fileFacade,
+		IDispatcherHelper dispatcherHelper,
 		ILogger<WorkshopExplorerViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(workshopExplorerService);
 		ArgumentNullException.ThrowIfNull(fileStorageRepository);
 		ArgumentNullException.ThrowIfNull(dialogService);
 		ArgumentNullException.ThrowIfNull(fileFacade);
+		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_workshopExplorerService = workshopExplorerService;
 		_fileStorageRepository = fileStorageRepository;
 		_dialogService = dialogService;
 		_fileFacade = fileFacade;
+		_dispatcherHelper = dispatcherHelper;
 		_logger = logger;
 
 		RootNodes = [];
@@ -106,8 +111,8 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_logger.LogInformation("WorkshopExplorerViewModel initialized. Data folder: {DataFolder}",
 			_workshopExplorerService.DataFolder);
 
-		// Initial load on UI thread
-		_ = Application.Current?.Dispatcher.InvokeAsync(async () => await RefreshAsync());
+		// Initial load on UI thread using dispatcher helper
+		_ = _dispatcherHelper.InvokeOnUIThreadAsync(async () => await RefreshAsync());
 	}
 
 	/// <summary>
@@ -212,9 +217,9 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// </summary>
 	/// <param name="sender">The event source.</param>
 	/// <param name="e">The event arguments.</param>
-	private void OnRefreshTimerElapsed(object? sender, ElapsedEventArgs e)
+	private async void OnRefreshTimerElapsed(object? sender, ElapsedEventArgs e)
 	{
-		Application.Current?.Dispatcher.InvokeAsync(async () =>
+		await _dispatcherHelper.InvokeOnUIThreadAsync(async () =>
 		{
 			try
 			{
