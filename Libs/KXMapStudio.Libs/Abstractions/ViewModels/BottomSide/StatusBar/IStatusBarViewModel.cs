@@ -9,7 +9,7 @@ namespace KXMapStudio.Libs.Abstractions.ViewModels.BottomSide.StatusBar;
 ///         connection status, character name, map ID, and player coordinates.
 ///     </para>
 ///     <para>
-///         This is a UI-facing abstraction (presentation layer). 
+///         This is a UI-facing abstraction (presentation layer).
 ///         It must remain free of WPF visual types to maintain testability.
 ///     </para>
 /// </remarks>

@@ -9,8 +9,8 @@ namespace KXMapStudio.Libs.Services;
 /// </remarks>
 public sealed class NotificationService : INotificationService
 {
-	private readonly ISnackbarMessageQueue _messageQueue;
 	private readonly ILogger<NotificationService> _logger;
+	private readonly ISnackbarMessageQueue _messageQueue;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="NotificationService" /> class.

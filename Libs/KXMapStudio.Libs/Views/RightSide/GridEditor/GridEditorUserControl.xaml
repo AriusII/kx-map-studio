@@ -178,7 +178,7 @@
 		          FrozenColumnCount="1"
 		          PreviewKeyDown="MarkersDataGrid_PreviewKeyDown"
 		          Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
-			
+
 			<!-- Context Menu for Row Operations -->
 			<DataGrid.ContextMenu>
 				<ContextMenu>
@@ -198,7 +198,7 @@
 					</MenuItem>
 				</ContextMenu>
 			</DataGrid.ContextMenu>
-			
+
 			<DataGrid.Columns>
 				<!-- ID pinned left, not editable -->
 				<DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="60" />

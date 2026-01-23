@@ -12,7 +12,7 @@ public sealed class DispatcherHelper : IDispatcherHelper
 	private readonly ILogger<DispatcherHelper> _logger;
 
 	/// <summary>
-	///     Initializes a new instance of the <see cref="DispatcherHelper"/> class.
+	///     Initializes a new instance of the <see cref="DispatcherHelper" /> class.
 	/// </summary>
 	/// <param name="logger">The logger for diagnostic tracking.</param>
 	public DispatcherHelper(ILogger<DispatcherHelper> logger)
@@ -38,13 +38,9 @@ public sealed class DispatcherHelper : IDispatcherHelper
 		}
 
 		if (dispatcher.CheckAccess())
-		{
 			action();
-		}
 		else
-		{
 			dispatcher.Invoke(action);
-		}
 	}
 
 	/// <summary>
@@ -65,13 +61,9 @@ public sealed class DispatcherHelper : IDispatcherHelper
 		}
 
 		if (dispatcher.CheckAccess())
-		{
 			action();
-		}
 		else
-		{
 			await dispatcher.InvokeAsync(action);
-		}
 	}
 
 	/// <summary>
@@ -91,10 +83,7 @@ public sealed class DispatcherHelper : IDispatcherHelper
 			return await func();
 		}
 
-		if (dispatcher.CheckAccess())
-		{
-			return await func();
-		}
+		if (dispatcher.CheckAccess()) return await func();
 
 		return await dispatcher.InvokeAsync(func).Task.Unwrap();
 	}

@@ -18,14 +18,14 @@ public sealed partial class UpdateCheckerService : ObservableObject, IUpdateChec
 	[ObservableProperty] private bool _isUpdateAvailable;
 
 	/// <summary>
-	///     Gets or sets the URL of the latest release on GitHub.
-	/// </summary>
-	[ObservableProperty] private string? _latestVersionUrl;
-
-	/// <summary>
 	///     Gets or sets the tag name of the latest version (e.g., "v1.2.3").
 	/// </summary>
 	[ObservableProperty] private string? _latestVersionTag;
+
+	/// <summary>
+	///     Gets or sets the URL of the latest release on GitHub.
+	/// </summary>
+	[ObservableProperty] private string? _latestVersionUrl;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="UpdateCheckerService" /> class.

@@ -38,7 +38,6 @@ public interface IUpdateCheckerService
 	/// <remarks>
 	///     This method updates the <see cref="IsUpdateAvailable" />, <see cref="LatestVersionUrl" />,
 	///     and <see cref="LatestVersionTag" /> properties based on the latest release information from GitHub.
-	///     
 	///     If the check fails (network error, invalid response), the properties remain unchanged.
 	/// </remarks>
 	Task CheckForUpdatesAsync(CancellationToken cancellationToken = default);

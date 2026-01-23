@@ -1,6 +1,3 @@
-using KXMapStudio.Core.Abstractions.Facades;
-using KXMapStudio.Core.Abstractions.Repositories.FileStorage;
-
 namespace KXMapStudio.Libs.ViewModels.LeftSide.WorkshopExplorer;
 
 /// <summary>
@@ -156,7 +153,6 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_refreshTimer.Elapsed -= OnRefreshTimerElapsed;
 		_refreshTimer.Dispose();
 
-		_refreshCts?.Cancel();
 		_refreshCts?.Dispose();
 
 		_logger.LogInformation("WorkshopExplorerViewModel disposed successfully.");

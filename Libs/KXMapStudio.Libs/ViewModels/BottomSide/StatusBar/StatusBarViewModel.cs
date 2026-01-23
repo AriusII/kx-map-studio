@@ -1,5 +1,3 @@
-using KXMapStudio.Core.Models.Mumble;
-
 namespace KXMapStudio.Libs.ViewModels.BottomSide.StatusBar;
 
 /// <summary>
@@ -17,12 +15,12 @@ namespace KXMapStudio.Libs.ViewModels.BottomSide.StatusBar;
 /// </remarks>
 public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarViewModel, IDisposable
 {
+	private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly IGw2DataCacheService _gw2DataCache;
 	private readonly ILogger<StatusBarViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
-	private readonly IDispatcherHelper _dispatcherHelper;
-	private readonly IUpdateCheckerService _updateChecker;
-	private readonly IGw2DataCacheService _gw2DataCache;
 	private readonly INotificationService _notificationService;
+	private readonly IUpdateCheckerService _updateChecker;
 
 	/// <summary>
 	///     Gets or sets the character name displayed in the status bar.
@@ -96,11 +94,25 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 
 		// Subscribe to update checker property changes to forward notifications
 		if (_updateChecker is INotifyPropertyChanged notifyPropertyChanged)
-		{
 			notifyPropertyChanged.PropertyChanged += OnUpdateCheckerPropertyChanged;
-		}
 
 		_logger.LogDebug("StatusBarViewModel initialized and subscribed to MumbleUpdated event.");
+	}
+
+	/// <summary>
+	///     Disposes resources and unsubscribes from Mumble service events.
+	/// </summary>
+	public void Dispose()
+	{
+		_logger.LogDebug("Disposing StatusBarViewModel.");
+
+		_mumbleService.MumbleUpdated -= OnMumbleUpdated;
+
+		// Unsubscribe from update checker property changes
+		if (_updateChecker is INotifyPropertyChanged notifyPropertyChanged)
+			notifyPropertyChanged.PropertyChanged -= OnUpdateCheckerPropertyChanged;
+
+		_logger.LogInformation("StatusBarViewModel disposed successfully.");
 	}
 
 	/// <summary>
@@ -117,24 +129,6 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 	///     Gets the tag name of the latest version (e.g., "v1.2.3").
 	/// </summary>
 	public string? LatestVersionTag => _updateChecker.LatestVersionTag;
-
-	/// <summary>
-	///     Disposes resources and unsubscribes from Mumble service events.
-	/// </summary>
-	public void Dispose()
-	{
-		_logger.LogDebug("Disposing StatusBarViewModel.");
-
-		_mumbleService.MumbleUpdated -= OnMumbleUpdated;
-
-		// Unsubscribe from update checker property changes
-		if (_updateChecker is INotifyPropertyChanged notifyPropertyChanged)
-		{
-			notifyPropertyChanged.PropertyChanged -= OnUpdateCheckerPropertyChanged;
-		}
-
-		_logger.LogInformation("StatusBarViewModel disposed successfully.");
-	}
 
 	/// <summary>
 	///     Opens the KXTools website in the default browser.
@@ -286,17 +280,11 @@ public sealed partial class StatusBarViewModel : ObservableObject, IStatusBarVie
 		{
 			// Forward property change notifications for update checker properties
 			if (e.PropertyName == nameof(IUpdateCheckerService.IsUpdateAvailable))
-			{
 				OnPropertyChanged(nameof(IsUpdateAvailable));
-			}
 			else if (e.PropertyName == nameof(IUpdateCheckerService.LatestVersionUrl))
-			{
 				OnPropertyChanged(nameof(LatestVersionUrl));
-			}
 			else if (e.PropertyName == nameof(IUpdateCheckerService.LatestVersionTag))
-			{
 				OnPropertyChanged(nameof(LatestVersionTag));
-			}
 		});
 	}
 }

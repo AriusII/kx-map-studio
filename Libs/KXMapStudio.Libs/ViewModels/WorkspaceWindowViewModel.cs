@@ -14,7 +14,8 @@
 /// </remarks>
 /// <exception cref="ArgumentNullException">
 ///     Thrown when any of the constructor parameters (<paramref name="leftPanel" />,
-///     <paramref name="gridEditor" />, <paramref name="statusBar" />, or <paramref name="snackbarMessageQueue" />) is <see langword="null" />.
+///     <paramref name="gridEditor" />, <paramref name="statusBar" />, or <paramref name="snackbarMessageQueue" />) is
+///     <see langword="null" />.
 /// </exception>
 public sealed class WorkspaceWindowViewModel(
 	ILeftPanelViewModel leftPanel,
@@ -41,5 +42,6 @@ public sealed class WorkspaceWindowViewModel(
 	/// <summary>
 	///     Gets the message queue for displaying snackbar notifications.
 	/// </summary>
-	public ISnackbarMessageQueue SnackbarMessageQueue { get; } = snackbarMessageQueue ?? throw new ArgumentNullException(nameof(snackbarMessageQueue));
+	public ISnackbarMessageQueue SnackbarMessageQueue { get; } =
+		snackbarMessageQueue ?? throw new ArgumentNullException(nameof(snackbarMessageQueue));
 }

@@ -9,7 +9,7 @@ namespace KXMapStudio.Libs.Abstractions.Services.Dialogs;
 ///         to provide testable interfaces and centralized dialog management.
 ///     </para>
 ///     <para>
-///         All methods execute synchronously on the UI thread but return <see cref="Task{T}"/>
+///         All methods execute synchronously on the UI thread but return <see cref="Task{T}" />
 ///         for API consistency and future async support.
 ///     </para>
 /// </remarks>
@@ -19,14 +19,14 @@ public interface ISaveFileDialogService
 	///     Displays a Save File Dialog for JSON files.
 	/// </summary>
 	/// <param name="suggestedFileName">
-	///     The suggested filename to display in the dialog. 
-	///     If <see langword="null"/> or empty, defaults to "document.json".
+	///     The suggested filename to display in the dialog.
+	///     If <see langword="null" /> or empty, defaults to "document.json".
 	/// </param>
 	/// <param name="cancellationToken">
 	///     A cancellation token (currently unused, reserved for future async dialog support).
 	/// </param>
 	/// <returns>
-	///     A task containing the selected file path, or <see langword="null"/> if the user canceled the dialog.
+	///     A task containing the selected file path, or <see langword="null" /> if the user canceled the dialog.
 	/// </returns>
 	Task<string?> ShowSaveJsonAsync(string? suggestedFileName, CancellationToken cancellationToken = default);
 
@@ -42,7 +42,7 @@ public interface ISaveFileDialogService
 	/// </param>
 	/// <returns>
 	///     A task containing the selected file path for the new file,
-	///     or <see langword="null"/> if the user canceled the dialog.
+	///     or <see langword="null" /> if the user canceled the dialog.
 	/// </returns>
 	Task<string?> ShowCreateJsonFileDialogAsync(string defaultFolder, CancellationToken cancellationToken = default);
 
@@ -53,8 +53,8 @@ public interface ISaveFileDialogService
 	///     The name of the file to delete (displayed in the confirmation message).
 	/// </param>
 	/// <returns>
-	///     A task containing <see langword="true"/> if the user confirmed deletion;
-	///     otherwise, <see langword="false"/>.
+	///     A task containing <see langword="true" /> if the user confirmed deletion;
+	///     otherwise, <see langword="false" />.
 	/// </returns>
 	/// <remarks>
 	///     The dialog displays a warning icon and emphasizes that the action cannot be undone.
@@ -70,31 +70,10 @@ public interface ISaveFileDialogService
 	/// <returns>
 	///     A task containing the user's choice:
 	///     <list type="bullet">
-	///         <item><see cref="UnsavedChangesDialogResult.SaveAndContinue"/>: Save changes and proceed.</item>
-	///         <item><see cref="UnsavedChangesDialogResult.ContinueWithoutSaving"/>: Discard changes and proceed.</item>
-	///         <item><see cref="UnsavedChangesDialogResult.Cancel"/>: Cancel the operation.</item>
+	///         <item><see cref="UnsavedChangesDialogResult.SaveAndContinue" />: Save changes and proceed.</item>
+	///         <item><see cref="UnsavedChangesDialogResult.ContinueWithoutSaving" />: Discard changes and proceed.</item>
+	///         <item><see cref="UnsavedChangesDialogResult.Cancel" />: Cancel the operation.</item>
 	///     </list>
 	/// </returns>
 	Task<UnsavedChangesDialogResult> ShowUnsavedChangesDialogAsync(string fileName);
-}
-
-/// <summary>
-///     Represents the user's choice in the unsaved changes dialog.
-/// </summary>
-public enum UnsavedChangesDialogResult
-{
-	/// <summary>
-	///     Save the current document and continue with the operation.
-	/// </summary>
-	SaveAndContinue,
-
-	/// <summary>
-	///     Continue with the operation without saving changes (discard changes).
-	/// </summary>
-	ContinueWithoutSaving,
-
-	/// <summary>
-	///     Cancel the operation and stay on the current document.
-	/// </summary>
-	Cancel
 }

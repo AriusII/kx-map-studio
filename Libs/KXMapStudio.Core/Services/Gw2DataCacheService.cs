@@ -9,15 +9,15 @@ namespace KXMapStudio.Core.Services;
 /// </remarks>
 public sealed class Gw2DataCacheService : IGw2DataCacheService
 {
+	private readonly SemaphoreSlim _continentsLock = new(1, 1);
+	private readonly string _dataDirectory;
 	private readonly IGuildWarsHttpClient _httpClient;
 	private readonly IJsonService _jsonService;
 	private readonly ILogger<Gw2DataCacheService> _logger;
-	private readonly string _dataDirectory;
+	private readonly SemaphoreSlim _mapsLock = new(1, 1);
+	private ContinentFloorModel? _cachedContinents;
 
 	private IReadOnlyList<MapModel>? _cachedMaps;
-	private ContinentFloorModel? _cachedContinents;
-	private readonly SemaphoreSlim _mapsLock = new(1, 1);
-	private readonly SemaphoreSlim _continentsLock = new(1, 1);
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="Gw2DataCacheService" /> class.
@@ -43,7 +43,7 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 
 		// Data directory is in the same folder as the executable
 		_dataDirectory = Path.Combine(AppContext.BaseDirectory, Constants.Settings.DataFolder);
-		
+
 		// Ensure data directory exists
 		if (!Directory.Exists(_dataDirectory))
 		{
@@ -68,7 +68,7 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 				return _cachedMaps;
 
 			var mapsPath = Path.Combine(_dataDirectory, Constants.Settings.MapsPath);
-			
+
 			if (!File.Exists(mapsPath))
 			{
 				_logger.LogWarning("Maps file not found: {MapsPath}", mapsPath);
@@ -103,7 +103,7 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 				return _cachedContinents;
 
 			var continentsPath = Path.Combine(_dataDirectory, Constants.Settings.ContinentsPath);
-			
+
 			if (!File.Exists(continentsPath))
 			{
 				_logger.LogWarning("Continents file not found: {ContinentsPath}", continentsPath);
@@ -140,9 +140,9 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 		_logger.LogInformation("Downloading maps data from GW2 API");
 
 		var maps = await _httpClient.GetMapsAsync(cancellationToken);
-		
+
 		var mapsPath = Path.Combine(_dataDirectory, Constants.Settings.MapsPath);
-		await _jsonService.SaveGuildWarsMapsAsync(mapsPath, maps, cancellationToken);
+		//await _jsonService.SaveGuildWarsMapsAsync(mapsPath, maps, cancellationToken);
 
 		_logger.LogInformation("Maps data saved to: {MapsPath}", mapsPath);
 	}
@@ -155,9 +155,9 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 		_logger.LogInformation("Downloading continents data from GW2 API");
 
 		var continents = await _httpClient.GetContinentsAsync(cancellationToken);
-		
+
 		var continentsPath = Path.Combine(_dataDirectory, Constants.Settings.ContinentsPath);
-		await _jsonService.SaveGuildWarsContinentFloorAsync(continentsPath, continents, cancellationToken);
+		//await _jsonService.SaveGuildWarsContinentFloorAsync(continentsPath, continents, cancellationToken);
 
 		_logger.LogInformation("Continents data saved to: {ContinentsPath}", continentsPath);
 	}

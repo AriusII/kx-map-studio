@@ -5,15 +5,15 @@ namespace KXMapStudio.Libs.Services;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This class implements <see cref="IDisposable"/> to provide RAII-style suppression scoping.
+///         This class implements <see cref="IDisposable" /> to provide RAII-style suppression scoping.
 ///         Use with a <c>using</c> statement to ensure proper restoration of dirty tracking.
 ///     </para>
 ///     <para>
-///         This is a safer alternative to manual flag manipulation with <see cref="Interlocked"/>.
+///         This is a safer alternative to manual flag manipulation with <see cref="Interlocked" />.
 ///     </para>
 /// </remarks>
 /// <example>
-/// <code>
+///     <code>
 /// using (var suppression = new DirtyStateSuppression())
 /// {
 ///     // Dirty tracking is suppressed within this scope
@@ -28,7 +28,7 @@ public sealed class DirtyStateSuppression : IDisposable
 	private bool _disposed;
 
 	/// <summary>
-	///     Initializes a new instance of the <see cref="DirtyStateSuppression"/> class.
+	///     Initializes a new instance of the <see cref="DirtyStateSuppression" /> class.
 	/// </summary>
 	/// <param name="suppressAction">The action to execute when suppression starts.</param>
 	/// <param name="restoreAction">The action to execute when suppression ends (in Dispose).</param>
@@ -62,7 +62,7 @@ public sealed class DirtyStateSuppression : IDisposable
 	{
 		// Capture the reference in a local to avoid issues with ref in closures
 		var flagRef = suppressFlag;
-		
+
 		return new DirtyStateSuppression(
 			() => Interlocked.Exchange(ref flagRef, 1),
 			() => Interlocked.Exchange(ref flagRef, 0)

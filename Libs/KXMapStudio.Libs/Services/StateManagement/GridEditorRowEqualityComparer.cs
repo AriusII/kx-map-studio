@@ -1,7 +1,7 @@
 namespace KXMapStudio.Libs.Services.StateManagement;
 
 /// <summary>
-///     Provides equality comparison for collections of <see cref="GridEditorRowViewModel"/>.
+///     Provides equality comparison for collections of <see cref="GridEditorRowViewModel" />.
 /// </summary>
 /// <remarks>
 ///     This comparer performs deep value comparison of row properties (Name, X, Y, Z)
@@ -13,7 +13,7 @@ public sealed class GridEditorRowEqualityComparer : IStateEqualityComparer<IRead
 	private readonly ILogger<GridEditorRowEqualityComparer> _logger;
 
 	/// <summary>
-	///     Initializes a new instance of the <see cref="GridEditorRowEqualityComparer"/> class.
+	///     Initializes a new instance of the <see cref="GridEditorRowEqualityComparer" /> class.
 	/// </summary>
 	/// <param name="logger">The logger for diagnostic tracking.</param>
 	public GridEditorRowEqualityComparer(ILogger<GridEditorRowEqualityComparer> logger)
@@ -28,7 +28,8 @@ public sealed class GridEditorRowEqualityComparer : IStateEqualityComparer<IRead
 	/// <param name="left">The first collection to compare.</param>
 	/// <param name="right">The second collection to compare.</param>
 	/// <returns>
-	///     <see langword="true"/> if both collections have the same count and all rows match; otherwise, <see langword="false"/>.
+	///     <see langword="true" /> if both collections have the same count and all rows match; otherwise,
+	///     <see langword="false" />.
 	/// </returns>
 	public bool Equals(IReadOnlyList<GridEditorRowViewModel>? left, IReadOnlyList<GridEditorRowViewModel>? right)
 	{

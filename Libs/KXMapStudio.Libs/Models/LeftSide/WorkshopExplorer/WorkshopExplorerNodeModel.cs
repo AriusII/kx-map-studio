@@ -16,7 +16,7 @@ public sealed partial class WorkshopExplorerNodeModel : ObservableObject
 {
 	/// <summary>
 	///     Gets or sets a value indicating whether the node is expanded in the tree view.
-	///     </summary>
+	/// </summary>
 	[ObservableProperty] private bool _isExpanded;
 
 	/// <summary>

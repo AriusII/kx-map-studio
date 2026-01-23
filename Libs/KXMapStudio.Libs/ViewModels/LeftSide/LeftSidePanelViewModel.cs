@@ -19,8 +19,8 @@ namespace KXMapStudio.Libs.ViewModels.LeftSide;
 /// </remarks>
 public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewModel, IDisposable
 {
-	private readonly ILogger<LeftSidePanelViewModel> _logger;
 	private readonly ISaveFileDialogService _dialogService;
+	private readonly ILogger<LeftSidePanelViewModel> _logger;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="LeftSidePanelViewModel" /> class.
@@ -122,14 +122,10 @@ public sealed class LeftSidePanelViewModel : ObservableObject, ILeftPanelViewMod
 						_logger.LogInformation("User chose to save and continue.");
 						// Execute the save command and wait for it to complete
 						if (GridEditor.SaveCommand.CanExecute(null))
-						{
 							await GridEditor.SaveCommand.ExecuteAsync(null);
-						}
 						else
-						{
 							_logger.LogWarning("Save command cannot be executed. File may be read-only.");
-							// For read-only files or archive entries, proceed without saving
-						}
+						// For read-only files or archive entries, proceed without saving
 						break;
 
 					case UnsavedChangesDialogResult.ContinueWithoutSaving:

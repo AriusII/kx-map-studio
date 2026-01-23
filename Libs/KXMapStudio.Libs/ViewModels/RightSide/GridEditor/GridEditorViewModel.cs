@@ -1,5 +1,3 @@
-using KXMapStudio.Core.Models.Mumble;
-
 namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 
 /// <summary>
@@ -22,13 +20,13 @@ namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 /// </remarks>
 public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel
 {
+	private readonly IDispatcherHelper _dispatcherHelper;
 	private readonly IGridEditorDocumentService _documentService;
 	private readonly IGlobalHotkeyService _hotkeyService;
 	private readonly ILogger<GridEditorViewModel> _logger;
 	private readonly IMumbleService _mumbleService;
-	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
-	private readonly IDispatcherHelper _dispatcherHelper;
 	private readonly INotificationService _notificationService;
+	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
 
 	private int _autoMarkerCounter;
 	private CancellationTokenSource? _cts;
@@ -322,7 +320,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		var viewModels = new List<GridEditorRowViewModel>(rowData.Count);
 		var id = 1;
 		foreach (var data in rowData)
-		{
 			viewModels.Add(new GridEditorRowViewModel
 			{
 				Id = id++,
@@ -331,7 +328,6 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 				Y = data.Y,
 				Z = data.Z
 			});
-		}
 		return viewModels;
 	}
 
@@ -347,8 +343,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 	private void ReloadRows(IReadOnlyList<GridEditorRowViewModel> rows)
 	{
-		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1), 
-		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
+			       () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			Rows.Clear();
 
@@ -457,7 +453,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Convert ViewModels to data models for service layer
 		var rowData = ConvertViewModelsToData(Rows.ToList());
-		
+
 		// Important: do NOT push an undo snapshot for Save. State history is about edits.
 		await _documentService.SaveAsync(_currentDoc, rowData, _cts?.Token ?? CancellationToken.None);
 
@@ -482,7 +478,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 		// Convert ViewModels to data models for service layer
 		var rowData = ConvertViewModelsToData(Rows.ToList());
-		
+
 		await _documentService.SaveAsAsync(_currentDoc, rowData, _cts?.Token ?? CancellationToken.None);
 		NotifyCommandStateChanged();
 
@@ -571,7 +567,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		PushUndoSnapshot();
 
 		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
-		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+			       () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			var row = new GridEditorRowViewModel
 			{
@@ -621,7 +617,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	private void ReindexIds()
 	{
 		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
-		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+			       () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			for (var i = 0; i < Rows.Count; i++)
 				Rows[i].Id = i + 1;
@@ -645,7 +641,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		PushUndoSnapshot();
 
 		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
-		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+			       () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			if (Rows.Count == 0)
 				_autoMarkerCounter = 0;
@@ -693,7 +689,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		PushUndoSnapshot();
 
 		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
-		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+			       () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			var newRow = new GridEditorRowViewModel
 			{
@@ -728,7 +724,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		PushUndoSnapshot();
 
 		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
-		                                  () => Interlocked.Exchange(ref _suppressDirty, 0)))
+			       () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
 			var newRow = new GridEditorRowViewModel
 			{

@@ -28,8 +28,8 @@ public interface IWorkshopExplorerService
 	/// </summary>
 	/// <param name="fullPath">The full path of the changed file or directory.</param>
 	/// <returns>
-	///     <see langword="true"/> if the change affects workshop files (JSON files); 
-	///     otherwise, <see langword="false"/>.
+	///     <see langword="true" /> if the change affects workshop files (JSON files);
+	///     otherwise, <see langword="false" />.
 	/// </returns>
 	/// <remarks>
 	///     <para>
@@ -47,8 +47,8 @@ public interface IWorkshopExplorerService
 	/// </summary>
 	/// <param name="fullPath">The full path to validate.</param>
 	/// <returns>
-	///     <see langword="true"/> if the path is a directory or an allowed file (JSON); 
-	///     otherwise, <see langword="false"/>.
+	///     <see langword="true" /> if the path is a directory or an allowed file (JSON);
+	///     otherwise, <see langword="false" />.
 	/// </returns>
 	/// <remarks>
 	///     Directories are always considered valid to enable tree navigation.
@@ -70,10 +70,10 @@ public interface IWorkshopExplorerService
 	///         Empty directories (containing no JSON files) are excluded from results.
 	///     </para>
 	///     <para>
-	///         The operation can be canceled via <paramref name="cancellationToken"/>.
+	///         The operation can be canceled via <paramref name="cancellationToken" />.
 	///     </para>
 	/// </remarks>
-	/// <exception cref="ArgumentException">Thrown when <paramref name="directoryPath"/> is null or whitespace.</exception>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="directoryPath" /> is null or whitespace.</exception>
 	/// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
 	Task<WorkshopExplorerScanNode> ScanDirectoryAsync(string directoryPath,
 		CancellationToken cancellationToken = default);

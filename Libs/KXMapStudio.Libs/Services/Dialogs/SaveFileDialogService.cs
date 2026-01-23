@@ -143,10 +143,15 @@ public sealed class SaveFileDialogService : ISaveFileDialogService
 
 		var dialog = new UnsavedChangesDialog(fileName);
 		var result = dialog.ShowDialog();
+		var dialogResult = result.HasValue
+			? result.Value
+				? UnsavedChangesDialogResult.SaveAndContinue
+				: UnsavedChangesDialogResult.ContinueWithoutSaving
+			: UnsavedChangesDialogResult.Cancel;
 
 		_logger.LogInformation("User chose '{Result}' for unsaved changes in file: {FileName}",
 			result, fileName);
 
-		return Task.FromResult(result);
+		return Task.FromResult(dialogResult);
 	}
 }

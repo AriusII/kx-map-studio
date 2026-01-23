@@ -61,7 +61,6 @@
 		<!-- Snackbar for notifications (bottom-left) -->
 		<materialDesign:Snackbar
 			Grid.Row="1"
-			Grid.RowSpan="1"
 			VerticalAlignment="Bottom"
 			HorizontalAlignment="Left"
 			Margin="16"

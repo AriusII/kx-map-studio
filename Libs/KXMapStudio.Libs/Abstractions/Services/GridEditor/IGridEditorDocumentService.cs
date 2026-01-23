@@ -4,7 +4,7 @@ namespace KXMapStudio.Libs.Abstractions.Services.GridEditor;
 ///     Defines the contract for grid editor document operations (load, save, save as).
 /// </summary>
 /// <remarks>
-///     This service works with data models (<see cref="GridRowData"/>) rather than ViewModels
+///     This service works with data models (<see cref="GridRowData" />) rather than ViewModels
 ///     to maintain separation of concerns and enable service reusability.
 /// </remarks>
 public interface IGridEditorDocumentService

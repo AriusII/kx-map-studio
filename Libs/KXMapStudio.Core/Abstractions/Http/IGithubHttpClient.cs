@@ -17,7 +17,7 @@ public interface IGithubHttpClient
 	/// </summary>
 	/// <param name="cancellationToken">A token used to cancel the operation.</param>
 	/// <returns>
-	///     The latest release information, or <see langword="null"/> if the request fails or no release is available.
+	///     The latest release information, or <see langword="null" /> if the request fails or no release is available.
 	/// </returns>
 	Task<GitHubReleaseModel?> GetLatestReleaseAsync(CancellationToken cancellationToken = default);
 }

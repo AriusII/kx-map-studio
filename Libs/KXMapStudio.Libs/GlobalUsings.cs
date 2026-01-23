@@ -28,6 +28,7 @@ global using Microsoft.Win32;
 // ─────────────────────────────────────────────────────────────────────
 global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
+global using KXMapStudio.Core.Abstractions.Facades;
 
 // ─────────────────────────────────────────────────────────────────────
 // Third-party Libraries (MaterialDesignThemes)
@@ -39,6 +40,7 @@ global using MaterialDesignThemes.Wpf;
 // ─────────────────────────────────────────────────────────────────────
 global using KXMapStudio.Core.Abstractions.Http;
 global using KXMapStudio.Core.Abstractions.Repositories;
+global using KXMapStudio.Core.Abstractions.Repositories.FileStorage;
 global using KXMapStudio.Core.Abstractions.Services;
 global using KXMapStudio.Core.Abstractions.Services.Mumble;
 global using KXMapStudio.Core.Abstractions.Services.Serializations;
@@ -48,6 +50,7 @@ global using KXMapStudio.Core.Abstractions.Services.Serializations;
 // ─────────────────────────────────────────────────────────────────────
 global using KXMapStudio.Core.Models;
 global using KXMapStudio.Core.Models.Github;
+global using KXMapStudio.Core.Models.Mumble;
 global using KXMapStudio.Core.Models.Serializations.Json;
 global using KXMapStudio.Core.Types.Enums;
 global using KXMapStudio.Core.Types.Structs;
@@ -73,6 +76,7 @@ global using KXMapStudio.Libs.Abstractions.ViewModels.RightSide.GridEditor;
 global using KXMapStudio.Libs.Models.Editor;
 global using KXMapStudio.Libs.Models.Grid;
 global using KXMapStudio.Libs.Models.LeftSide.WorkshopExplorer;
+global using KXMapStudio.Libs.Services;
 
 // ─────────────────────────────────────────────────────────────────────
 // KXMapStudio.Libs (Presentation Layer) - Services
@@ -91,6 +95,7 @@ global using KXMapStudio.Libs.ViewModels.BottomSide.StatusBar;
 global using KXMapStudio.Libs.ViewModels.LeftSide;
 global using KXMapStudio.Libs.ViewModels.LeftSide.WorkshopExplorer;
 global using KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
+global using KXMapStudio.Libs.Views.Dialogs;
 
 // ─────────────────────────────────────────────────────────────────────
 // Microsoft Extensions (Dependency Injection & Logging)

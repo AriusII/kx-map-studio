@@ -35,13 +35,14 @@ public static class ServiceCollectionExtension
 		{
 			return services
 				.AddSingleton(typeof(IStateManagementService<>), typeof(StateManagementService<>))
-				.AddSingleton<IStateEqualityComparer<IReadOnlyList<GridEditorRowViewModel>>, GridEditorRowEqualityComparer>()
+				.AddSingleton<IStateEqualityComparer<IReadOnlyList<GridEditorRowViewModel>>,
+					GridEditorRowEqualityComparer>()
 				.AddSingleton<IDispatcherHelper, DispatcherHelper>()
 				.AddSingleton<IWorkshopExplorerService, WorkshopExplorerService>()
 				.AddSingleton<ISaveFileDialogService, SaveFileDialogService>()
 				.AddSingleton<IGridEditorDocumentService, GridEditorDocumentService>()
 				.AddSingleton<IGlobalHotkeyService, GlobalHotkeyService>()
-				.AddSingleton<ISnackbarMessageQueue>(provider => new SnackbarMessageQueue(TimeSpan.FromSeconds(3)))
+				.AddSingleton<ISnackbarMessageQueue>(_ => new SnackbarMessageQueue(TimeSpan.FromSeconds(3)))
 				.AddSingleton<INotificationService, NotificationService>()
 				.AddSingleton<IUpdateCheckerService, UpdateCheckerService>();
 		}

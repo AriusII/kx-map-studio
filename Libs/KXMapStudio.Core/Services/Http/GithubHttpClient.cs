@@ -46,11 +46,11 @@ public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 	/// </summary>
 	/// <param name="cancellationToken">A token used to cancel the operation.</param>
 	/// <returns>
-	///     The latest release information, or <see langword="null"/> if the request fails or no release is available.
+	///     The latest release information, or <see langword="null" /> if the request fails or no release is available.
 	/// </returns>
 	/// <remarks>
 	///     This method is intentionally defensive: any failure (network, invalid payload) returns
-	///     <see langword="null"/> to avoid blocking the application startup or UI.
+	///     <see langword="null" /> to avoid blocking the application startup or UI.
 	/// </remarks>
 	public async Task<GitHubReleaseModel?> GetLatestReleaseAsync(CancellationToken cancellationToken = default)
 	{

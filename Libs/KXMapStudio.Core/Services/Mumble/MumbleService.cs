@@ -124,27 +124,24 @@ public sealed record MumbleService : IMumbleService, IDisposable
 
 				// Create new state model
 				var mumble = new MumbleStateModel(state, available, playerPos, cameraPos, mapId, name, now);
-				
+
 				// Track state changes for logging and event optimization
 				var stateChanged = state != lastState;
-				
+
 				// Log state transitions only (avoid spam)
 				if (stateChanged)
 				{
 					Console.WriteLine($"[Mumble] {lastState} → {state} | Map={mapId}, Name='{name}'");
 					lastState = state;
 				}
-				
+
 				// Always update current state
 				_current = mumble;
-				
+
 				// Raise event based on state:
 				// - Always raise for Connected/Stale (position updates needed)
 				// - Only raise for Disconnected on state change (avoid redundant UI updates)
-				if (state != MumbleConnectionState.Disconnected || stateChanged)
-				{
-					MumbleUpdated?.Invoke(this, mumble);
-				}
+				if (state != MumbleConnectionState.Disconnected || stateChanged) MumbleUpdated?.Invoke(this, mumble);
 			}
 			catch (Exception ex)
 			{

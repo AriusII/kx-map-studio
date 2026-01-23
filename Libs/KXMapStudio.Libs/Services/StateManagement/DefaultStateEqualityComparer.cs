@@ -1,7 +1,7 @@
 namespace KXMapStudio.Libs.Services.StateManagement;
 
 /// <summary>
-///     Default state equality comparer that uses <see cref="EqualityComparer{T}.Default"/>.
+///     Default state equality comparer that uses <see cref="EqualityComparer{T}.Default" />.
 /// </summary>
 /// <typeparam name="TState">The type of state to compare.</typeparam>
 /// <remarks>
@@ -16,7 +16,7 @@ internal sealed class DefaultStateEqualityComparer<TState> : IStateEqualityCompa
 	/// <param name="left">The first state to compare.</param>
 	/// <param name="right">The second state to compare.</param>
 	/// <returns>
-	///     <see langword="true"/> if the specified states are equal; otherwise, <see langword="false"/>.
+	///     <see langword="true" /> if the specified states are equal; otherwise, <see langword="false" />.
 	/// </returns>
 	public bool Equals(TState? left, TState? right)
 	{

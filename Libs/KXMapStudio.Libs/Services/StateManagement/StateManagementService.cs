@@ -14,7 +14,7 @@ namespace KXMapStudio.Libs.Services.StateManagement;
 ///         (typically set after loading or saving a file).
 ///     </para>
 ///     <para>
-///         Uses injectable <see cref="IStateEqualityComparer{TState}"/> for comparison logic,
+///         Uses injectable <see cref="IStateEqualityComparer{TState}" /> for comparison logic,
 ///         making the service truly generic and reusable.
 ///     </para>
 /// </remarks>
@@ -31,8 +31,8 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 	/// </summary>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <param name="comparer">
-	///     The equality comparer for state comparison. If <see langword="null"/>,
-	///     uses <see cref="EqualityComparer{T}.Default"/>.
+	///     The equality comparer for state comparison. If <see langword="null" />,
+	///     uses <see cref="EqualityComparer{T}.Default" />.
 	/// </param>
 	/// <param name="capacity">The maximum number of undo snapshots to retain (default: 20).</param>
 	/// <exception cref="ArgumentNullException">Thrown when <paramref name="logger" /> is <see langword="null" />.</exception>
@@ -97,7 +97,7 @@ public sealed class StateManagementService<TState> : IStateManagementService<TSt
 	///     <see langword="false" />.
 	/// </returns>
 	/// <remarks>
-	///     Uses the configured <see cref="IStateEqualityComparer{TState}"/> for comparison.
+	///     Uses the configured <see cref="IStateEqualityComparer{TState}" /> for comparison.
 	/// </remarks>
 	public bool IsAtOriginalState(TState currentState)
 	{
