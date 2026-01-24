@@ -31,6 +31,6 @@ public sealed class FileValidationService : IFileValidationService
 		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
 		var extension = Path.GetExtension(filePath);
-		return string.Equals(extension, ".json", StringComparison.OrdinalIgnoreCase);
+		return string.Equals(extension, FileExtension.Json, StringComparison.OrdinalIgnoreCase);
 	}
 }

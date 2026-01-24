@@ -2,15 +2,11 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		
-		<!-- XML Documentation -->
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Platforms>x64</Platforms>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);1591</NoWarn>
-		
-		<!-- Enable trimming for .Core library (no UI dependencies) -->
-		<IsTrimmable>true</IsTrimmable>
-		
-		<!-- Enable assembly info generation -->
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 	</PropertyGroup>
 	

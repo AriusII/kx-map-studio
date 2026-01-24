@@ -18,8 +18,8 @@
 	<Window.InputBindings>
 		<!-- Save Command: Ctrl+S -->
 		<KeyBinding Key="S" Modifiers="Control" Command="{Binding GridEditor.SaveCommand}" />
-		<!-- Save As Command: Ctrl+D -->
-		<KeyBinding Key="D" Modifiers="Control" Command="{Binding GridEditor.SaveAsCommand}" />
+		<!-- Save As Command: Ctrl+Shift+S -->
+		<KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding GridEditor.SaveAsCommand}" />
 		<!-- Undo Command: Ctrl+Z -->
 		<KeyBinding Key="Z" Modifiers="Control" Command="{Binding GridEditor.UndoCommand}" />
 		<!-- Redo Command: Ctrl+Y -->

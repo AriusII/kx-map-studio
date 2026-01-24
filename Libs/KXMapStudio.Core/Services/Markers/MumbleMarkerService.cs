@@ -21,7 +21,7 @@ public sealed class MumbleMarkerService : IMumbleMarkerService
 		ArgumentNullException.ThrowIfNull(mumbleState);
 
 		// Marker can be created if Mumble is available and connected
-		return mumbleState.IsAvailable && mumbleState.ConnectionState == MumbleConnectionState.Connected;
+		return mumbleState is { IsAvailable: true, ConnectionState: MumbleConnectionState.Connected };
 	}
 
 	/// <inheritdoc />

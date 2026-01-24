@@ -18,14 +18,14 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
 	private readonly IDispatcherHelper _dispatcherHelper;
-	private readonly INotificationService _notificationService;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
-	private readonly IFileFacade _fileFacade;
 	private readonly IFileStorageRepository _fileStorageRepository;
 	private readonly IFileValidationService _fileValidationService;
+	private readonly IJsonService _jsonService;
 	private readonly ILogger<WorkshopExplorerViewModel> _logger;
+	private readonly INotificationService _notificationService;
 	private readonly IOpenDocumentTracker _openDocumentTracker;
 	private readonly Timer _refreshTimer;
 
@@ -57,7 +57,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <param name="workshopExplorerService">The service for scanning and validating workshop files.</param>
 	/// <param name="fileStorageRepository">The repository for file deletion operations.</param>
 	/// <param name="dialogService">The dialog service for file creation and deletion confirmation.</param>
-	/// <param name="fileFacade">The facade for creating new JSON files.</param>
+	/// <param name="jsonService">The facade for creating new JSON files.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="openDocumentTracker">The service for tracking which file is currently open.</param>
 	/// <param name="fileValidationService">The service for file validation operations.</param>
@@ -70,7 +70,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		IWorkshopExplorerService workshopExplorerService,
 		IFileStorageRepository fileStorageRepository,
 		ISaveFileDialogService dialogService,
-		IFileFacade fileFacade,
+		IJsonService jsonService,
 		IDispatcherHelper dispatcherHelper,
 		IOpenDocumentTracker openDocumentTracker,
 		IFileValidationService fileValidationService,
@@ -80,7 +80,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ArgumentNullException.ThrowIfNull(workshopExplorerService);
 		ArgumentNullException.ThrowIfNull(fileStorageRepository);
 		ArgumentNullException.ThrowIfNull(dialogService);
-		ArgumentNullException.ThrowIfNull(fileFacade);
+		ArgumentNullException.ThrowIfNull(jsonService);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(openDocumentTracker);
 		ArgumentNullException.ThrowIfNull(fileValidationService);
@@ -90,7 +90,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_workshopExplorerService = workshopExplorerService;
 		_fileStorageRepository = fileStorageRepository;
 		_dialogService = dialogService;
-		_fileFacade = fileFacade;
+		_jsonService = jsonService;
 		_dispatcherHelper = dispatcherHelper;
 		_openDocumentTracker = openDocumentTracker;
 		_fileValidationService = fileValidationService;
@@ -101,8 +101,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		RefreshCommand = new AsyncRelayCommand(RefreshAsync);
 		SelectNodeCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>(OnSelectNode);
 		CreateFileCommand = new RelayCommand<WorkshopExplorerNodeModel?>(OnCreateFile, CanCreateFile);
-		DeleteFileCommand = new RelayCommand<WorkshopExplorerNodeModel?>(OnDeleteFile, CanDeleteFile);
-
+		DeleteFileCommand = new AsyncRelayCommand<WorkshopExplorerNodeModel?>(OnDeleteFileAsync, CanDeleteFile);
 		_logger.LogDebug("Initializing FileSystemWatcher for: {DataFolder}", _workshopExplorerService.DataFolder);
 
 		_watcher = new FileSystemWatcher(_workshopExplorerService.DataFolder)
@@ -150,7 +149,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <summary>
 	///     Gets the command to delete a selected file.
 	/// </summary>
-	public IRelayCommand<WorkshopExplorerNodeModel?> DeleteFileCommand { get; }
+	public IAsyncRelayCommand<WorkshopExplorerNodeModel?> DeleteFileCommand { get; }
 
 	/// <summary>
 	///     Disposes resources, unsubscribes from events, and cancels pending refresh operations.
@@ -378,7 +377,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// </summary>
 	/// <param name="node">The node to check (null = root level).</param>
 	/// <returns><see langword="true" /> if creation is allowed; otherwise, <see langword="false" />.</returns>
-	private bool CanCreateFile(WorkshopExplorerNodeModel? node)
+	private static bool CanCreateFile(WorkshopExplorerNodeModel? node)
 	{
 		// Allow creation at root level (node == null) or in directories
 		return node == null || node.IsDirectory;
@@ -442,7 +441,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	{
 		// Create a new JSON file with an empty coordinates array
 		var fileName = Path.GetFileNameWithoutExtension(filePath);
-		await _fileFacade.CreateNewJsonAsync(
+		await _jsonService.CreateNewAsync(
 			fileName,
 			null,
 			[],
@@ -453,21 +452,35 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	///     Determines whether a file can be deleted.
 	/// </summary>
 	/// <param name="node">The node to check.</param>
-	/// <returns><see langword="true" /> if the node is a file that exists; otherwise, <see langword="false" />.</returns>
-	private bool CanDeleteFile(WorkshopExplorerNodeModel? node)
+	/// <returns><see langword="true" /> if the node is a file; otherwise, <see langword="false" />.</returns>
+	private static bool CanDeleteFile(WorkshopExplorerNodeModel? node)
 	{
-		// Only allow deleting files (not directories) that exist
-		return node is { IsDirectory: false } && File.Exists(node.FullPath);
+		// Only allow deleting files (not directories)
+		// File existence is validated in OnDeleteFile to avoid synchronous I/O in CanExecute
+		return node is { IsDirectory: false };
 	}
 
 	/// <summary>
 	///     Handles the delete file command, showing confirmation and deleting the file.
 	/// </summary>
 	/// <param name="node">The node representing the file to delete.</param>
-	private async void OnDeleteFile(WorkshopExplorerNodeModel? node)
+	private async Task OnDeleteFileAsync(WorkshopExplorerNodeModel? node)
 	{
-		if (node == null || !ValidateFileExists(node.FullPath))
+		_logger.LogDebug("OnDeleteFileAsync called with node: {NodeName}", node?.Name ?? "null");
+
+		if (node == null)
+		{
+			_logger.LogWarning("Delete command invoked with null node.");
 			return;
+		}
+
+		if (!ValidateFileExists(node.FullPath))
+		{
+			_logger.LogWarning("File no longer exists: {FullPath}", node.FullPath);
+			_notificationService.ShowWarning($"File '{node.Name}' no longer exists.");
+			await RefreshAsync();
+			return;
+		}
 
 		var fileName = Path.GetFileName(node.FullPath);
 

@@ -2,12 +2,11 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net10.0-windows</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Platforms>x64</Platforms>
 		<UseWPF>true</UseWPF>
-		
-		<!-- Disable trimming for WPF library (WPF uses runtime reflection) -->
-		<PublishTrimmed>false</PublishTrimmed>
-		
-		<!-- Enable assembly info generation -->
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 	</PropertyGroup>
 	

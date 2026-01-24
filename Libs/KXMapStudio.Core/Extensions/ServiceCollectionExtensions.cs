@@ -38,7 +38,6 @@ public static class ServiceCollectionExtensions
 		private IServiceCollection AddCoreServices()
 		{
 			return services
-				.AddSingleton<IFileFacade, FileFacade>()
 				.AddSingleton<IGw2Client, Gw2Client>()
 				.AddSingleton<IMumbleService, MumbleService>()
 				.AddSingleton<IJsonService, JsonService>()
