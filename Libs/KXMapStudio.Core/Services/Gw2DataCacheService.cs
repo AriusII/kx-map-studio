@@ -41,15 +41,8 @@ public sealed class Gw2DataCacheService : IGw2DataCacheService
 		_jsonService = jsonService;
 		_logger = logger;
 
-		// Data directory is in the same folder as the executable
-		_dataDirectory = Path.Combine(AppContext.BaseDirectory, Constants.Settings.DataFolder);
-
-		// Ensure data directory exists
-		if (!Directory.Exists(_dataDirectory))
-		{
-			Directory.CreateDirectory(_dataDirectory);
-			_logger.LogInformation("Created data directory: {DataDirectory}", _dataDirectory);
-		}
+		// Data files are stored directly in the executable directory
+		_dataDirectory = AppContext.BaseDirectory;
 	}
 
 	/// <summary>

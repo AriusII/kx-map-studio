@@ -26,7 +26,12 @@ public static class ServiceCollectionExtensions
 		{
 			// Typed clients give better discoverability and make configuration centralized.
 			services.AddHttpClient<IGuildWarsHttpClient, GuildWarsHttpClient>();
-			services.AddHttpClient<IGithubHttpClient, GithubHttpClient>();
+			services.AddHttpClient<IGithubHttpClient, GithubHttpClient>(client =>
+			{
+				// GitHub API requires User-Agent header and prefers specific Accept header
+				client.DefaultRequestHeaders.Add("User-Agent", "KXMapStudio");
+				client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
+			});
 			return services;
 		}
 
