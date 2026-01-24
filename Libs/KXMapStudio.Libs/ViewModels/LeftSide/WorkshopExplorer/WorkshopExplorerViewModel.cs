@@ -18,6 +18,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
 	private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly IFileValidationService _fileValidationService;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
@@ -58,6 +59,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <param name="fileFacade">The facade for creating new JSON files.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="openDocumentTracker">The service for tracking which file is currently open.</param>
+	/// <param name="fileValidationService">The service for file validation operations.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -69,6 +71,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		IFileFacade fileFacade,
 		IDispatcherHelper dispatcherHelper,
 		IOpenDocumentTracker openDocumentTracker,
+		IFileValidationService fileValidationService,
 		ILogger<WorkshopExplorerViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(workshopExplorerService);
@@ -77,6 +80,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ArgumentNullException.ThrowIfNull(fileFacade);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(openDocumentTracker);
+		ArgumentNullException.ThrowIfNull(fileValidationService);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_workshopExplorerService = workshopExplorerService;
@@ -85,6 +89,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_fileFacade = fileFacade;
 		_dispatcherHelper = dispatcherHelper;
 		_openDocumentTracker = openDocumentTracker;
+		_fileValidationService = fileValidationService;
 		_logger = logger;
 
 		RootNodes = [];
@@ -496,9 +501,9 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// </summary>
 	/// <param name="filePath">The file path to validate.</param>
 	/// <returns><see langword="true" /> if the file exists; otherwise, <see langword="false" />.</returns>
-	private static bool ValidateFileExists(string filePath)
+	private bool ValidateFileExists(string filePath)
 	{
-		return File.Exists(filePath);
+		return _fileValidationService.FileExists(filePath);
 	}
 
 	/// <summary>

@@ -42,7 +42,9 @@ public static class ServiceCollectionExtensions
 				.AddSingleton<IGw2Client, Gw2Client>()
 				.AddSingleton<IMumbleService, MumbleService>()
 				.AddSingleton<IJsonService, JsonService>()
-				.AddSingleton<IGw2DataCacheService, Gw2DataCacheService>();
+				.AddSingleton<IGw2DataCacheService, Gw2DataCacheService>()
+				.AddSingleton<IMumbleMarkerService, MumbleMarkerService>()
+				.AddSingleton<IFileValidationService, FileValidationService>();
 		}
 
 		private IServiceCollection AddCoreRepositories()
