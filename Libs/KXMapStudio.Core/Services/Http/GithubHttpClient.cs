@@ -29,8 +29,16 @@ public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 			if (!Version.TryParse(latestVersionString, out var latestVersion))
 				return false;
 
-			var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-			if (currentVersion == null)
+			// Use InformationalVersion attribute (0.4.0) instead of AssemblyVersion (1.0.0.0)
+			var currentVersionString = Assembly
+				.GetExecutingAssembly()
+				.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+				.InformationalVersion;
+
+			if (string.IsNullOrEmpty(currentVersionString))
+				return false;
+
+			if (!Version.TryParse(currentVersionString, out var currentVersion))
 				return false;
 
 			return latestVersion > currentVersion;
