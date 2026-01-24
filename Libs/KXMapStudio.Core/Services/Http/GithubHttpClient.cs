@@ -32,8 +32,8 @@ public sealed record GithubHttpClient(HttpClient HttpClient) : IGithubHttpClient
 			// Use InformationalVersion attribute (0.4.0) instead of AssemblyVersion (1.0.0.0)
 			var currentVersionString = Assembly
 				.GetExecutingAssembly()
-				.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-				.InformationalVersion;
+				.GetCustomAttribute<AssemblyVersionAttribute>()?
+				.Version;
 
 			if (string.IsNullOrEmpty(currentVersionString))
 				return false;

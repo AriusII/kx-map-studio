@@ -56,27 +56,21 @@ public sealed partial class WorkspaceExplorerUserControl : UserControl
 
 		MenuItem? deleteMenuItem = null;
 		foreach (var item in contextMenu.Items)
-		{
 			if (item is MenuItem menuItem &&
 			    (menuItem.Name == "DeleteMenuItem" || Equals(menuItem.Tag, "Delete")))
 			{
 				deleteMenuItem = menuItem;
 				break;
 			}
-		}
 
 		// Fallback: if no specifically tagged delete item is found, use the first MenuItem (if any)
 		if (deleteMenuItem == null)
-		{
 			foreach (var item in contextMenu.Items)
-			{
 				if (item is MenuItem menuItem)
 				{
 					deleteMenuItem = menuItem;
 					break;
 				}
-			}
-		}
 
 		if (deleteMenuItem != null)
 			deleteMenuItem.Command = viewModel.DeleteFileCommand;
