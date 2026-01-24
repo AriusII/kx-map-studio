@@ -54,9 +54,11 @@ public sealed partial class App
 				notificationService.ShowSuccess("Application is up to date!");
 			}
 		}
-		catch
+		catch (Exception ex)
 		{
-			// Intentional no-op to prevent startup failures
+			// Log but don't disrupt startup if version check fails
+			// Using a basic Console.WriteLine since logger may not be available here
+			Console.WriteLine($"Failed to check for updates: {ex.Message}");
 		}
 	}
 
