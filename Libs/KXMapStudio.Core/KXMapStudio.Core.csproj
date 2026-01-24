@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		
+		<!-- XML Documentation -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		
+		<!-- Enable trimming for .Core library (no UI dependencies) -->
+		<IsTrimmable>true</IsTrimmable>
+		
+		<!-- Enable assembly info generation -->
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2"/>
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2"/>
+		<PackageReference Include="Gw2Sharp" Version="1.7.4"/>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Compile Update="Types\Structs\GuildWarsConstant.cs">
+			<DependentUpon>Constants.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Types\Structs\SettingsConstant.cs">
+			<DependentUpon>Constants.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+</Project>
