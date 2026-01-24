@@ -18,6 +18,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
 	private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly INotificationService _notificationService;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
@@ -60,6 +61,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="openDocumentTracker">The service for tracking which file is currently open.</param>
 	/// <param name="fileValidationService">The service for file validation operations.</param>
+	/// <param name="notificationService">The service for displaying user notifications.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
 	///     Thrown when any constructor parameter is <see langword="null" />.
@@ -72,6 +74,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		IDispatcherHelper dispatcherHelper,
 		IOpenDocumentTracker openDocumentTracker,
 		IFileValidationService fileValidationService,
+		INotificationService notificationService,
 		ILogger<WorkshopExplorerViewModel> logger)
 	{
 		ArgumentNullException.ThrowIfNull(workshopExplorerService);
@@ -81,6 +84,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(openDocumentTracker);
 		ArgumentNullException.ThrowIfNull(fileValidationService);
+		ArgumentNullException.ThrowIfNull(notificationService);
 		ArgumentNullException.ThrowIfNull(logger);
 
 		_workshopExplorerService = workshopExplorerService;
@@ -90,6 +94,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_dispatcherHelper = dispatcherHelper;
 		_openDocumentTracker = openDocumentTracker;
 		_fileValidationService = fileValidationService;
+		_notificationService = notificationService;
 		_logger = logger;
 
 		RootNodes = [];
@@ -473,6 +478,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		{
 			_logger.LogWarning("Cannot delete file that is currently open: {FileName}", fileName);
 			LastErrorMessage = $"Cannot delete '{fileName}' because it is currently open. Please close it first.";
+			_notificationService.ShowWarning($"Cannot delete '{fileName}' - file is currently open.");
 			return;
 		}
 
@@ -487,12 +493,14 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 			_logger.LogInformation("Deleting file: {FullPath}", node.FullPath);
 			await _fileStorageRepository.DeleteFileAsync(node.FullPath);
 			_logger.LogInformation("File deleted successfully: {FullPath}", node.FullPath);
+			_notificationService.ShowSuccess($"File '{fileName}' deleted successfully.");
 			// Refresh will be triggered automatically by FileSystemWatcher
 		}
 		catch (Exception ex)
 		{
 			LastErrorMessage = $"Failed to delete file: {ex.Message}";
 			_logger.LogError(ex, "Failed to delete file: {FullPath}", node.FullPath);
+			_notificationService.ShowWarning($"Failed to delete '{fileName}': {ex.Message}");
 		}
 	}
 
