@@ -5,10 +5,6 @@
 		
 		<!-- XML Documentation -->
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);1591</NoWarn>
-		
-		<!-- Enable trimming for .Core library (no UI dependencies) -->
-		<IsTrimmable>true</IsTrimmable>
 		
 		<!-- Enable assembly info generation -->
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>

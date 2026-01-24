@@ -18,14 +18,14 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
 	private readonly IDispatcherHelper _dispatcherHelper;
-	private readonly INotificationService _notificationService;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
-	private readonly IFileFacade _fileFacade;
+	private readonly IJsonService _jsonService;
 	private readonly IFileStorageRepository _fileStorageRepository;
 	private readonly IFileValidationService _fileValidationService;
 	private readonly ILogger<WorkshopExplorerViewModel> _logger;
+	private readonly INotificationService _notificationService;
 	private readonly IOpenDocumentTracker _openDocumentTracker;
 	private readonly Timer _refreshTimer;
 
@@ -57,7 +57,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// <param name="workshopExplorerService">The service for scanning and validating workshop files.</param>
 	/// <param name="fileStorageRepository">The repository for file deletion operations.</param>
 	/// <param name="dialogService">The dialog service for file creation and deletion confirmation.</param>
-	/// <param name="fileFacade">The facade for creating new JSON files.</param>
+	/// <param name="jsonService">The facade for creating new JSON files.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="openDocumentTracker">The service for tracking which file is currently open.</param>
 	/// <param name="fileValidationService">The service for file validation operations.</param>
@@ -70,7 +70,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		IWorkshopExplorerService workshopExplorerService,
 		IFileStorageRepository fileStorageRepository,
 		ISaveFileDialogService dialogService,
-		IFileFacade fileFacade,
+		IJsonService jsonService,
 		IDispatcherHelper dispatcherHelper,
 		IOpenDocumentTracker openDocumentTracker,
 		IFileValidationService fileValidationService,
@@ -80,7 +80,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		ArgumentNullException.ThrowIfNull(workshopExplorerService);
 		ArgumentNullException.ThrowIfNull(fileStorageRepository);
 		ArgumentNullException.ThrowIfNull(dialogService);
-		ArgumentNullException.ThrowIfNull(fileFacade);
+		ArgumentNullException.ThrowIfNull(jsonService);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(openDocumentTracker);
 		ArgumentNullException.ThrowIfNull(fileValidationService);
@@ -90,7 +90,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 		_workshopExplorerService = workshopExplorerService;
 		_fileStorageRepository = fileStorageRepository;
 		_dialogService = dialogService;
-		_fileFacade = fileFacade;
+		_jsonService = jsonService;
 		_dispatcherHelper = dispatcherHelper;
 		_openDocumentTracker = openDocumentTracker;
 		_fileValidationService = fileValidationService;
@@ -378,7 +378,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// </summary>
 	/// <param name="node">The node to check (null = root level).</param>
 	/// <returns><see langword="true" /> if creation is allowed; otherwise, <see langword="false" />.</returns>
-	private bool CanCreateFile(WorkshopExplorerNodeModel? node)
+	private static bool CanCreateFile(WorkshopExplorerNodeModel? node)
 	{
 		// Allow creation at root level (node == null) or in directories
 		return node == null || node.IsDirectory;
@@ -442,7 +442,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	{
 		// Create a new JSON file with an empty coordinates array
 		var fileName = Path.GetFileNameWithoutExtension(filePath);
-		await _fileFacade.CreateNewJsonAsync(
+		await _jsonService.CreateNewAsync(
 			fileName,
 			null,
 			[],
@@ -454,7 +454,7 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	/// </summary>
 	/// <param name="node">The node to check.</param>
 	/// <returns><see langword="true" /> if the node is a file that exists; otherwise, <see langword="false" />.</returns>
-	private bool CanDeleteFile(WorkshopExplorerNodeModel? node)
+	private static bool CanDeleteFile(WorkshopExplorerNodeModel? node)
 	{
 		// Only allow deleting files (not directories) that exist
 		return node is { IsDirectory: false } && File.Exists(node.FullPath);

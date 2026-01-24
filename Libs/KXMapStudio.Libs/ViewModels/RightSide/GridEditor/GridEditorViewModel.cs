@@ -166,7 +166,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	///     Archive entries require "Save As" to export.
 	/// </remarks>
 	public bool CanSave => IsLoaded && IsDirty && _currentDoc is { IsWorkspaceFile: true }
-	                       && string.Equals(_currentDoc.Extension, ".json", StringComparison.OrdinalIgnoreCase);
+	                       && string.Equals(_currentDoc.Extension, Core.Types.Structs.FileExtension.Json,
+		                       StringComparison.OrdinalIgnoreCase);
 
 	/// <summary>
 	///     Gets a value indicating whether the document can be saved to a new location.
