@@ -8,7 +8,7 @@
              d:DesignHeight="300" d:DesignWidth="500">
 
 	<UserControl.InputBindings>
-		<KeyBinding Key="D" Modifiers="Control" Command="{Binding SaveAsCommand}" />
+		<KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}" />
 	</UserControl.InputBindings>
 
 	<Grid>
@@ -93,7 +93,7 @@
 						<materialDesign:PackIcon Kind="ContentSave" Width="18" Height="18" />
 					</Button>
 					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
-					        ToolTip="Save As... (Ctrl+D)"
+					        ToolTip="Save As... (Ctrl+Shift+S)"
 					        Command="{Binding SaveAsCommand}"
 					        Width="32" Height="32"
 					        Padding="4"
