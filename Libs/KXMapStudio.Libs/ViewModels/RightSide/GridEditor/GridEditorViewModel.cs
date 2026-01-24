@@ -22,12 +22,12 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 {
 	private readonly IDispatcherHelper _dispatcherHelper;
 	private readonly IGridEditorDocumentService _documentService;
-	private readonly IGridRowManipulationService _rowManipulationService;
 	private readonly IGlobalHotkeyService _hotkeyService;
 	private readonly ILogger<GridEditorViewModel> _logger;
 	private readonly IMumbleMarkerService _mumbleMarkerService;
 	private readonly IMumbleService _mumbleService;
 	private readonly INotificationService _notificationService;
+	private readonly IGridRowManipulationService _rowManipulationService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
 
 	private int _autoMarkerCounter;

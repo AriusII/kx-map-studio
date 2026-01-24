@@ -143,7 +143,7 @@ public sealed class SaveFileDialogService : ISaveFileDialogService
 
 		var dialog = new UnsavedChangesDialog(fileName);
 		dialog.ShowDialog();
-		
+
 		// Use the dialog's Result property which correctly captures the user's choice
 		var dialogResult = dialog.Result;
 

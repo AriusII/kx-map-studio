@@ -18,12 +18,12 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	// Services
 	private readonly ISaveFileDialogService _dialogService;
 	private readonly IDispatcherHelper _dispatcherHelper;
-	private readonly IFileValidationService _fileValidationService;
 
 	// State management
 	private readonly HashSet<string> _expandedFolderPaths = new(StringComparer.OrdinalIgnoreCase);
 	private readonly IFileFacade _fileFacade;
 	private readonly IFileStorageRepository _fileStorageRepository;
+	private readonly IFileValidationService _fileValidationService;
 	private readonly ILogger<WorkshopExplorerViewModel> _logger;
 	private readonly IOpenDocumentTracker _openDocumentTracker;
 	private readonly Timer _refreshTimer;
