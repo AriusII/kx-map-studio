@@ -21,6 +21,7 @@ namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel
 {
 	private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly ISaveFileDialogService _dialogService;
 	private readonly IGridEditorDocumentService _documentService;
 	private readonly IGlobalHotkeyService _hotkeyService;
 	private readonly ILogger<GridEditorViewModel> _logger;
@@ -83,6 +84,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	/// <param name="rowManipulationService">The service for row manipulation operations.</param>
 	/// <param name="hotkeyService">The hotkey service for F9 marker addition.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
+	/// <param name="dialogService">The dialog service for user confirmations.</param>
 	/// <param name="notificationService">The notification service for displaying user feedback.</param>
 	/// <param name="logger">The logger for diagnostic and error tracking.</param>
 	/// <exception cref="ArgumentNullException">
@@ -96,6 +98,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		IGridRowManipulationService rowManipulationService,
 		IGlobalHotkeyService hotkeyService,
 		IDispatcherHelper dispatcherHelper,
+		ISaveFileDialogService dialogService,
 		INotificationService notificationService,
 		ILogger<GridEditorViewModel> logger)
 	{
@@ -106,6 +109,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		ArgumentNullException.ThrowIfNull(rowManipulationService);
 		ArgumentNullException.ThrowIfNull(hotkeyService);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
+		ArgumentNullException.ThrowIfNull(dialogService);
 		ArgumentNullException.ThrowIfNull(notificationService);
 		ArgumentNullException.ThrowIfNull(logger);
 
@@ -116,6 +120,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		_rowManipulationService = rowManipulationService;
 		_hotkeyService = hotkeyService;
 		_dispatcherHelper = dispatcherHelper;
+		_dialogService = dialogService;
 		_notificationService = notificationService;
 		_logger = logger;
 
@@ -132,6 +137,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		AddMarkerFromMumbleCommand = new RelayCommand(AddMarkerFromMumble, () => CanAddMarkerFromMumble);
 		InsertRowAboveCommand = new RelayCommand<GridEditorRowViewModel?>(InsertRowAbove, CanInsertRow);
 		InsertRowBelowCommand = new RelayCommand<GridEditorRowViewModel?>(InsertRowBelow, CanInsertRow);
+		CloseFileCommand = new AsyncRelayCommand(CloseFileAsync, () => IsLoaded);
 
 		_state.StateChanged += StateOnStateChanged;
 		_mumbleService.MumbleUpdated += MumbleServiceOnMumbleUpdated;
@@ -228,6 +234,11 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	///     Gets the command to insert a new row below the selected row.
 	/// </summary>
 	public IRelayCommand<GridEditorRowViewModel?> InsertRowBelowCommand { get; }
+
+	/// <summary>
+	///     Gets the command to close the currently opened file.
+	/// </summary>
+	public IAsyncRelayCommand CloseFileCommand { get; }
 
 	/// <summary>
 	///     Occurs when a new row is added to the grid (via Add Row or Add from Mumble).
@@ -545,6 +556,68 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		_logger.LogDebug("Save As completed for document: {DisplayName}", _currentDoc.DisplayName);
 	}
 
+	private async Task CloseFileAsync()
+	{
+		if (!IsLoaded)
+			return;
+
+		_logger.LogInformation("Initiating close file operation for: {FileName}", OpenedFileName);
+
+		// Check if there are unsaved changes
+		if (IsDirty && !string.IsNullOrEmpty(OpenedFileName))
+		{
+			_logger.LogDebug("Document has unsaved changes. Prompting user for action.");
+
+			var result = await _dialogService.ShowUnsavedChangesDialogAsync(OpenedFileName);
+
+			switch (result)
+			{
+				case UnsavedChangesDialogResult.SaveAndContinue:
+					_logger.LogInformation("User chose to save and continue.");
+					// Execute the save command and wait for it to complete
+					if (SaveCommand.CanExecute(null))
+						await SaveCommand.ExecuteAsync(null);
+					else
+						_logger.LogWarning("Save command cannot be executed. File may be read-only.");
+					break;
+
+				case UnsavedChangesDialogResult.ContinueWithoutSaving:
+					_logger.LogInformation("User chose to continue without saving.");
+					// Proceed with closing the file
+					break;
+
+				case UnsavedChangesDialogResult.Cancel:
+					_logger.LogInformation("User canceled file close.");
+					// Cancel the operation - do not close the file
+					return;
+			}
+		}
+
+		// Close the file by resetting the editor state
+		_logger.LogInformation("Closing file: {FileName}", OpenedFileName);
+
+		_cts?.Cancel();
+		_cts?.Dispose();
+		_cts = null;
+
+		_state.Reset();
+		_currentDoc = null;
+		DocumentTitle = null;
+		OpenedFileName = null;
+		OpenedFilePath = null;
+		OpenedFileLoadTime = string.Empty;
+		FileExtension = string.Empty;
+		IsLoaded = false;
+		SetDirty(false);
+
+		Rows.Clear();
+		_lastKnownState = null;
+
+		NotifyCommandStateChanged();
+
+		_logger.LogInformation("File closed successfully.");
+	}
+
 	private void SetDirty(bool value)
 	{
 		IsDirty = value;
@@ -562,6 +635,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		AddRowCommand.NotifyCanExecuteChanged();
 		DeleteRowCommand.NotifyCanExecuteChanged();
 		AddMarkerFromMumbleCommand.NotifyCanExecuteChanged();
+		CloseFileCommand.NotifyCanExecuteChanged();
 
 		OnPropertyChanged(nameof(CanSave));
 		OnPropertyChanged(nameof(CanSaveAs));

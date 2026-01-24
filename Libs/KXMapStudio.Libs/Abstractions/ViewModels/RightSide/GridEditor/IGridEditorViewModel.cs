@@ -19,6 +19,7 @@ public interface IGridEditorViewModel : IDisposable
 
 	IAsyncRelayCommand SaveCommand { get; }
 	IAsyncRelayCommand SaveAsCommand { get; }
+	IAsyncRelayCommand CloseFileCommand { get; }
 	IRelayCommand UndoCommand { get; }
 	IRelayCommand RedoCommand { get; }
 	IRelayCommand<GridEditorRowViewModel?> MoveUpCommand { get; }
