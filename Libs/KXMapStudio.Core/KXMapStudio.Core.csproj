@@ -2,12 +2,16 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<Platforms>x64</Platforms>
 		
+		<!-- XML Documentation -->
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
+		
+		<!-- Enable trimming for .Core library (no UI dependencies) -->
+		<IsTrimmable>true</IsTrimmable>
+		
+		<!-- Enable assembly info generation -->
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 	</PropertyGroup>
 	
 	<ItemGroup>
@@ -23,10 +27,6 @@
 		<Compile Update="Types\Structs\SettingsConstant.cs">
 			<DependentUpon>Constants.cs</DependentUpon>
 		</Compile>
-	</ItemGroup>
-	
-	<ItemGroup>
-		<Folder Include="Models\Serializations\"/>
 	</ItemGroup>
 
 </Project>
