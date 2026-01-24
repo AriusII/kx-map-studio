@@ -453,11 +453,12 @@ public sealed partial class WorkshopExplorerViewModel : ObservableObject, IWorks
 	///     Determines whether a file can be deleted.
 	/// </summary>
 	/// <param name="node">The node to check.</param>
-	/// <returns><see langword="true" /> if the node is a file that exists; otherwise, <see langword="false" />.</returns>
+	/// <returns><see langword="true" /> if the node is a file; otherwise, <see langword="false" />.</returns>
 	private static bool CanDeleteFile(WorkshopExplorerNodeModel? node)
 	{
-		// Only allow deleting files (not directories) that exist
-		return node is { IsDirectory: false } && File.Exists(node.FullPath);
+		// Only allow deleting files (not directories)
+		// File existence is validated in OnDeleteFile to avoid synchronous I/O in CanExecute
+		return node is { IsDirectory: false };
 	}
 
 	/// <summary>
