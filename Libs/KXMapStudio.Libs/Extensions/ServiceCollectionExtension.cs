@@ -41,6 +41,7 @@ public static class ServiceCollectionExtension
 				.AddSingleton<IWorkshopExplorerService, WorkshopExplorerService>()
 				.AddSingleton<ISaveFileDialogService, SaveFileDialogService>()
 				.AddSingleton<IGridEditorDocumentService, GridEditorDocumentService>()
+				.AddSingleton<IGridRowManipulationService, GridRowManipulationService>()
 				.AddSingleton<IGlobalHotkeyService, GlobalHotkeyService>()
 				.AddSingleton<ISnackbarMessageQueue>(_ => new SnackbarMessageQueue(TimeSpan.FromSeconds(3)))
 				.AddSingleton<INotificationService, NotificationService>()

@@ -22,8 +22,10 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 {
 	private readonly IDispatcherHelper _dispatcherHelper;
 	private readonly IGridEditorDocumentService _documentService;
+	private readonly IGridRowManipulationService _rowManipulationService;
 	private readonly IGlobalHotkeyService _hotkeyService;
 	private readonly ILogger<GridEditorViewModel> _logger;
+	private readonly IMumbleMarkerService _mumbleMarkerService;
 	private readonly IMumbleService _mumbleService;
 	private readonly INotificationService _notificationService;
 	private readonly IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> _state;
@@ -77,6 +79,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	/// <param name="documentService">The document service for loading and saving files.</param>
 	/// <param name="state">The state management service for undo/redo operations.</param>
 	/// <param name="mumbleService">The Mumble service for Guild Wars 2 integration.</param>
+	/// <param name="mumbleMarkerService">The service for creating markers from Mumble data.</param>
+	/// <param name="rowManipulationService">The service for row manipulation operations.</param>
 	/// <param name="hotkeyService">The hotkey service for F9 marker addition.</param>
 	/// <param name="dispatcherHelper">The dispatcher helper for UI thread synchronization.</param>
 	/// <param name="notificationService">The notification service for displaying user feedback.</param>
@@ -88,6 +92,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		IGridEditorDocumentService documentService,
 		IStateManagementService<IReadOnlyList<GridEditorRowViewModel>> state,
 		IMumbleService mumbleService,
+		IMumbleMarkerService mumbleMarkerService,
+		IGridRowManipulationService rowManipulationService,
 		IGlobalHotkeyService hotkeyService,
 		IDispatcherHelper dispatcherHelper,
 		INotificationService notificationService,
@@ -96,6 +102,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		ArgumentNullException.ThrowIfNull(documentService);
 		ArgumentNullException.ThrowIfNull(state);
 		ArgumentNullException.ThrowIfNull(mumbleService);
+		ArgumentNullException.ThrowIfNull(mumbleMarkerService);
+		ArgumentNullException.ThrowIfNull(rowManipulationService);
 		ArgumentNullException.ThrowIfNull(hotkeyService);
 		ArgumentNullException.ThrowIfNull(dispatcherHelper);
 		ArgumentNullException.ThrowIfNull(notificationService);
@@ -104,6 +112,8 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		_documentService = documentService;
 		_state = state;
 		_mumbleService = mumbleService;
+		_mumbleMarkerService = mumbleMarkerService;
+		_rowManipulationService = rowManipulationService;
 		_hotkeyService = hotkeyService;
 		_dispatcherHelper = dispatcherHelper;
 		_notificationService = notificationService;
@@ -131,7 +141,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 	}
 
 	private bool CanAddMarkerFromMumble =>
-		IsLoaded && _mumbleService.Current.ConnectionState == MumbleConnectionState.Connected;
+		IsLoaded && _mumbleMarkerService.CanCreateMarkerFromMumbleState(_mumbleService.Current);
 
 	/// <summary>
 	///     Gets the observable collection of grid rows for UI binding.
@@ -560,16 +570,12 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 
 	private bool CanMoveUp(GridEditorRowViewModel? row)
 	{
-		return row != null && Rows.IndexOf(row) > 0;
+		return _rowManipulationService.CanMoveUp(Rows, row);
 	}
 
 	private bool CanMoveDown(GridEditorRowViewModel? row)
 	{
-		if (row is null)
-			return false;
-
-		var index = Rows.IndexOf(row);
-		return index >= 0 && index < Rows.Count - 1;
+		return _rowManipulationService.CanMoveDown(Rows, row);
 	}
 
 	private void MoveUp(GridEditorRowViewModel? row)
@@ -577,7 +583,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (row is null)
 			return;
 
-		var index = Rows.IndexOf(row);
+		var index = _rowManipulationService.GetRowIndex(Rows, row);
 		if (index <= 0)
 			return;
 
@@ -595,7 +601,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		if (row is null)
 			return;
 
-		var index = Rows.IndexOf(row);
+		var index = _rowManipulationService.GetRowIndex(Rows, row);
 		if (index < 0 || index >= Rows.Count - 1)
 			return;
 
@@ -674,8 +680,7 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 		using (new DirtyStateSuppression(() => Interlocked.Exchange(ref _suppressDirty, 1),
 			       () => Interlocked.Exchange(ref _suppressDirty, 0)))
 		{
-			for (var i = 0; i < Rows.Count; i++)
-				Rows[i].Id = i + 1;
+			_rowManipulationService.ReindexIds(Rows);
 		}
 	}
 
@@ -701,13 +706,18 @@ public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorV
 			if (Rows.Count == 0)
 				_autoMarkerCounter = 0;
 			_autoMarkerCounter++;
+
+			// Use MumbleMarkerService to extract coordinates (business logic in Core)
+			var (x, y, z) = _mumbleMarkerService.ExtractCoordinatesFromMumble(mumbleState);
+			var markerName = _mumbleMarkerService.GenerateMarkerName(_autoMarkerCounter);
+
 			var row = new GridEditorRowViewModel
 			{
 				Id = Rows.Count + 1,
-				Name = $"Marker {_autoMarkerCounter}",
-				X = mumbleState.PlayerPosition.X,
-				Y = mumbleState.PlayerPosition.Y,
-				Z = mumbleState.PlayerPosition.Z
+				Name = markerName,
+				X = x,
+				Y = y,
+				Z = z
 			};
 			HookRow(row);
 			Rows.Add(row);

@@ -42,8 +42,10 @@ global using KXMapStudio.Core.Abstractions.Http;
 global using KXMapStudio.Core.Abstractions.Repositories;
 global using KXMapStudio.Core.Abstractions.Repositories.FileStorage;
 global using KXMapStudio.Core.Abstractions.Services;
+global using KXMapStudio.Core.Abstractions.Services.Markers;
 global using KXMapStudio.Core.Abstractions.Services.Mumble;
 global using KXMapStudio.Core.Abstractions.Services.Serializations;
+global using KXMapStudio.Core.Abstractions.Services.Validation;
 
 // ─────────────────────────────────────────────────────────────────────
 // KXMapStudio.Core (Domain Layer) - Models & Types
@@ -61,6 +63,7 @@ global using KXMapStudio.Core.Types.Structs;
 global using KXMapStudio.Libs.Abstractions.Services;
 global using KXMapStudio.Libs.Abstractions.Services.Dialogs;
 global using KXMapStudio.Libs.Abstractions.Services.GridEditor;
+global using KXMapStudio.Libs.Abstractions.Services.GridEditor.RowManipulation;
 global using KXMapStudio.Libs.Abstractions.Services.Hotkeys;
 global using KXMapStudio.Libs.Abstractions.Services.StateManagement;
 global using KXMapStudio.Libs.Abstractions.Services.WorkshopExplorer;
@@ -83,6 +86,7 @@ global using KXMapStudio.Libs.Services;
 // ─────────────────────────────────────────────────────────────────────
 global using KXMapStudio.Libs.Services.Dialogs;
 global using KXMapStudio.Libs.Services.GridEditor;
+global using KXMapStudio.Libs.Services.GridEditor.RowManipulation;
 global using KXMapStudio.Libs.Services.Hotkeys;
 global using KXMapStudio.Libs.Services.StateManagement;
 global using KXMapStudio.Libs.Services.WorkshopExplorer;
