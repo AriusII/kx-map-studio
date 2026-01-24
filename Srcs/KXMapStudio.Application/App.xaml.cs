@@ -27,11 +27,37 @@ public sealed partial class App
 		// Start MumbleLink polling so the StatusBar stays up-to-date.
 		AppHost.Services.GetRequiredService<IMumbleService>().Start();
 
-		// Check for application updates asynchronously (non-blocking)
-		AppHost.Services.GetRequiredService<IUpdateCheckerService>().CheckForUpdatesAsync();
+		// Check for application updates asynchronously and show notification
+		_ = CheckForUpdatesAndNotifyAsync();
 
 		var mainWindow = AppHost.Services.GetRequiredService<WorkspaceWindow>();
 		mainWindow.Show();
+	}
+
+	private async Task CheckForUpdatesAndNotifyAsync()
+	{
+		try
+		{
+			var updateChecker = AppHost.Services.GetRequiredService<IUpdateCheckerService>();
+			var notificationService = AppHost.Services.GetRequiredService<INotificationService>();
+
+			// Check for updates (non-blocking)
+			await updateChecker.CheckForUpdatesAsync();
+
+			// Show notification based on update status
+			if (updateChecker.IsUpdateAvailable)
+			{
+				notificationService.ShowInfo($"A new version is available: {updateChecker.LatestVersionTag}");
+			}
+			else
+			{
+				notificationService.ShowSuccess("Application is up to date!");
+			}
+		}
+		catch
+		{
+			// Intentional no-op to prevent startup failures
+		}
 	}
 
 	private static void ForceCulture(string cultureName)

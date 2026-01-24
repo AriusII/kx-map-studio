@@ -136,6 +136,18 @@
 					        Margin="2,0">
 						<materialDesign:PackIcon Kind="MapMarkerPlus" Width="18" Height="18" />
 					</Button>
+					<Border Width="1" Height="20"
+					        Background="{StaticResource MaterialDesign.Brush.Separator}"
+					        Margin="6,0"
+					        Opacity="0.4" />
+					<Button Style="{StaticResource MaterialDesignToolForegroundButton}"
+					        ToolTip="Close File"
+					        Command="{Binding CloseFileCommand}"
+					        Width="32" Height="32"
+					        Padding="4"
+					        Margin="2,0">
+						<materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+					</Button>
 				</StackPanel>
 			</Grid>
 		</Border>
