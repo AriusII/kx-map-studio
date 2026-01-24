@@ -15,6 +15,7 @@ global using System.Windows.Controls;
 global using System.Windows.Data;
 global using System.Windows.Input;
 global using System.Windows.Interop;
+global using System.Windows.Media;
 global using System.Windows.Threading;
 global using Microsoft.Win32;
 global using CommunityToolkit.Mvvm.ComponentModel;

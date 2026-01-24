@@ -34,7 +34,7 @@ public sealed partial class App
 		mainWindow.Show();
 	}
 
-	private async Task CheckForUpdatesAndNotifyAsync()
+	private static async Task CheckForUpdatesAndNotifyAsync()
 	{
 		try
 		{
@@ -46,13 +46,9 @@ public sealed partial class App
 
 			// Show notification based on update status
 			if (updateChecker.IsUpdateAvailable)
-			{
 				notificationService.ShowInfo($"A new version is available: {updateChecker.LatestVersionTag}");
-			}
 			else
-			{
 				notificationService.ShowSuccess("Application is up to date!");
-			}
 		}
 		catch (Exception ex)
 		{

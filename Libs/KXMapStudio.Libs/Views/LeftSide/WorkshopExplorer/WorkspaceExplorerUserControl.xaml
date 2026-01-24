@@ -82,25 +82,26 @@
 			VirtualizingPanel.VirtualizationMode="Recycling"
 			ScrollViewer.HorizontalScrollBarVisibility="Auto"
 			ScrollViewer.VerticalScrollBarVisibility="Auto"
-			SelectedItemChanged="TreeView_OnSelectedItemChanged">
+			SelectedItemChanged="TreeView_OnSelectedItemChanged"
+			ContextMenuOpening="TreeView_OnContextMenuOpening">
 			<TreeView.Resources>
 				<!-- Style for TreeViewItem -->
 				<Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
 					<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
 					<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
 					<Style.Triggers>
-						<!-- Visual indicator for modified files -->
 						<DataTrigger Binding="{Binding IsModified}" Value="True">
 							<Setter Property="Foreground" Value="{StaticResource Kx.Brush.Status.Warning}" />
 							<Setter Property="FontStyle" Value="Italic" />
 						</DataTrigger>
-						<!-- Context Menu for Files only (not directories) -->
 						<DataTrigger Binding="{Binding IsDirectory}" Value="False">
 							<Setter Property="ContextMenu">
 								<Setter.Value>
 									<ContextMenu>
-										<MenuItem Header="Delete"
-										          Command="{Binding DataContext.DeleteFileCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+										<!-- Command is intentionally set in code-behind (TreeView_OnContextMenuOpening)
+										     to work around TreeView/XAML binding issues for context menu commands.
+										     Header is "Delete File" to clarify this action applies only to file (non-directory) nodes. -->
+										<MenuItem Header="Delete File"
 										          CommandParameter="{Binding}">
 											<MenuItem.Icon>
 												<materialDesign:PackIcon Kind="DeleteOutline" />

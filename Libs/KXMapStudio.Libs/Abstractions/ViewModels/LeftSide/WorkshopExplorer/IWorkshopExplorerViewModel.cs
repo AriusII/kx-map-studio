@@ -47,7 +47,7 @@ public interface IWorkshopExplorerViewModel : IDisposable
 	/// <summary>
 	///     Gets the command to delete a selected file.
 	/// </summary>
-	IRelayCommand<WorkshopExplorerNodeModel?> DeleteFileCommand { get; }
+	IAsyncRelayCommand<WorkshopExplorerNodeModel?> DeleteFileCommand { get; }
 
 	/// <summary>
 	///     Occurs when a file is selected in the explorer.

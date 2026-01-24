@@ -20,8 +20,8 @@ namespace KXMapStudio.Libs.ViewModels.RightSide.GridEditor;
 /// </remarks>
 public sealed partial class GridEditorViewModel : ObservableObject, IGridEditorViewModel
 {
-	private readonly IDispatcherHelper _dispatcherHelper;
 	private readonly ISaveFileDialogService _dialogService;
+	private readonly IDispatcherHelper _dispatcherHelper;
 	private readonly IGridEditorDocumentService _documentService;
 	private readonly IGlobalHotkeyService _hotkeyService;
 	private readonly ILogger<GridEditorViewModel> _logger;
